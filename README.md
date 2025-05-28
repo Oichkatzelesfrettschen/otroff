@@ -17,5 +17,12 @@ Building
 If you're actually able to compile and run a codebase this ancient, for
 God's sake, [please send a pull-request][2].
 
+Setup environment
+-----------------
+Run `./setup.sh` while the environment still has network access to
+install modern troff tools along with BCPL and ACK compilers and their
+dependencies. The script also installs Python and Node utilities useful
+for disassembling and fuzzing troff-based software.
+
 [1]: https://web.archive.org/web/20060823034049/http://www.tuhs.org/Archive/PDP-11/Distributions/usdl/bostic_pwb.tar.gz
 [2]: https://github.com/Alhadis/otroff/pulls
