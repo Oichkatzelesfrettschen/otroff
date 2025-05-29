@@ -1,4 +1,9 @@
 #include "ne.h"
+#include <stdio.h>  /* printf, putchar */
+#include <stdlib.h> /* exit */
+#include <signal.h> /* signal */
+#include <unistd.h> /* open, close */
+#include <fcntl.h>  /* open flags */
 #define	SIGPIPE	13	/* troff has stopped reading */
 
 int	gsize	10;

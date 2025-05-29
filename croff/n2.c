@@ -1,6 +1,11 @@
 #include "tdef.h"
 #include "t.h"
 
+#include <stdlib.h> /* exit */
+#include <unistd.h> /* write, close, open */
+#include <signal.h> /* signal */
+#include <fcntl.h>  /* open flags */
+
 /*
 troff2.c
 

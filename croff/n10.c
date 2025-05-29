@@ -1,6 +1,9 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include <stdlib.h> /* exit */
+#include <unistd.h> /* read, close, open */
+#include <fcntl.h>  /* open flags */
 /*
 nroff10.c
 

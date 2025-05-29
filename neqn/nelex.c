@@ -1,6 +1,9 @@
 #
 #include "ne.h"
 #include "y.tab.c"
+#include <stdio.h>  /* printf */
+#include <unistd.h> /* open, close */
+#include <fcntl.h>  /* open flags */
 
 struct	{
 	char	*key;

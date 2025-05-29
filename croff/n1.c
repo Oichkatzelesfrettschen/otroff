@@ -2,6 +2,10 @@
 #include "t.h"
 #include "tw.h"
 #include <string.h>
+#include <stdlib.h> /* exit */
+#include <unistd.h> /* read, write, open, close */
+#include <signal.h> /* signal */
+#include <fcntl.h>  /* open flags */
 /*
 troff1.c
 
