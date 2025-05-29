@@ -9,7 +9,10 @@
  *
  * Return non-zero if c is an alphabetic character.
  */
-int alph(int c) { return isalpha(c); }
+/*
+ * Check if the provided character is alphabetic.
+ */
+int alph(int c) { return isalpha((unsigned char)c); }
 
 /*
  * maplow -- corresponds to the `maplow:` routine in the original code.
@@ -64,7 +67,7 @@ void skipcont(void) {
     int c;
 
     /* Skip over alphabetic continuation characters. */
-    while ((c = getchar()) != EOF && isalpha(c))
+    while ((c = getchar()) != EOF && isalpha((unsigned char)c))
         ;
 
     /* Consume trailing spaces. */
