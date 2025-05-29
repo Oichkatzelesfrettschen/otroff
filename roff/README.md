@@ -17,7 +17,7 @@ formatter.
 | `roff5.s` | Hyphenation driver and helper routines used to determine
   potential break points within words. |
 | `roff7.c` | Digram tables for the hyphenation algorithm (ported from `roff7.s`). |
-| `roff8.s` | Global variables and initialised data required by the
+| `roff8.c` | Global variables and initialised data required by the
   formatter. |
 
 These sources remain for reference and historical interest.  Modern
