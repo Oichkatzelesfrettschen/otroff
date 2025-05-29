@@ -4,6 +4,7 @@ TTY M37
 nroff driving tables
 width and code tables
 */
+#include <stddef.h> /* standard definitions */
 
 struct {
     int bset;
