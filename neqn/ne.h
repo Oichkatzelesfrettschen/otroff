@@ -18,6 +18,31 @@ int setfile(int argc, char *argv[]);
 int yyerror(void);
 int init(void);
 int error(int fatal, char *s1, char *s2);
+void boverb(int p1, int p2);
+void bshiftb(int p1, int dir, int p2);
+void eqnbox(int p1, int p2);
+void size(int p1, int p2);
+int numb(char *p1);
+void font(int p1, int p2);
+void shift(int p1);
+void sqrt(int p2);
+void lpile(int type, int p1, int p2);
+void shift2(int p1, int p2, int p3);
+void fromto(int p1, int p2, int p3);
+void paren(int leftc, int p1, int rightc);
+void brack(int m, char *t, char *c, char *b);
+void diacrit(int p1, int type);
+void move(int dir, int amt, char *p);
+void funny(int n);
+void text(int t, char *p1);
+void trans(int c, char *p1);
+void shim(void);
+void roman(int c);
+void name4(int c1, int c2);
+void mark(int n);
+void lineup(int n);
+void column(int type, int p1, int p2);
+void matrix(int p1, int p2);
 #ifdef gcos
 #define fout cout
 #define fin cin
