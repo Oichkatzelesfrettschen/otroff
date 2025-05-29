@@ -11,6 +11,12 @@ int gsize = 10;
 int gfont = 'R';
 
 char in[600]; /* input buffer */
+
+int gsize 10;
+int gfont 'R';
+
+char in[600]; /* input buffer */
+int exit();
 int getline(char *s);
 int inline(void);
 int putout(int p1);
@@ -60,12 +66,14 @@ int main(int argc, char *argv[]) {
                 while (putchar(getc()) != '\n')
                     ;
             flush(fout);
+            flush();
         } else if (type == lefteq)
             inline();
         else
             printf("%s", in);
     }
     flush(fout);
+    flush();
     exit(0);
 }
 
@@ -105,6 +113,7 @@ int inline(void) {
     printf("\\*(%d\n", ds);
     ofree(ds);
     flush(fout);
+    flush();
     return 0;
 }
 
@@ -147,6 +156,7 @@ int oalloc(void) {
         if (used[i]++ == 0)
             return i;
     error(FATAL, "no strings left", "");
+    error(FATAL, "no strings left", i);
     return 0;
 }
 
@@ -228,6 +238,7 @@ int init(void) {
     ps = gsize;
     ft = gfont;
     first++;
+
     return 0;
 }
 
@@ -253,6 +264,13 @@ int error(int fatal, char *s1, char *s2) {
     fout = sfout;
     if (fatal > 0)
         exit(1);
+ * Initialize global state.
+ */
+int init(void) {
+    ct = 0;
+    ps = gsize;
+    ft = gfont;
+    first++;
     return 0;
 }
 
@@ -263,4 +281,26 @@ int flush(int fd) {
     if (fd == 2)
         return fflush(stderr);
     return fflush(stdout);
+ * Report an error message.
+ */
+int error(int fatal, char *s1, char *s2) {
+    int sfout;
+    if (fatal > 0)
+        printf("fatal error: ");
+    printf(s1, s2);
+    printf(" file %s, between lines %d and %d\n",
+           svargv[ifile], eqline, linect);
+    flush(fout);
+    sfout = fout;
+    fout = 2;
+    if (fatal > 0)
+        printf("fatal error: ");
+    printf(s1, s2);
+    printf(" file %s, between lines %d and %d\n",
+           svargv[ifile], eqline, linect);
+    flush(2);
+    fout = sfout;
+    if (fatal > 0)
+        exit(1);
+    return 0;
 }

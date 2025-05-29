@@ -1,19 +1,21 @@
- /* t0.c: storage allocation */
-#
-# include "t..c"
-int expflg 0;
-int ctrflg 0;
-int boxflg 0;
-int dboxflg 0;
-int tab '\t';
+/* t0.c: storage allocation */
+#include <stdio.h>
+#include <stdlib.h>
+#include "t..c"
+/* Global flags controlling table formatting. */
+int expflg = 0;
+int ctrflg = 0;
+int boxflg = 0;
+int dboxflg = 0;
+int tab = '\t';
 int evenup[MAXCOL], evenflg;
-int F1 0;
-int F2 0;
-int allflg 0;
-int leftover 0;
-int textflg 0;
-int left1flg 0;
-int rightl 0;
+int F1 = 0;
+int F2 = 0;
+int allflg = 0;
+int leftover = 0;
+int textflg = 0;
+int left1flg = 0;
+int rightl = 0;
 char *cstore, *cspace;
 char *last;
 struct colstr *table[MAXLIN];
@@ -23,7 +25,7 @@ char font[MAXHEAD][MAXCOL][2];
 char csize[MAXHEAD][MAXCOL][4];
 int lefline[MAXHEAD][MAXCOL];
 char cll[MAXCOL][CLLEN];
-int stynum[MAXLIN+1];
+int stynum[MAXLIN + 1];
 int nslin, nclin;
 int sep[MAXCOL];
 int fullbot[MAXLIN];
@@ -31,13 +33,14 @@ int instead[MAXLIN];
 int used[MAXCOL], lused[MAXCOL], rused[MAXCOL];
 int linestop[MAXLIN];
 int nlin, ncol;
-int iline 1;
-char *ifile "Input";
-int texname 'a';
-int texct 0;
-char texstr[] "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789";
-int texmax =  sizeof(texstr)-1;
+int iline = 1;
+char *ifile = "Input";
+int texname = 'a';
+int texct = 0;
+char texstr[] =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789";
+int texmax = sizeof(texstr) - 1;
 int linstart;
 char *exstore, *exlim;
-FILE *tabin =stdin;
-FILE *tabout =stdout;
+FILE *tabin = NULL;
+FILE *tabout = NULL;

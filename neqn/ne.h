@@ -29,6 +29,7 @@ int numb(char *p1);
 void font(int p1, int p2);
 void shift(int p1);
 void nesqrt(int p2);
+void sqrt(int p2);
 void lpile(int type, int p1, int p2);
 void shift2(int p1, int p2, int p3);
 void fromto(int p1, int p2, int p3);

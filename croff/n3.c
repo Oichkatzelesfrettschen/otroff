@@ -3,6 +3,8 @@
 #include "tw.h"
 #include "proto.h"
 
+#include <stdio.h>
+
 /*
 troff3.c
 
@@ -63,14 +65,16 @@ int wbuf[BLK];
 int rbuf[BLK];
 static char Sccsid[] = "@(#)n3.c  1.3 of 3/29/77";
 
-caseig() {
+/* Process .ig request */
+static void caseig(void) {
     register i;
 
     offset = 0;
     if ((i = copyb()) != '.')
         control(i, 1);
 }
-casern() {
+/* Rename a macro */
+static void casern(void) {
     register i, j;
 
     lgf++;
@@ -82,7 +86,8 @@ casern() {
     if (j)
         contab[oldmn].rq = (contab[oldmn].rq & MMASK) | j;
 }
-caserm() {
+/* Remove a macro definition */
+static void caserm(void) {
     lgf++;
     skip();
     clrmn(findmn(getrq()));

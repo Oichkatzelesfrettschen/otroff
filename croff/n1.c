@@ -4,9 +4,10 @@
 #include "proto.h"
 #include <string.h>
 #include <stdlib.h> /* exit */
+#include <stdio.h>
 #include <unistd.h> /* read, write, open, close */
 #include <signal.h> /* signal */
-#include <fcntl.h>  /* open flags */
+#include <fcntl.h> /* open flags */
 /*
 troff1.c
 
@@ -138,10 +139,12 @@ int main(int argc, char *argv[]) {
     char *p, *q;
     int *cframe;
     register i, j;
-    extern catch(), fpecatch(), kcatch();
+    extern void catch(int);
+    extern void fpecatch(int);
+    extern void kcatch(int);
 
     signal(SIGHUP, catch);
-    if (signal(SIGINT, catch) & 01) {
+    if ((long)signal(SIGINT, catch) & 01) {
         signal(SIGHUP, 1);
         signal(SIGINT, 1);
         signal(SIGQUIT, 1);
@@ -296,28 +299,41 @@ lt:
     text();
     goto loop;
 }
-catch() {
-    /*
-	prstr("Interrupt\n");
-*/
+/* Signal handler for SIGHUP and SIGINT */
+void catch(int signo) {
+    (void)signo;
+    /* prstr("Interrupt\n"); */
     done3(01);
 }
-fpecatch() {
+
+/* Signal handler for SIGFPE */
+void fpecatch(int signo) {
+    (void)signo;
     prstrfl("Floating Exception.\n");
     signal(SIGFPE, fpecatch);
 }
-kcatch() {
+
+/* Signal handler for SIGKILL */
+void kcatch(int signo) {
+    (void)signo;
     signal(SIGKILL, 1);
     done3(01);
 }
 #ifndef NROFF
-acctg() {
+/*
+ * Create accounting file while running setuid so that troff usage
+ * can be logged. Only used in the device independent version.
+ */
+static void acctg(void) {
     acctf = open("/usr/actg/data/troffactg", 1);
     setuid(getuid());
 }
 #endif
-init1(a) char a;
-{
+/*
+ * Initialize temporary files and default tables. The argument indicates
+ * whether the program name started with 'a' (ASCII mode).
+ */
+static void init1(char a) {
     register char *p;
     register i;
 
@@ -345,7 +361,10 @@ init1(a) char a;
     if (a != 'a')
         unlkp = p;
 }
-init2() {
+/*
+ * Perform runtime initialization after processing command line options.
+ */
+static void init2(void) {
     register i, j;
     extern int block;
 
@@ -378,7 +397,8 @@ init2() {
     nxf = frame + STKSIZE;
     nx = mflg;
 }
-cvtime() {
+/* Compute current date and time into numeric registers */
+static void cvtime(void) {
 
     int tt[2];
     register i;
@@ -401,8 +421,8 @@ cvtime() {
         }
     }
 }
-cnum(a) char *a;
-{
+/* Convert a string to a number using troff's internal atoi */
+static int cnum(char *a) {
     register i;
 
     ibufp = a;
@@ -411,8 +431,8 @@ cnum(a) char *a;
     ch = 0;
     return (i);
 }
-mesg(f) int f;
-{
+/* Enable or disable write permission to the controlling terminal */
+static void mesg(int f) {
     static int mode;
 
     if (!f) {
@@ -423,21 +443,21 @@ mesg(f) int f;
         chmod(ttyx, mode);
     }
 }
-prstrfl(s) char *s;
-{
+/* Print a string after flushing output buffers */
+static void prstrfl(char *s) {
     flusho();
     prstr(s);
 }
-prstr(s) char *s;
-{
+/* Write a raw string directly to the output device */
+static void prstr(char *s) {
     register i;
 
     for (i = 0; *s; i++)
         s++;
     write(ttyod, s - i, i);
 }
-control(a, b) int a, b;
-{
+/* Execute a request given by its numeric code */
+int control(int a, int b) {
     register i, j;
 
     i = a;
@@ -456,7 +476,8 @@ control(a, b) int a, b;
     }
 }
 
-getrq() {
+/* Retrieve a two-character request name */
+int getrq(void) {
     register i, j;
 
     if (((i = getach()) == 0) ||

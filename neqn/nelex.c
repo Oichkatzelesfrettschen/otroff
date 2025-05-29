@@ -15,6 +15,10 @@ struct {
     char *key;
     int keyval;
 } keytab[] = {
+struct {
+    char *key;
+    int keyval;
+} keytab[]{
     "sub", SUB,
     "sup", SUP,
     ".EN", 0,
@@ -81,6 +85,7 @@ int sw = -1;
  */
 /* Custom input routine. */
 int ngetc(void) {
+int getc(void) {
 loop:
     if (sw >= 0) {
         lastchar = (peek < 0) ? *swt[sw]++ : peek;
@@ -106,6 +111,7 @@ loop:
         goto loop;
     error(FATAL, "can't open file %s\n", svargv[ifile]);
     return ' ';
+
 }
 
 /*
@@ -201,6 +207,7 @@ void getstr(char *s, int c) {
  * search a lookup table
  */
 int lookup(char *str, lookup_tab tbl[]) {
+int lookup(char *str, struct { char *name; char *val; } tbl[]) {
     register i, j, r;
     for (i = 0; tbl[i].name != 0; i++) { /* table of tbl wds */
         for (j = 0; (r = tbl[i].name[j]) == str[j] && r != '\0'; j++)

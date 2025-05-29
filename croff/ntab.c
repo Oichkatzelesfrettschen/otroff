@@ -1,10 +1,11 @@
+#include <stddef.h>
 /*
 character name tables
 modified for BTL special font version 4
 and Commercial II
 */
 
-int chtab[]{
+int chtab[] = {
     'hy', 0200, /*hyphen*/
     'bu', 0201, /*bullet*/
     'sq', 0202, /*square*/

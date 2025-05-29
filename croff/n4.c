@@ -2,6 +2,8 @@
 #include "t.h"
 #include "tw.h"
 #include "proto.h"
+
+#include <stdio.h>
 /*
 troff4.c
 
@@ -54,7 +56,8 @@ extern struct contab {
 } contab[NM];
 static char Sccsid[] = "@(#)n4.c  1.4 of 4/26/77";
 
-setn() {
+/* Set a number register */
+static void setn(void) {
     register i, j;
     int f;
 
@@ -213,8 +216,8 @@ findr(i) int i;
     }
     return (j);
 }
-fnumb(i, f) int i, (*f)();
-{
+/* Format number i using output function f */
+static int fnumb(int i, int (*f)()) {
     register j;
 
     j = 0;
@@ -235,8 +238,8 @@ fnumb(i, f) int i, (*f)();
         return (abc(i, f) + j);
     }
 }
-decml(i, f) int i, (*f)();
-{
+/* Output decimal number */
+static int decml(int i, int (*f)()) {
     register j, k;
 
     k = 0;

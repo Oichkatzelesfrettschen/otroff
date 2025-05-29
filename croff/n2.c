@@ -5,7 +5,8 @@
 #include <stdlib.h> /* exit */
 #include <unistd.h> /* write, close, open */
 #include <signal.h> /* signal */
-#include <fcntl.h>  /* open flags */
+#include <fcntl.h> /* open flags */
+#include <stdio.h>
 
 /*
 troff2.c
@@ -164,18 +165,19 @@ pchar1(c) int c;
 #endif
         ptout(i);
 }
-oput(i) char i;
-{
+/* Output a single character to the buffer */
+static void oput(char i) {
     *obufp++ = i;
     if (obufp == (obuf + OBUFSZ + ascii - 1))
         flusho();
 }
-oputs(i) char *i;
-{
+/* Output a NUL-terminated string */
+static void oputs(char *i) {
     while (*i != 0)
         oput(*i++);
 }
-flusho() {
+/* Flush the device output buffer */
+static void flusho(void) {
     if (!ascii)
         *obufp++ = 0;
     if (!ptid) {
@@ -190,8 +192,8 @@ flusho() {
     }
     obufp = obuf;
 }
-done(x) int x;
-{
+/* Terminate processing with status x */
+int done(int x) {
     register i;
 
     error |= x;

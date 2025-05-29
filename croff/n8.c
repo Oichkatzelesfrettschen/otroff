@@ -24,9 +24,9 @@ extern int xxx;
 #define THRESH 160 /*digram goodness threshold*/
 int thresh THRESH;
 
-hyphen(wp) int *wp;
-{
-    register *i, j;
+/* Hyphenate the word pointed to by wp. */
+void hyphen(int *wp) {
+    int *i, j;
 
     i = wp;
     while (punct(*i++))
@@ -64,16 +64,15 @@ rtn:
             }
         }
 }
-punct(i) int i;
-{
+int punct(int i) {
     if (!i || alph(i))
-        return (0);
+        return 0;
     else
-        return (1);
+        return 1;
 }
-alph(i) int i;
-{
-    register j;
+
+int alph(int i) {
+    int j;
 
     j = i & CMASK;
     if (((j >= 'A') && (j <= 'Z')) || ((j >= 'a') && (j <= 'z')))
@@ -81,8 +80,8 @@ alph(i) int i;
     else
         return (0);
 }
-caseht() {
-    register i;
+void caseht(void) {
+    int i;
 
     thresh = THRESH;
     if (skip())
@@ -91,9 +90,9 @@ caseht() {
     thresh = atoi();
     noscale = 0;
 }
-casehw() {
-    register i, k;
-    register char *j;
+void casehw(void) {
+    int i, k;
+    char *j;
 
     k = 0;
     while (!skip()) {
@@ -126,9 +125,10 @@ casehw() {
         }
     }
 }
-exword() {
-    register int *w, i;
-    register char *e;
+/* Check exception word list for current word. */
+int exword(void) {
+    int *w, i;
+    char *e;
     char *save;
 
     e = hbuf;
@@ -163,9 +163,9 @@ exword() {
                 ;
     }
 }
-suffix() {
-    register int *w;
-    register char *s, *s0;
+int suffix(void) {
+    int *w;
+    char *s, *s0;
     int i;
     char *off;
 
@@ -214,14 +214,13 @@ again:
         return (1);
     goto again;
 }
-maplow(i) int i;
-{
+int maplow(int i) {
     if ((i = &CMASK) < 'a')
         i = +'a' - 'A';
-    return (i);
+    return i;
 }
-vowel(i) int i;
-{
+
+int vowel(int i) {
     switch (maplow(i)) {
     case 'a':
     case 'e':
@@ -234,17 +233,16 @@ vowel(i) int i;
         return (0);
     }
 }
-chkvow(w) int *w;
-{
+int chkvow(int *w) {
     while (--w >= wdstart)
         if (vowel(*w & CMASK))
-            return (w);
-    return (0);
+            return w;
+    return 0;
 }
-getsuf(x) char *x;
-{
-    register char *s;
-    register cnt;
+
+char *getsuf(char *x) {
+    char *s;
+    int cnt;
     static char suff[20];
 
     s = suff;
@@ -254,13 +252,13 @@ getsuf(x) char *x;
     return (suff);
 }
 #define SBSZ 128 /*suffix file buffer size*/
-rdsufb(i) char *i;
-{
+unsigned char rdsufb(char *i) {
     /* Direct lookup from the in-memory suffix table. */
     return suftab_get_byte((size_t)i);
 }
-digram() {
-    register *w, val;
+
+void digram(void) {
+    int *w, val;
     int *nhyend, *maxw, maxval;
     extern char bxh[], bxxh[], xxh[], xhx[], hxx[];
 
@@ -293,10 +291,8 @@ again:
         *hyp++ = maxw;
     goto again;
 }
-dilook(a, b, t) int a, b;
-char t[26][13];
-{
-    register i, j;
+int dilook(int a, int b, char t[26][13]) {
+    int i, j;
 
     i = t[maplow(a) - 'a'][(j = maplow(b) - 'a') / 2];
     if (!(j & 01))
