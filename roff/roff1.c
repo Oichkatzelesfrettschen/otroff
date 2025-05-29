@@ -90,6 +90,11 @@ static void parse_args(int argc, char **argv) {
 
 /* main -- entry translated from label ``ibuf`` */
 int main(int argc, char **argv) {
+    int i; /* loop counter for table initialisation */
+    char buf[256]; /* temporary line buffer */
+    size_t pos = 0; /* current index into ``buf`` */
+    int c; /* character being processed */
+
     mesg(0); /* disable messages to tty */
     signal(SIGINT, cleanup); /* jump to ``place`` on signals */
     signal(SIGQUIT, cleanup);
@@ -102,14 +107,10 @@ int main(int argc, char **argv) {
     parse_args(argc, argv);
 
     /* build identity translation table */
-    int i;
     for (i = 0; i < 128; ++i)
         trtab[i] = (unsigned char)i;
 
     /* trivial processing loop */
-    char buf[256];
-    size_t pos = 0;
-    int c;
     while ((c = getchar()) != EOF) {
         buf[pos++] = (char)c;
         if (c == '\n' || pos >= sizeof(buf))
