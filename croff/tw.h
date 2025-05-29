@@ -33,3 +33,10 @@ extern struct {
     int zzz;
 } t;
 #endif
+
+/* Device driver interface prototypes */
+void ptinit(void);
+void twdone(void);
+void ptout(int i);
+void ptlead(void);
+void dostop(void);

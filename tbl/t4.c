@@ -1,5 +1,5 @@
 /* t4.c: read table specification */
-#include "t..c"
+#include "tbl.h"
 #include <stdio.h> /* fprintf */
 #include <stdlib.h>
 int oncol;

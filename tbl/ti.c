@@ -1,5 +1,5 @@
 /* ti.c: classify line intersections */
-#include "t..c"
+#include "tbl.h"
 /* determine local environment for intersections */
 /* Determine vertical intersection type. */
 int interv(int i, int c) {

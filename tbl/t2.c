@@ -1,5 +1,5 @@
 /* t2.c:  subroutine sequencing for one table */
-#include "t..c"
+#include "tbl.h"
 #include <stdio.h>
 #include <stdlib.h>
 /* Execute all stages needed for a single table. */

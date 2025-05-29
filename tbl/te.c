@@ -1,5 +1,5 @@
 /* te.c: error message control, input line count */
-#include "t..c"
+#include "tbl.h"
 #include <stdlib.h> /* exit */
 #include <stdio.h> /* fprintf */
 /* Report an error and exit. */

@@ -1,5 +1,5 @@
 /* t8.c: write out one line of output table */
-#include "t..c"
+#include "tbl.h"
 #include <stdio.h> /* fprintf */
 #define realsplit ((ct == 'a' || ct == 'n') && table[nl][c].rcol)
 int watchout;

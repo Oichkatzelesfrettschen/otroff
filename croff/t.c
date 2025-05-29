@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "t.h"
 
 /*
  * Portable version of the small PDP-11 routine found in t.s.

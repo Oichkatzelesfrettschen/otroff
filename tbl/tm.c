@@ -1,5 +1,5 @@
 /* tm.c: split numerical fields */
-#include "t..c"
+#include "tbl.h"
 /* Split a numeric string into two fields. */
 char *maknew(char *str) {
     /* make two numerical fields */
