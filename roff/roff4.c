@@ -87,13 +87,16 @@ void text_line(const char *s) {
  * full line width.
  */
 static void flush_line(void) {
+    /* pointer tracking tokens within work_buf */
+    char *t;
+
     if (!line_len)
         return;
 
     /* break the current line into words */
     memcpy(work_buf, line_buf, line_len + 1);
     word_count = 0;
-    char *t = strtok(work_buf, " ");
+    t = strtok(work_buf, " ");
     while (t && word_count < 64) {
         word_list[word_count++] = t;
         t = strtok(NULL, " ");
@@ -116,6 +119,8 @@ static void flush_line(void) {
 static void adjust_line(void) {
     size_t letters = 0; /* total number of characters in line */
     int i; /* loop counter */
+    int spaces; /* computed total padding spaces */
+    int gaps; /* number of gaps between words */
 
     fac = 0;
     fmq = 0;
@@ -126,11 +131,11 @@ static void adjust_line(void) {
     for (i = 0; i < word_count; ++i)
         letters += strlen(word_list[i]);
 
-    int spaces = ROFF_LINE_WIDTH - (int)letters;
+    spaces = ROFF_LINE_WIDTH - (int)letters;
     if (spaces <= 0)
         return;
 
-    int gaps = word_count - 1;
+    gaps = word_count - 1;
     fac = spaces / gaps;
     fmq = spaces % gaps;
 }
