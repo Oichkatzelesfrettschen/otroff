@@ -13,8 +13,9 @@ endif
 CFLAGS ?= -std=gnu89 -Wall -O2 -march=$(MARCH)
 LDFLAGS ?=
 
-# Collect source files across the project
-SRC_C := $(wildcard croff/*.c neqn/*.c tbl/*.c)
+# Collect source files across the project.  Only the modern C
+# replacements located under `roff/` are built.
+SRC_C := $(wildcard roff/*.c)
 OBJDIR := build
 OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(SRC_C))
 
