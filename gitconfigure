@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+# gitconfigure -- set up repository-specific Git configuration
+#
+# The script registers the stripnul filter which cleans trailing NUL
+# bytes from files. Run this after cloning the repository to enable the
+# filter for all source files.
+
+set -e
+
+# Register the filter's clean and smudge commands.
+git config filter.stripnul.clean 'tools/git-strip-nul.sh'
+git config filter.stripnul.smudge cat
