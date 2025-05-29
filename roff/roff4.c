@@ -43,6 +43,9 @@ static void output_filled(void);
  */
 void text_line(const char *s) {
     while (*s) {
+        char word[128]; /* current word extracted from input */
+        size_t wlen = 0; /* length of ``word`` */
+
         /* skip leading whitespace */
         while (*s && isspace((unsigned char)*s)) {
             if (*s == '\n')
@@ -54,8 +57,6 @@ void text_line(const char *s) {
             break;
 
         /* copy the next word */
-        char word[128];
-        size_t wlen = 0;
         while (s[wlen] && !isspace((unsigned char)s[wlen]) &&
                wlen < sizeof(word) - 1) {
             word[wlen] = s[wlen];
@@ -113,14 +114,15 @@ static void flush_line(void) {
  * routine in roff4.s.
  */
 static void adjust_line(void) {
+    size_t letters = 0; /* total number of characters in line */
+    int i; /* loop counter */
+
     fac = 0;
     fmq = 0;
 
     if (!adjust_enabled || word_count <= 1)
         return;
 
-    size_t letters = 0;
-    int i;
     for (i = 0; i < word_count; ++i)
         letters += strlen(word_list[i]);
 
@@ -138,6 +140,8 @@ static void adjust_line(void) {
  * adjust_line().  Behaviour is similar to the original fill routine.
  */
 static void output_filled(void) {
+    int i; /* index over words */
+
     if (!adjust_enabled || !fill_enabled || word_count == 0 ||
         line_len >= ROFF_LINE_WIDTH) {
         fwrite(line_buf, 1, line_len, stdout);
@@ -145,9 +149,8 @@ static void output_filled(void) {
         return;
     }
 
-    int i;
     for (i = 0; i < word_count; ++i) {
-        int j;
+        int j; /* index for padding spaces */
         fputs(word_list[i], stdout);
         if (i < word_count - 1) {
             int n = fac;
