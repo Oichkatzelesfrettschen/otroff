@@ -35,11 +35,14 @@ extern int level;
 extern int ch;
 extern int res;
 extern int xxx;
-int fontlab[]{'R', 'I', 'B', 'S', 0};
+/* Default font labels. */
+int fontlab[] = {'R', 'I', 'B', 'S', 0};
 
-width(c) int c;
-{
-    register i, j, k;
+/*
+ * Return the width of character `c`.
+ */
+int width(int c) {
+    int i, j, k;
 
     j = c;
     k = 0;
@@ -70,8 +73,11 @@ width(c) int c;
 rtn:
     return (k);
 }
-setch() {
-    register i, *j, k;
+/*
+ * Return the numeric code for the next special character request.
+ */
+int setch(void) {
+    int i, *j, k;
     extern int chtab[];
 
     if ((i = getrq()) == 0)
@@ -82,9 +88,11 @@ setch() {
     k = *(++j) | chbits;
     return (k);
 }
-find(i, j) int i, j[];
-{
-    register k;
+/*
+ * Search `j` for font number matching `i`.
+ */
+int find(int i, int j[]) {
+    int k;
 
     if (((k = i - '0') >= 1) && (k <= 4) && (k != smnt))
         return (--k);
@@ -93,14 +101,20 @@ find(i, j) int i, j[];
             return (-1);
     return (k);
 }
-mchbits() {
-    register i, j, k;
+/*
+ * Update `chbits` to reflect the current point size and font.
+ */
+void mchbits(void) {
+    int i, j, k;
 
     chbits = (((pts) << 2) | font) << (BYTE + 1);
     sps = width(' ' | chbits);
 }
-setps() {
-    register i, j;
+/*
+ * Parse and apply a point-size change request.
+ */
+void setps(void) {
+    int i, j;
 
     if ((((i = getch() & CMASK) == '+') || (i == '-')) &&
         (((j = (ch = getch() & CMASK) - '0') >= 0) && (j <= 9))) {
@@ -118,13 +132,19 @@ setps() {
         }
     }
 }
-caseft() {
+/*
+ * Handle the \f request to change fonts.
+ */
+void caseft(void) {
     skip();
     setfont(1);
 }
-setfont(a) int a;
-{
-    register i, j;
+
+/*
+ * Switch to font position `a`.
+ */
+void setfont(int a) {
+    int i, j;
 
     if (a)
         i = getrq();
@@ -143,8 +163,11 @@ s0:
     font = j;
     mchbits();
 }
-setwd() {
-    register i, base, wid;
+/*
+ * Compute width information for a string.
+ */
+void setwd(void) {
+    int i, base, wid;
     int delim, em, k;
     int savlevel, savhp, savfont, savfont1;
 
@@ -183,17 +206,24 @@ setwd() {
     mchbits();
     setwdf = 0;
 }
-vmot() {
+/* Vertical motion. */
+int vmot(void) {
     dfact = lss;
     vflag++;
-    return (mot());
+    return mot();
 }
-hmot() {
+
+/* Horizontal motion. */
+int hmot(void) {
     dfact = EM;
-    return (mot());
+    return mot();
 }
-mot() {
-    register i, j;
+
+/*
+ * Parse a motion request and return a motion encoded value.
+ */
+int mot(void) {
+    int i, j;
 
     j = HOR;
     getch(); /*eat delim*/
@@ -207,9 +237,11 @@ mot() {
     dfact = 1;
     return (i);
 }
-sethl(k) int k;
-{
-    register i;
+/*
+ * Return a half-line motion for underline or reverse operations.
+ */
+int sethl(int k) {
+    int i;
 
     i = t.Halfline;
     if (k == 'u')
@@ -221,9 +253,11 @@ sethl(k) int k;
     vflag = 0;
     return (i);
 }
-makem(i) int i;
-{
-    register j;
+/*
+ * Encode motion `i` for output.
+ */
+int makem(int i) {
+    int j;
 
     if ((j = i) < 0)
         j = -j;
@@ -234,8 +268,9 @@ makem(i) int i;
         j |= VMOT;
     return (j);
 }
-casefp() {
-    register i, j, k;
+/* Assign a font name to a position. */
+void casefp(void) {
+    int i, j, k;
 
     skip();
     if (((i = (getch() & CMASK) - '0' - 1) < 0) || (i > 3))
@@ -244,8 +279,9 @@ casefp() {
         return;
     fontlab[i] = j;
 }
-casevs() {
-    register i;
+/* Set vertical spacing. */
+void casevs(void) {
+    int i;
 
     skip();
     vflag++;
@@ -260,8 +296,11 @@ casevs() {
     lss1 = lss;
     lss = i;
 }
-xlss() {
-    register i, j;
+/*
+ * Process extra leading size specification.
+ */
+int xlss(void) {
+    int i, j;
 
     getch();
     dfact = lss;
@@ -275,12 +314,12 @@ xlss() {
         ch0 |= 040000;
     return (((j & 077) << 9) | LX);
 }
-caseps() {}
-caselg() {}
-casecs() {}
-casebd() {}
-casess() {}
-getlg(i) int i;
-{
-    return (i);
+void caseps(void) {}
+void caselg(void) {}
+void casecs(void) {}
+void casebd(void) {}
+void casess(void) {}
+/* No-op ligature handler used by NROFF. */
+int getlg(int i) {
+    return i;
 }
