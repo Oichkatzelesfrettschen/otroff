@@ -8,10 +8,10 @@
 #include <unistd.h> /* read, write, open, close */
 #include <signal.h> /* signal */
 #include <fcntl.h> /* open flags */
+#include <stdlib.h>
 
-/* Prototypes for libc functions used without including <stdlib.h> */
+/* Prototype for exit(3) kept for historical reasons. */
 extern void exit(int);
-char *mktemp(char *);
 /*
 troff1.c
 
@@ -349,20 +349,24 @@ void init1(char a) {
         */
     memcpy(sufind, suftab_index, sizeof(sufind));
 
-    p = mktemp("/tmp/taXXXXX");
+    /* Create a temporary file using mkstemp for security. */
+    static char tmp_template[] = "/tmp/taXXXXXX";
+    int fd = mkstemp(tmp_template);
+    p = tmp_template;
     if (a == 'a')
         p = &p[5];
-    if ((close(creat(p, 0600))) < 0) {
+    if (fd < 0) {
         prstr("Cannot create temp file.\n");
         exit(-1);
     }
-    ibf = open(p, 2);
+    /* Keep the descriptor for later use. */
+    ibf = fd;
     for (i = 256; --i;)
         trtab[i] = i;
     trtab[UNPAD] = ' ';
     mchbits();
     if (a != 'a')
-        unlkp = p;
+        unlkp = tmp_template;
 }
 /*
  * Perform runtime initialization after processing command line options.
