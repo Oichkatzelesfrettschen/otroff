@@ -8,6 +8,6 @@ neqn/ne.g           linguist-language=Lex
 neqn/neqnrc         linguist-language=Shell
 
 # Normalize line endings for source files
-*.c text
-*.h text
-*.s text diff
+*.c text filter=stripnul
+*.h text filter=stripnul
+*.s text diff filter=stripnul
