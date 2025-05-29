@@ -54,6 +54,7 @@ extern int paper;
 extern int gflag;
 extern int *nxf;
 extern char *unlkp;
+extern int ibf;
 extern char *nextf[];
 extern int pipeflg;
 extern int ejf;
@@ -267,6 +268,8 @@ void done3(int x) {
     error |= x;
     signal(SIGINT, 1);
     signal(SIGKILL, 1);
+    /* Close the temporary file before unlinking it. */
+    close(ibf);
     unlink(unlkp);
 #ifdef NROFF
     twdone();
