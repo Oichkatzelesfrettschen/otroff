@@ -1,6 +1,8 @@
 #include "tdef.h"
 #include "t.h"
 #include "proto.h"
+
+#include <stdio.h>
 /*
 troff5.c
 
@@ -100,7 +102,8 @@ extern struct contab {
 } contab[NM];
 static char Sccsid[] "@(#)n5.c	1.6 of 5/27/77";
 
-casead() {
+/* Adjust line justification */
+static void casead(void) {
     register i;
 
     ad = 1;
@@ -131,16 +134,19 @@ casead() {
         admod = (i - '0') / 2;
     }
 }
-casena() {
+/* Disable line adjustment */
+static void casena(void) {
     ad = 0;
 }
-casefi() {
+/* Enable fill mode */
+static void casefi(void) {
     tbreak();
     fi++;
     pendnf = 0;
     lnsize = LNSIZE;
 }
-casenf() {
+/* Disable fill mode */
+static void casenf(void) {
     tbreak();
     fi = 0;
     /* can't do while oline is only LNSIZE
