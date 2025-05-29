@@ -155,3 +155,12 @@ void casepo(void) { stub("po"); }
 void casede(void) { stub("de"); }
 void caseig(void) { stub("ig"); }
 void casemk(void) { stub("mk"); }
+
+/*
+ * need -- placeholder for the vertical spacing helper labelled `need` in
+ * roff2.s.  The real routine ensured there was room on the page before
+ * printing additional lines.
+ */
+void need(int n) {
+    (void)n; /* not implemented */
+}

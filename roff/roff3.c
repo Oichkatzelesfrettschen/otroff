@@ -80,3 +80,9 @@ void skipcont(void) {
  * simply returns zero.
  */
 int number(void) { return 0; }
+
+/*
+ * donum -- simplified stand-in for the `donum` routine in roff3.s.  The
+ * original output line numbers.  This version only notes invocation.
+ */
+void donum(void) { puts("[stub] donum"); }

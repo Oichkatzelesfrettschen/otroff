@@ -14,18 +14,9 @@ are back to October 25th, 1978.
 
 Building
 --------
-Run `./setup.sh` while network access is available to install the
-required toolchain.  Before building, run `./gitconfigure` once after
-cloning so that a Git filter strips trailing NUL bytes from the
-sources.  Without this step stray NUL characters can cause compilation
-to fail.  Afterwards the code can be built using `make`.
-
-Some of the historical headers such as `croff/t.h` and `croff/tdef.h`
-contain non-text data and are marked as binary in `.gitattributes`.
-Avoid editing these files directly or the PR system will reject the
-patch with a “binaries not supported” error.
-Object files are compiled with the `-std=gnu89` option so that the
-legacy sources build cleanly on modern compilers.  The target CPU can be
+Run `./setup.sh` while network access is available to install the  build cleanly on modern compilers. Afterwards the code can be built using `make`.
+Object files are compiled with the `-std=c90` option so that the legacy
+sources build cleanly on modern compilers.  The target CPU can be
 specified via the `CPU` variable, for example:
 
 ```
