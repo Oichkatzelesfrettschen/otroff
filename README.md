@@ -14,8 +14,7 @@ are back to October 25th, 1978.
 
 Building
 --------
-Run `./setup.sh` while network access is available to install the
-s build cleanly on modern compilers. Afterwards the code can be built using `make`.
+Run `./setup.sh` while network access is available to install the  build cleanly on modern compilers. Afterwards the code can be built using `make`.
 Object files are compiled with the `-std=c90` option so that the legacy
 sources build cleanly on modern compilers.  The target CPU can be
 specified via the `CPU` variable, for example:
