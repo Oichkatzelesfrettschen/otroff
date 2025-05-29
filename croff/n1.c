@@ -1,6 +1,7 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include <string.h>
 /*
 troff1.c
 
@@ -35,7 +36,7 @@ extern int cps;
 extern int chbits;
 extern int suffid;
 extern int sufind[26];
-extern char suftab[];
+extern const unsigned char suftab_data[];
 extern void sub1(int *, int);
 extern int ibf;
 extern int ttyod;
@@ -308,12 +309,11 @@ char a;
 #ifndef NROFF
 	acctg();/*open troff actg file while mode 4755*/
 #endif
-	if((suffid=open(suftab,0)) < 0){
-		prstr("Cannot open suftab.\n");
-		exit(-1);
-	}
-	seek(suffid,16,0);
-	read(suffid,sufind,2*26);
+       /*
+        * Load suffix index table from the built-in array. The first
+        * 26 words hold offsets for each letter.
+        */
+       memcpy(sufind, suftab_data, sizeof(sufind));
 
 	p = mktemp("/tmp/taXXXXX");
 	if(a == 'a')p = &p[5];

@@ -15,7 +15,7 @@ extern int **hyp;
 extern int hyoff;
 extern int suffid;
 extern int sufind[26];
-char *sufoff -1;
+extern const unsigned char suftab_data[];
 extern int noscale;
 extern int xxx;
 #define THRESH 160 /*digram goodness threshold*/
@@ -217,14 +217,8 @@ char *x;
 rdsufb(i)
 char *i;
 {
-	register char *j;
-	static char sufbuf[SBSZ];
-
-	if((j = i & ~(SBSZ-1)) != sufoff){
-		seek(suffid, sufoff = j, 0);
-		read(suffid, sufbuf, SBSZ);
-	}
-	return(sufbuf[i & (SBSZ-1)]);
+       /* direct lookup from in-memory table */
+       return suftab_data[(int)i];
 }
 digram(){
 	register *w, val;
