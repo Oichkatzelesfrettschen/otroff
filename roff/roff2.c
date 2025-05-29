@@ -119,3 +119,39 @@ void casehy(void) { hyf = 0; }
 /* placeholders for other requests */
 /* TODO: translate the remaining request handlers from roff2.s. */
 void casecc_remaining(void) { stub("other requests"); }
+
+/* Additional request stubs translated from roff2.s.  Each function name
+ * corresponds to a historic label.  Only diagnostic messages are
+ * produced here. */
+void caseix(void) { stub("ix"); }
+void casels(void) { stub("ls"); }
+void casena(void); /* already defined above */
+void casene(void) { stub("ne"); }
+void casepa(void) { stub("pa"); }
+void casebp(void) { stub("bp"); }
+void casebl(void) { stub("bl"); }
+void caseta(void) { stub("ta"); }
+void casehe(void) { stub("he"); }
+void casefo(void) { stub("fo"); }
+void caseeh(void) { stub("eh"); }
+void caseoh(void) { stub("oh"); }
+void caseef(void) { stub("ef"); }
+void caseof(void) { stub("of"); }
+void casem1(void) { stub("m1"); }
+void casem2(void) { stub("m2"); }
+void casem3(void) { stub("m3"); }
+void casem4(void) { stub("m4"); }
+void casehc(void) { stub("hc"); }
+void casetc(void) { stub("tc"); }
+void casen1(void) { stub("n1"); }
+void casen2(void) { stub("n2"); }
+void casenn(void) { stub("nn"); }
+void caseni(void) { stub("ni"); }
+void casejo(void) { stub("jo"); }
+void casear(void) { stub("ar"); }
+void casero(void) { stub("ro"); }
+void casenx(void) { stub("nx"); }
+void casepo(void) { stub("po"); }
+void casede(void) { stub("de"); }
+void caseig(void) { stub("ig"); }
+void casemk(void) { stub("mk"); }

@@ -120,3 +120,29 @@ int main(int argc, char **argv) {
     cleanup(0);
     return 0;
 }
+
+/* ---------------------------------------------------------------------- */
+/* Escape lookup tables lifted from ``roff1.s`` (labels ``esctab`` and
+ * ``pfxtab``).  These values map escape sequences to internal codes.
+ */
+static const unsigned char esctab[] = {
+    'd', 032, 'u', 035, 'r', 036, 'x', 016, 'y', 017, 'l', 0177,
+    't', 011, 'a', 0100, 'n', 043, '\\', 134, 0, 0};
+
+static const unsigned char pfxtab[] = {'7', 036, '8', 035, '9', 032,
+                                       '4', 030, '3', 031, '1', 026,
+                                       '2', 027, 0, 0};
+
+/* switch -- approximate translation of label ``switch:``.  Given a
+ * character and a two byte table, return the mapped value or 037 if the
+ * character is not present in ``pfxtab``.  ``esctab`` returns zero on
+ * failure in the original code, which we mimic here.
+ */
+static int switch_code(int c, const unsigned char *tab) {
+    const unsigned char *p = tab;
+    while (p[0] && p[0] != (unsigned char)c)
+        p += 2;
+    if (!p[0])
+        return tab == pfxtab ? 037 : 0;
+    return p[1];
+}

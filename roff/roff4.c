@@ -164,3 +164,18 @@ static void output_filled(void) {
 
 /* force a newline in the output */
 void nline(void) { flush_line(); }
+
+/* ---------------------------------------------------------------------- */
+/* width -- simplified form of label ``width`` in roff4.s.  The original
+ * returned the printing width of character ``c``.  Here we treat all
+ * printable characters as width one and control characters as zero.
+ */
+int width(int c) { return (c > ' ' && c != 0177) ? 1 : 0; }
+
+/* space -- helper corresponding to label ``space``.  It prints ``n``
+ * spaces using the function pointer provided.
+ */
+void space(int n, int (*put)(int)) {
+    while (n-- > 0)
+        put(' ');
+}
