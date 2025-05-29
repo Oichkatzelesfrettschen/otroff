@@ -119,4 +119,22 @@ int digit(int x);
 int max(int a, int b);
 int index(char *s, int c);
 void tcopy(char *s, char *t);
+/* from tt.c */
+int ctype(int il, int ic);
+int min(int a, int b);
+int fspan(int i, int c);
+int lspan(int i, int c);
+int ctspan(int i, int c);
+void tohcol(int ic);
+int allh(int i);
+int thish(int i, int c);
+/* from tu.c */
+void makeline(int i, int c, int lintype);
+void fullwide(int i, int lintype);
+void drawline(int i, int cl, int cr, int lintype, int noheight);
+void getstop(void);
+int left(int i, int c, int *lwidp);
+int lefdata(int i, int c);
+int next(int i);
+int prev(int i);
 #endif /* TBL_TBL_H */
