@@ -111,15 +111,17 @@ extern int tdelim;
 extern int dotT;
 extern int tabch, ldrch;
 extern int eqflg;
-extern no_out;
+extern int no_out;
 extern int hflg;
 extern int xxx;
-char ttyx[] "/dev/ttyx";
+/* Path to the controlling terminal */
+char ttyx[] = "/dev/ttyx";
 extern struct contab {
 	int rq;
 	int (*f)();
 }contab[NM];
-int ms[] {31,28,31,30,31,30,31,31,30,31,30,31};
+/* Days per month, adjusted at runtime for leap years */
+int ms[] = {31,28,31,30,31,30,31,31,30,31,30,31};
 #ifndef NROFF
 int acctf;
 #endif
@@ -373,7 +375,7 @@ cvtime(){
 				v.mo = i+1;
 				return;
 			}
-			v.dy =- ms[i++];
+			v.dy -= ms[i++];
 		}
 	}
 }
@@ -438,7 +440,7 @@ getrq(){
 
 	if(((i=getach()) == 0) ||
 	   ((j=getach()) == 0))goto rtn;
-	i =| (j<<BYTE);
+	i |= (j<<BYTE);
 rtn:
 	return(i);
 }
@@ -649,12 +651,13 @@ g2:
 	}
 	if(!--level){
 		j = width(i);
-		v.hp =+ j;
+		v.hp += j;
 		cwidth = j;
 	}
 	return(i);
 }
-char ifilt[32] {0,001,002,003,0,005,006,007,010,011,012};
+/* Input filter translation table */
+char ifilt[32] = {0,001,002,003,0,005,006,007,010,011,012};
 getch0(){
 	register int i, j, k;
 
@@ -701,7 +704,7 @@ again:
 	if((i == 0) && !init)goto again;
 g4:
 	if((copyf == 0) && ((i & ~BMASK) == 0) && ((i & CMASK) < 0370))
-		i =| chbits;
+		i |= chbits;
 	if((i & CMASK) == eschar)i = (i & ~CMASK) | ESC;
 	return(i);
 }
@@ -727,14 +730,14 @@ n1:
 		prstr("Cannot open ");
 		prstr(p);
 		prstr("\n");
-		nfo =- mflg;
+		nfo -= mflg;
 		done(02);
 	}
 	nfo++;
 	ioff = v.cd = 0;
 	return(0);
 n2:
-	if((nfo =- mflg) && !stdi)done(0);
+	if( (nfo -= mflg) && !stdi)done(0);
 	nfo++;
 	v.cd = ioff = ifile =  stdi = mflg = 0;
 	return(0);
