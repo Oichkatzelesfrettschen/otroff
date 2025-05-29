@@ -6,6 +6,7 @@
  * Portable translation of the historic phototypesetter interpreter
  * (pti.s).  Labels from the original assembly source are preserved
  * as comments.
+ * The entry point corresponds to the `start` label in the assembly.
  */
 
 /* .bss */

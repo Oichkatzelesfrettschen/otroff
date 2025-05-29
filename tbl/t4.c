@@ -1,5 +1,6 @@
  /* t4.c: read table specification */
 # include "t..c"
+#include <stdio.h>  /* fprintf */
 int oncol;
 getspec()
 {

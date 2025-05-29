@@ -1,4 +1,5 @@
 # include "ne.h"
+#include <stdio.h> /* printf */
 
 boverb(p1, p2) int p1, p2; {
 	int h, b, treg;

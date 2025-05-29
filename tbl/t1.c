@@ -1,6 +1,9 @@
  /* t1.c: main control and input switching */
 #
 # include "t..c"
+#include <stdlib.h> /* exit */
+#include <signal.h> /* signal */
+#include <stdio.h>  /* fopen, fprintf */
 # define BROKPIPE 13
 
 # if unix

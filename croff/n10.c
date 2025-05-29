@@ -1,6 +1,14 @@
+#define NROFF 1
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include <stdlib.h> /* exit */
+#include <unistd.h> /* read, close, open */
+#include <fcntl.h>  /* open flags */
+#include "proto.h"
+#include <stdlib.h>
+#include <unistd.h>
+
 /*
 nroff10.c
 
@@ -13,7 +21,7 @@ extern char *obufp;
 extern int xfont;
 extern int esc;
 extern int lead;
-extern int *dip;
+extern struct env *dip;
 extern int oline[];
 extern int *olinep;
 extern int ulfont;
@@ -37,7 +45,9 @@ static char Sccsid[] = "@(#)n10.c  1.3 of 4/26/77";
 
 ptinit() {
     register i;
-    register char **p, *q;
+    register char **p;
+    char *q;
+    int qsize;
     char *x[8];
 
     if ((i = open(termtab, 0)) < 0) {
@@ -47,15 +57,16 @@ ptinit() {
         exit(-1);
     }
     read(i, x, 16);
-    read(i, &t.bset, q = 2 * (&t.zzz - &t.bset));
-    x[2] = -q;
-    q = setbrk(x[2]);
+    qsize = 2 * (&t.zzz - &t.bset);
+    read(i, &t.bset, qsize);
+    x[2] = -qsize;
+    q = setbrk(qsize);
     seek(i, t.twinit + 020, 0);
-    i = read(i, q, x[2]);
-    q = -t.twinit;
+    i = read(i, q, qsize);
+    int offset = -(int)t.twinit;
     for (p = &t.twinit; p < &t.zzz; p++) {
         if (*p)
-            *p = +q;
+            *p += offset;
         else
             *p = &t.zzz;
     }
@@ -65,8 +76,8 @@ ptinit() {
     for (i = 0; i < 16; i++)
         tabtab[i] = dtab * (i + 1);
     if (t.bset || t.breset) {
-        ttys[2] = &~t.breset;
-        ttys[2] = | t.bset;
+        ttys[2] &= ~t.breset;
+        ttys[2] |= t.bset;
         stty(1, ttys);
     }
     oputs(t.twinit);
@@ -212,7 +223,7 @@ move() {
     int iesct, dt;
 
     iesct = esct;
-    if (esct = +esc)
+    if ((esct += esc))
         i = "\0";
     else
         i = "\n\0";
@@ -264,8 +275,8 @@ move() {
     if ((*t.ploton & 0377) && (esc || lead)) {
         if (!plotmode)
             oputs(t.ploton);
-        esc = / t.Hor;
-        lead = / t.Vert;
+        esc /= t.Hor;
+        lead /= t.Vert;
         while (esc--)
             oputs(p);
         while (lead--)

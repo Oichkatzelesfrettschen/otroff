@@ -1,5 +1,7 @@
  /* te.c: error message control, input line count */
 # include "t..c"
+#include <stdlib.h> /* exit */
+#include <stdio.h>  /* fprintf */
 error(s)
 	char *s;
 {

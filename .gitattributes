@@ -16,9 +16,9 @@ croff/sufrc         diff
 # Do not process generated binary tables
 croff/term/*.c -text -filter
 croff/nii.c -text -filter
-croff/n9.c -text -filter
 croff/tacct.c -text -filter
 croff/t.h text diff
 croff/tdef.h text diff
 neqn/*.c -text -filter
 tbl/*.c -text -filter
+*.c text diff

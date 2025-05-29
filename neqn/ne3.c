@@ -1,4 +1,5 @@
 # include "ne.h"
+#include <stdio.h> /* printf */
 
 struct {
 	char	*res;
