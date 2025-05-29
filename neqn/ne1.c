@@ -119,7 +119,6 @@ void shift(int p1) {
 /*
  * Render a square root.
  */
-void nesqrt(int p2) {
 void sqrt(int p2) {
     yyval = p2;
     nrwid(p2, ps, p2);

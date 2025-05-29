@@ -1,52 +1,37 @@
 #include "ne.h"
-#include <stdio.h> /* printf, putchar */
-#include <stdlib.h> /* exit */
-#include <signal.h> /* signal */
-#include <unistd.h> /* open, close */
-#include <fcntl.h> /* open flags */
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+/* use custom getc from parser */
 #define getc ngetc
 #define SIGPIPE 13 /* troff has stopped reading */
 
 int gsize = 10;
 int gfont = 'R';
-
 char in[600]; /* input buffer */
-
-int gsize 10;
-int gfont 'R';
-
-char in[600]; /* input buffer */
-int exit();
-int getline(char *s);
-int inline(void);
-int putout(int p1);
-int max(int i, int j);
-int oalloc(void);
-int ofree(int n);
-int setps(int p);
-int nrwid(int n1, int p, int n2);
-int setfile(int argc, char *argv[]);
-int yyparse(void);
-int yyerror(void);
-int init(void);
-int error(int fatal, char *s1, char *s2);
-int flush(int fd);
-int ngetc(void);
 int noeqn;
 
+/*
+ * Main driver for neqn.
+ */
 int main(int argc, char *argv[]) {
     int i, type;
+
     first = 0;
     lefteq = righteq = '\0';
-    signal(SIGPIPE, &exit);
+    signal(SIGPIPE, exit);
     setfile(argc, argv);
+
     while ((type = getline(in)) != '\0') {
         eqline = linect;
         if (in[0] == '.' && in[1] == 'E' && in[2] == 'Q') {
             for (i = 11; i < 100; used[i++] = 0)
                 ;
             printf("%s", in);
-            printf(".nr 99 \\n(.s\n.nr 98 \\n(.f\n");
+            printf(".nr 99 \\n(.s\\n.nr 98 \\n(.f\\n");
             init();
             yyparse();
             if (eqnreg > 0) {
@@ -56,7 +41,7 @@ int main(int argc, char *argv[]) {
                 if (!noeqn)
                     printf("\\*(10\n");
             }
-            printf(".ps \\n(99\n.ft \\n(98\n");
+            printf(".ps \\n(99\\n.ft \\n(98\\n");
             printf(".EN");
             if (lastchar == '\0') {
                 putchar('\n');
@@ -66,14 +51,15 @@ int main(int argc, char *argv[]) {
                 while (putchar(getc()) != '\n')
                     ;
             flush(fout);
-            flush();
-        } else if (type == lefteq)
+            flush(fout);
+        } else if (type == lefteq) {
             inline();
-        else
+        } else {
             printf("%s", in);
+        }
     }
     flush(fout);
-    flush();
+    flush(fout);
     exit(0);
 }
 
@@ -81,12 +67,12 @@ int main(int argc, char *argv[]) {
  * Read a line into the supplied buffer.
  */
 int getline(char *s) {
-    char c;
+    int c;
     while ((*s++ = c = getc()) != '\n' && c != '\0' && c != lefteq)
         ;
     if (c == lefteq)
-        s--;
-    *s++ = '\0';
+        --s;
+    *s = '\0';
     return c;
 }
 
@@ -94,8 +80,9 @@ int getline(char *s) {
  * Process an inline equation.
  */
 int inline(void) {
-    int i, j, ds, t;
-    printf(".nr 99 \\n(.s\n.nr 98 \\n(.f\n");
+    int ds, t;
+
+    printf(".nr 99 \\n(.s\\n.nr 98 \\n(.f\\n");
     ds = oalloc();
     printf(".ds %d \"\n", ds);
     do {
@@ -106,14 +93,14 @@ int inline(void) {
             printf(".as %d \\*(%d\n", ds, eqnreg);
             ofree(eqnreg);
         }
-        printf(".ps \\n(99\n.ft \\n(98\n");
+        printf(".ps \\n(99\\n.ft \\n(98\\n");
     } while ((t = getline(in)) == lefteq);
     printf(".as %d \"%s", ds, in);
-    printf(".ps \\n(99\n.ft \\n(98\n");
+    printf(".ps \\n(99\\n.ft \\n(98\\n");
     printf("\\*(%d\n", ds);
     ofree(ds);
     flush(fout);
-    flush();
+    flush(fout);
     return 0;
 }
 
@@ -121,11 +108,11 @@ int inline(void) {
  * Output the final equation to troff.
  */
 int putout(int p1) {
-    extern int gsize, gfont;
     int before, after;
+
     eqnht = eht[p1];
     printf(".ds %d \\x'0'", p1);
-    before = eht[p1] - ebase[p1] - VERT(3); /* 3 = 1.5 lines */
+    before = eht[p1] - ebase[p1] - VERT(3);
     if (before > 0)
         printf("\\x'0-%du'", before);
     printf("\\f%c\\s%d\\*(%d\\s\\n(99\\f\\n(98", gfont, gsize, p1);
@@ -143,9 +130,7 @@ int putout(int p1) {
 /*
  * Return the maximum of two integers.
  */
-int max(int i, int j) {
-    return i > j ? i : j;
-}
+int max(int i, int j) { return i > j ? i : j; }
 
 /*
  * Allocate a register.
@@ -156,7 +141,6 @@ int oalloc(void) {
         if (used[i]++ == 0)
             return i;
     error(FATAL, "no strings left", "");
-    error(FATAL, "no strings left", i);
     return 0;
 }
 
@@ -192,7 +176,6 @@ int setfile(int argc, char *argv[]) {
     svargv = argv;
     while (svargc > 0 && svargv[1][0] == '-') {
         switch (svargv[1][1]) {
-
         case 'd':
             lefteq = svargv[1][2];
             righteq = svargv[1][3];
@@ -226,44 +209,9 @@ int setfile(int argc, char *argv[]) {
 /*
  * yacc error handler.
  */
-int yyerror(void) {
-    return 0;
-}
+int yyerror(void) { return 0; }
 
 /*
- * Initialize global state.
- */
-int init(void) {
-    ct = 0;
-    ps = gsize;
-    ft = gfont;
-    first++;
-
-    return 0;
-}
-
-/*
- * Report an error message.
- */
-int error(int fatal, char *s1, char *s2) {
-    int sfout;
-    if (fatal > 0)
-        printf("fatal error: ");
-    printf(s1, s2);
-    printf(" file %s, between lines %d and %d\n",
-           svargv[ifile], eqline, linect);
-    flush(fout);
-    sfout = fout;
-    fout = 2;
-    if (fatal > 0)
-        printf("fatal error: ");
-    printf(s1, s2);
-    printf(" file %s, between lines %d and %d\n",
-           svargv[ifile], eqline, linect);
-    flush(2);
-    fout = sfout;
-    if (fatal > 0)
-        exit(1);
  * Initialize global state.
  */
 int init(void) {
@@ -281,10 +229,14 @@ int flush(int fd) {
     if (fd == 2)
         return fflush(stderr);
     return fflush(stdout);
+}
+
+/*
  * Report an error message.
  */
 int error(int fatal, char *s1, char *s2) {
     int sfout;
+
     if (fatal > 0)
         printf("fatal error: ");
     printf(s1, s2);

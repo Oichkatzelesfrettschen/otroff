@@ -1,142 +1,85 @@
-#
 #include "ne.h"
 #include "y.tab.c"
-#include <stdio.h> /* printf */
-#include <stdlib.h> /* malloc, free */
-#include <unistd.h> /* open, close */
-#include <fcntl.h> /* open flags */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-/* Forward declarations */
-int ngetc(void);
 #define getc ngetc
+
 static void *alloc(size_t n) { return calloc(1, n); }
 
-struct {
+typedef struct {
     char *key;
     int keyval;
-} keytab[] = {
-struct {
-    char *key;
-    int keyval;
-} keytab[]{
-    "sub", SUB,
-    "sup", SUP,
-    ".EN", 0,
-    "from", FROM,
-    "to", TO,
-    "sum", SUM,
-    "hat", HAT,
-    "vec", VEC,
-    "dyad", DYAD,
-    "dot", DOT,
-    "dotdot", DOTDOT,
-    "bar", BAR,
-    "tilde", TILDE,
-    "under", UNDER,
-    "prod", PROD,
-    "int", INT,
-    "integral", INT,
-    "union", UNION,
-    "inter", INTER,
-    "pile", PILE,
-    "lpile", LPILE,
-    "cpile", CPILE,
-    "rpile", RPILE,
-    "over", OVER,
-    "sqrt", SQRT,
-    "above", ABOVE,
-    "size", SIZE,
-    "font", FONT,
-    "fat", FAT,
-    "roman", ROMAN,
-    "italic", ITALIC,
-    "bold", BOLD,
-    "left", LEFT,
-    "right", RIGHT,
-    "delim", DELIM,
-    "define", DEFINE,
-    "tdefine", TDEFINE,
-    "ndefine", DEFINE,
-    "gsize", GSIZE,
-    ".gsize", GSIZE,
-    "gfont", GFONT,
-    "up", UP,
-    "down", DOWN,
-    "fwd", FWD,
-    "back", BACK,
-    "mark", MARK,
-    "lineup", LINEUP,
-    "matrix", MATRIX,
-    "col", COL,
-    "lcol", LCOL,
-    "ccol", CCOL,
-    "rcol", RCOL,
-    0, 0};
-int peek = -1;
+} keytab_t;
+
+static keytab_t keytab[] = {
+    {"sub", SUB}, {"sup", SUP}, {".EN", 0}, {"from", FROM}, {"to", TO}, {"sum", SUM}, {"hat", HAT}, {"vec", VEC}, {"dyad", DYAD}, {"dot", DOT}, {"dotdot", DOTDOT}, {"bar", BAR}, {"tilde", TILDE}, {"under", UNDER}, {"prod", PROD}, {"int", INT}, {"integral", INT}, {"union", UNION}, {"inter", INTER}, {"pile", PILE}, {"lpile", LPILE}, {"cpile", CPILE}, {"rpile", RPILE}, {"over", OVER}, {"sqrt", SQRT}, {"above", ABOVE}, {"size", SIZE}, {"font", FONT}, {"fat", FAT}, {"roman", ROMAN}, {"italic", ITALIC}, {"bold", BOLD}, {"left", LEFT}, {"right", RIGHT}, {"delim", DELIM}, {"define", DEFINE}, {"tdefine", TDEFINE}, {"ndefine", DEFINE}, {"gsize", GSIZE}, {".gsize", GSIZE}, {"gfont", GFONT}, {"up", UP}, {"down", DOWN}, {"fwd", FWD}, {"back", BACK}, {"mark", MARK}, {"lineup", LINEUP}, {"matrix", MATRIX}, {"col", COL}, {"lcol", LCOL}, {"ccol", CCOL}, {"rcol", RCOL}, {0, 0}};
+
+static int peek = -1;
 #define SSIZE 400
-char token[SSIZE];
-int sp;
-int speek[10];
-char *swt[10];
-int sw = -1;
+static char token[SSIZE];
+static int sp;
+static int speek[10];
+static char *swt[10];
+static int sw = -1;
 
 /*
- * read next character, handling includes
+ * Read next character, handling includes.
  */
-/* Custom input routine. */
 int ngetc(void) {
-int getc(void) {
-loop:
-    if (sw >= 0) {
-        lastchar = (peek < 0) ? *swt[sw]++ : peek;
+    while (1) {
+        if (sw >= 0) {
+            lastchar = (peek < 0) ? *swt[sw]++ : peek;
+            peek = -1;
+            if (lastchar != '\0')
+                return lastchar;
+            peek = speek[sw--];
+            return ' ';
+        }
+        lastchar = (peek < 0) ? getchar() : peek;
+        if (lastchar == '\n')
+            linect++;
         peek = -1;
         if (lastchar != '\0')
-            return (lastchar);
-        peek = speek[sw--];
-        return (' ');
+            return lastchar;
+        if (++ifile > svargc) {
+            peek = '\0';
+            return '\0';
+        }
+        close(fin);
+        linect = 1;
+        if ((fin = open(svargv[ifile], 0)) >= 0)
+            continue;
+        error(FATAL, "can't open file %s\n", svargv[ifile]);
+        return ' ';
     }
-    lastchar = (peek < 0) ? getchar() : peek;
-    if (lastchar == '\n')
-        linect++;
-    peek = -1;
-    if (lastchar != '\0')
-        return (lastchar);
-    if (++ifile > svargc) {
-        peek = '\0';
-        return ('\0');
-    }
-    close(fin);
-    linect = 1;
-    if ((fin = open(svargv[ifile], 0)) >= 0)
-        goto loop;
-    error(FATAL, "can't open file %s\n", svargv[ifile]);
-    return ' ';
-
 }
 
 /*
- * lexical analyzer for neqn
+ * Lexical analyzer for neqn.
  */
 int yylex(void) {
     int c, type;
+
 beg:
     while ((c = getc()) == ' ' || c == '\n')
         ;
     yylval = c;
     switch (c) {
-
     case '\0':
-        return ('\0');
+        return '\0';
     case '~':
-        return (SPACE);
+        return SPACE;
     case '^':
-        return (THIN);
+        return THIN;
     case '\t':
-        return (TAB);
+        return TAB;
     case '{':
-        return (MQ);
+        return MQ;
     case '}':
-        return (MQ1);
+        return MQ1;
     case '"':
         for (sp = 0; (c = getc()) != '"';) {
             if (c != '\\')
@@ -151,10 +94,10 @@ beg:
         }
         token[sp] = '\0';
         yylval = &token[0];
-        return (QTEXT);
+        return QTEXT;
     }
     if (c == righteq)
-        return ('\0');
+        return '\0';
 
     getstr(token, c);
     if ((type = lookup(token, deftab)) >= 0) {
@@ -167,7 +110,7 @@ beg:
     }
     type = lookup(token, keytab);
     if (type < 0)
-        return (CONTIG);
+        return CONTIG;
     if (keytab[type].keyval == DEFINE || keytab[type].keyval == TDEFINE) {
         define(keytab[type].keyval);
         goto beg;
@@ -180,15 +123,17 @@ beg:
     } else if (keytab[type].keyval == GFONT) {
         globfont();
         goto beg;
-    } else
-        return (keytab[type].keyval);
+    } else {
+        return keytab[type].keyval;
+    }
 }
 
 /*
- * read a string token terminated by c
+ * Read a string token terminated by c.
  */
 void getstr(char *s, int c) {
-    for (sp = 0; c != ' ' && c != '\t' && c != '\n' && c != '{' && c != '}' && c != '"' && c != '~' && c != '^' && c != righteq;) {
+    for (sp = 0; c != ' ' && c != '\t' && c != '\n' && c != '{' && c != '}' &&
+                 c != '"' && c != '~' && c != '^' && c != righteq;) {
         if (c == '\\')
             if ((c = getc()) != '"')
                 s[sp++] = '\\';
@@ -197,29 +142,29 @@ void getstr(char *s, int c) {
             error(FATAL, "token %.20s... too long", s);
         c = getc();
     }
-    if (c == '{' || c == '}' || c == '"' || c == '~' || c == '^' || c == '\t' || c == righteq)
+    if (c == '{' || c == '}' || c == '"' || c == '~' || c == '^' || c == '\t' ||
+        c == righteq)
         peek = c;
     s[sp] = '\0';
     yylval = s;
 }
 
 /*
- * search a lookup table
+ * Search a lookup table.
  */
 int lookup(char *str, lookup_tab tbl[]) {
-int lookup(char *str, struct { char *name; char *val; } tbl[]) {
-    register i, j, r;
-    for (i = 0; tbl[i].name != 0; i++) { /* table of tbl wds */
+    int i, j, r;
+    for (i = 0; tbl[i].name != 0; i++) {
         for (j = 0; (r = tbl[i].name[j]) == str[j] && r != '\0'; j++)
             ;
         if (r == str[j])
-            return (i);
+            return i;
     }
-    return (-1);
+    return -1;
 }
 
 /*
- * collect a delimited string
+ * Collect a delimited string.
  */
 char *cstr(char *s, int quote) {
     int del, c, i;
@@ -234,14 +179,13 @@ char *cstr(char *s, int quote) {
             s[i++] = c;
     }
     s[i] = '\0';
-    return (s);
+    return s;
 }
 
 /*
- * process a define statement
+ * Process a define statement.
  */
 void define(int type) {
-    /*	char *alloc (); */
     int i, c;
     while ((c = getc()) == ' ' || c == '\n')
         ;
@@ -255,7 +199,7 @@ void define(int type) {
             for (i = 0; token[i] != '\0'; i++)
                 ;
             deftab[yyval].nptr = alloc(i + 1);
-            for (i = 0; deftab[yyval].nptr[i] = token[i]; i++)
+            for (i = 0; (deftab[yyval].nptr[i] = token[i]); i++)
                 ;
         }
         if (dbg)
@@ -267,28 +211,28 @@ void define(int type) {
     for (i = 0; token[i] != '\0'; i++)
         ;
     deftab[yyval].sptr = alloc(i + 1);
-    for (i = 0; deftab[yyval].sptr[i] = token[i]; i++)
+    for (i = 0; (deftab[yyval].sptr[i] = token[i]); i++)
         ;
     if (dbg)
-        printf(".\tname %s defined as %s\n",
-               deftab[yyval].sptr, deftab[yyval].sptr);
+        printf(".\tname %s defined as %s\n", deftab[yyval].sptr,
+               deftab[yyval].sptr);
 }
 
 /*
- * set equation delimiters
+ * Set equation delimiters.
  */
 void delim(void) {
-    char *s;
     yyval = eqnreg = 0;
     cstr(token, 0);
     lefteq = token[0];
     righteq = token[1];
-    if ((lefteq == 'o' && righteq == 'f') || (lefteq == 'O' && righteq == 'F'))
+    if ((lefteq == 'o' && righteq == 'f') ||
+        (lefteq == 'O' && righteq == 'F'))
         lefteq = righteq = '\0';
 }
 
 /*
- * set global size parameter
+ * Set global size parameter.
  */
 void globsize(void) {
     extern int gsize;
@@ -302,7 +246,7 @@ void globsize(void) {
 }
 
 /*
- * set global font
+ * Set global font.
  */
 void globfont(void) {
     extern int gfont;
