@@ -1,5 +1,6 @@
 #define NROFF 1
 #include "tdef.h"
+#include "env.h"
 #include "t.h"
 #include "tw.h"
 #include <stdlib.h> /* exit */
@@ -9,6 +10,11 @@
 #include "proto.h"
 #include <stdlib.h>
 #include <unistd.h>
+
+/* Forward declarations for local helpers. */
+static void ptout1(void);
+static char *plot(char *x);
+static void move(void);
 
 /*
 nroff10.c

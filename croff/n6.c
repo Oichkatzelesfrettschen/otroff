@@ -1,5 +1,7 @@
 #include "tdef.h"
+#include "env.h"
 #include "t.h"
+#define NROFF 1
 #include "tw.h"
 #include "proto.h"
 

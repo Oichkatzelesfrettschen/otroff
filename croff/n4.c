@@ -1,4 +1,5 @@
 #include "tdef.h"
+#include "env.h"
 #include "t.h"
 #include "tw.h"
 #include "proto.h"
@@ -55,6 +56,10 @@ extern struct contab {
     int (*f)();
 } contab[NM];
 static char Sccsid[] = "@(#)n4.c  1.4 of 4/26/77";
+
+/* Prototypes for local helpers used before definition. */
+static int fnumb(int i, int (*f)());
+static int decml(int i, int (*f)());
 
 /* Set a number register */
 static void setn(void) {
@@ -344,7 +349,7 @@ a0:
         i = ckph();
         if (nonumb)
             break;
-        acc = *i;
+        acc *= i;
         goto a0;
     case '/':
         i = ckph();
@@ -647,8 +652,8 @@ quant(n, m) int n, m;
     }
     i = n / m;
     if ((n - m * i) > (m / 2))
-        i = +1;
-    i = *m;
+        i += 1;
+    i *= m;
     if (neg)
         i = -i;
     return (i);

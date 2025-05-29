@@ -1,4 +1,5 @@
 #include "tdef.h"
+#include "env.h"
 #include "t.h"
 #include "tw.h"
 #include "proto.h"
@@ -54,7 +55,7 @@ extern int wbfi;
 extern int po;
 extern int *cp;
 extern int xxx;
-int pagech '%';
+int pagech = '%';
 int strflg;
 extern struct contab {
     int rq;
@@ -217,7 +218,7 @@ copyb() {
         j = '.';
     req = j;
     k = j >> BYTE;
-    j = &BMASK;
+    j &= BMASK;
     copyf++;
     flushi();
     nlflg = 0;
@@ -430,18 +431,17 @@ pushi(newip) int newip;
         nxf = argtop;
     return (ip = newip);
 }
-setbrk(x) char *x;
-{
+char *setbrk(int x) {
     register char *i;
     char *sbrk();
 
-    if ((i = sbrk(x)) == -1) {
+    if ((i = sbrk(x)) == (char *)-1) {
         prstrfl("Core limit reached.\n");
         edone(0100);
     } else {
         enda = i + x;
     }
-    return (i);
+    return i;
 }
 getsn() {
     register i;
@@ -561,7 +561,7 @@ casedi() {
     dip->curd = i;
     clrmn(oldmn);
     for (j = 1; j <= 10; j++)
-        dip[j] = 0; /*not op and curd*/
+        ((int *)dip)[j] = 0; /* not op and curd */
 rtn:
     app = 0;
     diflg = 0;
@@ -591,7 +591,7 @@ casetl() {
         ch = delim;
         delim = '\'';
     } else
-        delim = &CMASK;
+        delim &= CMASK;
     if (!nlflg)
         while (((i = getch()) & CMASK) != '\n') {
             if ((i & CMASK) == delim)
@@ -619,7 +619,7 @@ casetl() {
         hseg(pchar, 0);
     }
     newline(0);
-    if (*dip) {
+    if (dip->op) {
         if (dip->dnl > dip->hnl)
             dip->hnl = dip->dnl;
     } else {
