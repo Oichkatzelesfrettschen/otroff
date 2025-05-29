@@ -15,7 +15,10 @@ are back to October 25th, 1978.
 Building
 --------
 Run `./setup.sh` while network access is available to install the
-required toolchain.  Afterwards the code can be built using `make`.
+required toolchain.  Before building, run `./gitconfigure` once after
+cloning so that a Git filter strips trailing NUL bytes from the
+sources.  Without this step stray NUL characters can cause compilation
+to fail.  Afterwards the code can be built using `make`.
 Object files are compiled with the `-std=gnu89` option so that the
 legacy sources build cleanly on modern compilers.  The target CPU can be
 specified via the `CPU` variable, for example:
