@@ -1,5 +1,5 @@
  /* tu.c: draws horizontal lines */
-# include "t..c"
+# include "tbl.h"
 makeline(i,c,lintype)
 {
 int cr, type;

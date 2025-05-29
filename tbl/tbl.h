@@ -1,6 +1,9 @@
-/* t..c : external declarations */
+/* tbl.h: external declarations and prototypes */
 
-#include "stdio.h"
+#ifndef TBL_TBL_H
+#define TBL_TBL_H
+
+#include <stdio.h>
 
 #define MAXLIN 200
 #define MAXHEAD 30
@@ -65,6 +68,7 @@ extern FILE *tabin, *tabout;
 
 /* Function prototypes */
 void gettbl(void);
+void drawvert(int start, int end, int c, int lwid);
 int nodata(int il);
 int oneh(int lin);
 void permute(void);
@@ -115,3 +119,4 @@ int digit(int x);
 int max(int a, int b);
 int index(char *s, int c);
 void tcopy(char *s, char *t);
+#endif /* TBL_TBL_H */

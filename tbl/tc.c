@@ -1,5 +1,5 @@
 /* tc.c: find character not in table to delimit fields */
-#include "t..c"
+#include "tbl.h"
 /* Choose delimiter characters not used in the table. */
 void choochar(void) {
     int had[128], ilin, icol, k;

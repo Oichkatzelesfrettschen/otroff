@@ -1,5 +1,5 @@
 /* t3.c: interpret commands affecting whole table */
-#include "t..c"
+#include "tbl.h"
 #include <stdio.h>
 #include <stdlib.h>
 int linsize;

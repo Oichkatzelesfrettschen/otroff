@@ -44,7 +44,6 @@ extern int suffid;
 extern int sufind[26];
 /* Table of offsets for each starting letter. */
 extern const unsigned short suftab_index[26];
-extern void sub1(int *, int);
 extern int ibf;
 extern int ttyod;
 extern int ttys[3];
@@ -404,7 +403,6 @@ static void cvtime(void) {
     register i;
 
     time(tt);
-    sub1(tt, 3600 * ZONE); /*5hrs for EST*/
     v.dy = ldiv(tt[0], tt[1], 60 * 60 * 8) / 3 + 1;
     v.dw = (v.dy + 3) % 7 + 1;
     for (v.yr = 70;; v.yr++) {

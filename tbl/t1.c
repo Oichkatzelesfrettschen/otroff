@@ -1,5 +1,5 @@
 /* t1.c: main control and input switching */
-#include "t..c"
+#include "tbl.h"
 #include <stdio.h> /* fopen, fprintf */
 #include <stdlib.h> /* exit */
 #include <signal.h> /* signal */
