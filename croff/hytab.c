@@ -1,3 +1,4 @@
+#include <stddef.h>
 /* hyphenation digram tables*/
 
 /* Hyphenation digram table for start sequences */
