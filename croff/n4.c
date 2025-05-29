@@ -306,11 +306,11 @@ wrc(i) int i;
     *cp++ = i;
     return (1);
 }
-atoi() {
+int tatoi(void) {
     register i;
     extern LONG0 atoi0();
 
-    return (i = atoi0());
+    return i = atoi0();
 }
 LONG0 atoi0() {
     register ii, k, cnt;
@@ -576,7 +576,7 @@ casenr() {
         goto rtn;
     vlist[i] = j;
     skip();
-    j = atoi();
+    j = tatoi();
     if (nonumb)
         goto rtn;
     inc[i] = j;
@@ -626,7 +626,7 @@ inumb(n) int *n;
         else
             ch = i;
     }
-    i = atoi();
+    i = tatoi();
     if (n && f)
         i = *n + f * i;
     i = quant(i, res);

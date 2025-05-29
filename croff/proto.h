@@ -5,7 +5,7 @@
 char *setbrk(int size);
 void init1(char a);
 void init2(void);
+int tatoi(void);
 void prstr(const char *s);
 void prstrfl(const char *s);
 #endif /* CROFF_PROTO_H */
-
