@@ -10,7 +10,7 @@ else
     MARCH := $(CPU)
 endif
 
-CFLAGS ?= -std=gnu89 -Wall -O2 -march=$(MARCH)
+CFLAGS ?= -std=c90 -Wall -O2 -march=$(MARCH)
 LDFLAGS ?=
 
 # Collect source files across the project.  Only the modern C
@@ -52,10 +52,6 @@ neqn:  $(NEQN_OBJ)
 roff:  $(ROFF_OBJ)
 
 $(OBJDIR)/%.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJDIR)/%.o: %.S
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 

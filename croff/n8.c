@@ -1,5 +1,6 @@
 #include "tdef.h"
 #include <stddef.h>
+#include "proto.h"
 
 /*
 troff8.c

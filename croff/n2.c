@@ -1,5 +1,6 @@
 #include "tdef.h"
 #include "t.h"
+#include "proto.h"
 
 /*
 troff2.c
@@ -10,7 +11,7 @@ output, cleanup
 extern char obuf[OBUFSZ];
 extern char *obufp;
 extern int dilev;
-extern int *dip;
+extern struct env *dip;
 extern int eschar;
 extern int tlss;
 extern int tflg;
@@ -76,7 +77,7 @@ pchar(c) int c;
     case HX:
         j = (tlss >> 9) | ((i & ~0777) >> 3);
         if (i & 040000) {
-            j = &~(040000 >> 3);
+            j &= ~(040000 >> 3);
             if (j > dip->blss)
                 dip->blss = j;
         } else {
@@ -188,7 +189,7 @@ done(x) int x;
 {
     register i;
 
-    error = | x;
+    error |= x;
     level = 0;
     app = ds = lgf = 0;
     if (i = em) {
@@ -220,7 +221,7 @@ done(x) int x;
 }
 done1(x) int x;
 {
-    error = | x;
+    error |= x;
     if (v.nl) {
         trap = 0;
         eject(0);
@@ -255,7 +256,7 @@ done2(x) int x;
 }
 done3(x) int x;
 {
-    error = | x;
+    error |= x;
     signal(SIGINT, 1);
     signal(SIGKILL, 1);
     unlink(unlkp);
@@ -263,7 +264,7 @@ done3(x) int x;
     twdone();
 #endif
     if (quiet) {
-        ttys[2] = | ECHO;
+        ttys[2] |= ECHO;
         stty(0, ttys);
     }
     if (ascii)
