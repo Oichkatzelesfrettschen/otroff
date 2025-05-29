@@ -36,6 +36,7 @@ extern int chbits;
 extern int suffid;
 extern int sufind[26];
 extern char suftab[];
+extern void sub1(int *, int);
 extern int ibf;
 extern int ttyod;
 extern int ttys[3];
