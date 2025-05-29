@@ -107,28 +107,31 @@ extern int nmbits;
 extern int xxx;
 int brflg;
 static char Sccsid[] = "@(#)n7.c  1.2 of 3/4/77";
-int tbreak(void);
-int donum(void);
-int text(void);
-int nofill(void);
-int callsp(void);
-int ckul(void);
-int storeline(int c, int w);
-int newline(int a);
+void tbreak(void);
+void donum(void);
+void text(void);
+void nofill(void);
+void callsp(void);
+void ckul(void);
+void storeline(int c, int w);
+void newline(int a);
 int findn1(int a);
-int chkpn(void);
+void chkpn(void);
 int findt(int a);
 int findt1(void);
-int eject(int *a);
+void eject(int *a);
 int movword(void);
-int horiz(int i);
-int setnel(void);
+void horiz(int i);
+void setnel(void);
 int getword(int x);
-int storeword(int c, int w);
+void storeword(int c, int w);
 int gettch(void);
 
-tbreak() {
-    register *i, j, pad;
+/*
+ * Break the current line and output accumulated text.
+ */
+void tbreak(void) {
+    int *i, j, pad;
 
     trap = 0;
     if (nb)
@@ -239,8 +242,9 @@ tbreak() {
         newline(0);
     spread = 0;
 }
-donum() {
-    register i, nw;
+/* Output line numbering. */
+void donum(void) {
+    int i, nw;
     extern pchar();
 
     nrbits = nmbits;
@@ -266,8 +270,9 @@ donum() {
     un = +nw * nms;
     v.ln++;
 }
-text() {
-    register i;
+/* Process incoming text characters. */
+void text(void) {
+    int i;
     static int spcnt;
 
     nflush++;
@@ -345,8 +350,9 @@ t6:
 rtn:
     nflush = 0;
 }
-nofill() {
-    register i, j;
+/* Output a line without filling. */
+void nofill(void) {
+    int i, j;
 
     if (!pendnf) {
         over = 0;
@@ -386,8 +392,9 @@ nofill() {
 rtn:
     pendnf = nflush = 0;
 }
-callsp() {
-    register i;
+/* Call the space-handling routine. */
+void callsp(void) {
+    int i;
 
     if (flss)
         i = flss;
@@ -396,7 +403,8 @@ callsp() {
     flss = 0;
     casesp(i);
 }
-ckul() {
+/* Handle cleanup of underline and italic state. */
+void ckul(void) {
     if (ul && (--ul == 0)) {
         cu = 0;
         font = sfont;
@@ -405,8 +413,9 @@ ckul() {
     if (it && (--it == 0) && itmac)
         control(itmac, 0);
 }
-storeline(c, w) {
-    register i;
+/* Store a character and its width into the output line buffer. */
+void storeline(int c, int w) {
+    int i;
 
     if ((c & CMASK) == JREG) {
         if ((i = findr(c >> BYTE)) != -1)
@@ -431,9 +440,9 @@ s1:
     *linep++ = c;
     nc++;
 }
-newline(a) int a;
-{
-    register i, j, nlss;
+/* Output a newline. */
+void newline(int a) {
+    int i, j, nlss;
     int opn;
 
     if (a)
@@ -526,9 +535,9 @@ nl2:
         trap = control(mlist[j], 0);
     }
 }
-findn1(a) int a;
-{
-    register i, j;
+/* Find trap matching position a. */
+int findn1(int a) {
+    int i, j;
 
     for (i = 0; i < NTRAP; i++) {
         if (mlist[i]) {
@@ -540,7 +549,8 @@ findn1(a) int a;
     }
     return (i);
 }
-chkpn() {
+/* Check page numbers for printing. */
+void chkpn(void) {
     pto = *(pnp++);
     pfrom = pto & ~MOT;
     if (pto == -1) {
@@ -553,9 +563,9 @@ chkpn() {
         pfrom = 0;
     }
 }
-findt(a) int a;
-{
-    register i, j, k;
+/* Find distance to next trap. */
+int findt(int a) {
+    int i, j, k;
 
     k = 32767;
     if (dip->op) {
@@ -578,8 +588,9 @@ findt(a) int a;
         k = i;
     return (k);
 }
-findt1() {
-    register i;
+/* Convenience wrapper around findt using current line. */
+int findt1(void) {
+    int i;
 
     if (dip->op)
         i = dip->dnl;
@@ -587,9 +598,9 @@ findt1() {
         i = v.nl;
     return (findt(i));
 }
-eject(a) int *a;
-{
-    register savlss;
+/* Begin a new page ejecting as needed. */
+void eject(int *a) {
+    int savlss;
 
     if (dip->op)
         return;
@@ -608,8 +619,9 @@ e1:
     if (v.nl && !trap)
         goto e1;
 }
-movword() {
-    register i, w, *wp;
+/* Move the next word into the output line. */
+int movword(void) {
+    int i, w, *wp;
     int savwch, hys;
 
     over = 0;
@@ -698,13 +710,14 @@ m5:
     wp--;
     goto m1;
 }
-horiz(i) int i;
-{
+/* Output horizontal motion. */
+void horiz(int i) {
     vflag = 0;
     if (i)
         pchar(makem(i));
 }
-setnel() {
+/* Set nel and related counters for a new line. */
+void setnel(void) {
     if (!nc) {
         linep = line;
         if (un1 >= 0) {
@@ -715,9 +728,9 @@ setnel() {
         ne = adsp = adrem = 0;
     }
 }
-getword(x) int x;
-{
-    register i, j, swp;
+/* Extract the next word from input. */
+int getword(int x) {
+    int i, j, swp;
     int noword;
 
     noword = 0;
@@ -802,9 +815,8 @@ rtn:
     setnel();
     return (noword);
 }
-storeword(c, w) int c, w;
-{
-
+/* Append character c of width w to the current word buffer. */
+void storeword(int c, int w) {
     if (wordp >= &word[WDSIZE - 1]) {
         if (!over) {
             prstrfl("Word overflow.\n");
@@ -824,8 +836,9 @@ s1:
 }
 #ifdef NROFF
 extern char trtab[];
-gettch() {
-    register int i, j;
+/* Wrapper around getch that handles underline logic. */
+int gettch(void) {
+    int i, j;
 
     if (!((i = getch()) & MOT) && (i & ulbit)) {
         j = i & CMASK;

@@ -4,7 +4,8 @@
 #include "tw.h"
 #include <stdlib.h> /* exit */
 #include <unistd.h> /* read, close, open */
-#include <fcntl.h>  /* open flags */
+#include <fcntl.h> /* open flags */
+#include <sys/wait.h>
 #include "proto.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -43,9 +44,9 @@ int bdmode;
 int plotmode;
 static char Sccsid[] = "@(#)n10.c  1.3 of 4/26/77";
 
-ptinit() {
-    register i;
-    register char **p;
+void ptinit(void) {
+    int i;
+    char **p;
     char *q;
     int qsize;
     char *x[8];
@@ -84,7 +85,7 @@ ptinit() {
     if (eqflg)
         t.Adj = t.Hor;
 }
-twdone() {
+void twdone(void) {
     obufp = obuf;
     oputs(t.twrest);
     flusho();
@@ -95,8 +96,7 @@ twdone() {
     ttys[2] = ttysave;
     stty(1, ttys);
 }
-ptout(i) int i;
-{
+void ptout(int i) {
     *olinep++ = i;
     if (olinep >= &oline[LNSIZE])
         olinep--;
@@ -118,9 +118,9 @@ ptout(i) int i;
     dip->alss = 0;
     olinep = oline;
 }
-ptout1() {
-    register i, k;
-    register char *codep;
+static void ptout1(void) {
+    int i, k;
+    char *codep;
     int *q, w, j, phyw;
 
     for (q = oline; q < olinep; q++) {
@@ -184,10 +184,9 @@ ptout1() {
                 oput('\b');
     }
 }
-plot(x) char *x;
-{
-    register int i;
-    register char *j, *k;
+static char *plot(char *x) {
+    int i;
+    char *j, *k;
 
     if (!plotmode)
         oputs(t.ploton);
@@ -216,9 +215,9 @@ plot(x) char *x;
     }
     return (k);
 }
-move() {
-    register k;
-    register char *i, *j;
+static void move(void) {
+    int k;
+    char *i, *j;
     char *p, *q;
     int iesct, dt;
 
@@ -285,8 +284,8 @@ move() {
     }
     esc = lead = 0;
 }
-ptlead() { move(); }
-dostop() {
+void ptlead(void) { move(); }
+void dostop(void) {
     int junk;
 
     flusho();
