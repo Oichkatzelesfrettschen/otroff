@@ -42,42 +42,42 @@ static void output_filled(void);
  * with justification applied.
  */
 void text_line(const char *s) {
-  while (*s) {
-    /* skip leading whitespace */
-    while (*s && isspace((unsigned char)*s)) {
-      if (*s == '\n')
-        flush_line();
-      ++s;
+    while (*s) {
+        /* skip leading whitespace */
+        while (*s && isspace((unsigned char)*s)) {
+            if (*s == '\n')
+                flush_line();
+            ++s;
+        }
+
+        if (!*s)
+            break;
+
+        /* copy the next word */
+        char word[128];
+        size_t wlen = 0;
+        while (s[wlen] && !isspace((unsigned char)s[wlen]) &&
+               wlen < sizeof(word) - 1) {
+            word[wlen] = s[wlen];
+            wlen++;
+        }
+        word[wlen] = '\0';
+        s += wlen;
+
+        /* flush line if the word would overflow */
+        if (line_len && line_len + 1 + wlen > ROFF_LINE_WIDTH)
+            flush_line();
+
+        if (line_len && fill_enabled)
+            line_buf[line_len++] = ' ';
+
+        memcpy(line_buf + line_len, word, wlen);
+        line_len += wlen;
+        line_buf[line_len] = '\0';
+
+        /* track the number of words currently stored */
+        word_count++;
     }
-
-    if (!*s)
-      break;
-
-    /* copy the next word */
-    char word[128];
-    size_t wlen = 0;
-    while (s[wlen] && !isspace((unsigned char)s[wlen]) &&
-           wlen < sizeof(word) - 1) {
-      word[wlen] = s[wlen];
-      wlen++;
-    }
-    word[wlen] = '\0';
-    s += wlen;
-
-    /* flush line if the word would overflow */
-    if (line_len && line_len + 1 + wlen > ROFF_LINE_WIDTH)
-      flush_line();
-
-    if (line_len && fill_enabled)
-      line_buf[line_len++] = ' ';
-
-    memcpy(line_buf + line_len, word, wlen);
-    line_len += wlen;
-    line_buf[line_len] = '\0';
-
-    /* track the number of words currently stored */
-    word_count++;
-  }
 }
 
 /*
@@ -86,23 +86,23 @@ void text_line(const char *s) {
  * full line width.
  */
 static void flush_line(void) {
-  if (!line_len)
-    return;
+    if (!line_len)
+        return;
 
-  /* break the current line into words */
-  memcpy(work_buf, line_buf, line_len + 1);
-  word_count = 0;
-  char *t = strtok(work_buf, " ");
-  while (t && word_count < 64) {
-    word_list[word_count++] = t;
-    t = strtok(NULL, " ");
-  }
+    /* break the current line into words */
+    memcpy(work_buf, line_buf, line_len + 1);
+    word_count = 0;
+    char *t = strtok(work_buf, " ");
+    while (t && word_count < 64) {
+        word_list[word_count++] = t;
+        t = strtok(NULL, " ");
+    }
 
-  adjust_line();
-  output_filled();
+    adjust_line();
+    output_filled();
 
-  line_len = 0;
-  word_count = 0;
+    line_len = 0;
+    word_count = 0;
 }
 
 /*
@@ -113,24 +113,24 @@ static void flush_line(void) {
  * routine in roff4.s.
  */
 static void adjust_line(void) {
-  fac = 0;
-  fmq = 0;
+    fac = 0;
+    fmq = 0;
 
-  if (!adjust_enabled || word_count <= 1)
-    return;
+    if (!adjust_enabled || word_count <= 1)
+        return;
 
-  size_t letters = 0;
-  int i;
-  for (i = 0; i < word_count; ++i)
-    letters += strlen(word_list[i]);
+    size_t letters = 0;
+    int i;
+    for (i = 0; i < word_count; ++i)
+        letters += strlen(word_list[i]);
 
-  int spaces = ROFF_LINE_WIDTH - (int)letters;
-  if (spaces <= 0)
-    return;
+    int spaces = ROFF_LINE_WIDTH - (int)letters;
+    if (spaces <= 0)
+        return;
 
-  int gaps = word_count - 1;
-  fac = spaces / gaps;
-  fmq = spaces % gaps;
+    int gaps = word_count - 1;
+    fac = spaces / gaps;
+    fmq = spaces % gaps;
 }
 
 /*
@@ -138,28 +138,28 @@ static void adjust_line(void) {
  * adjust_line().  Behaviour is similar to the original fill routine.
  */
 static void output_filled(void) {
-  if (!adjust_enabled || !fill_enabled || word_count == 0 ||
-      line_len >= ROFF_LINE_WIDTH) {
-    fwrite(line_buf, 1, line_len, stdout);
-    putchar('\n');
-    return;
-  }
-
-  int i;
-  for (i = 0; i < word_count; ++i) {
-    int j;
-    fputs(word_list[i], stdout);
-    if (i < word_count - 1) {
-      int n = fac;
-      if (fmq > 0) {
-        n++;
-        fmq--;
-      }
-      for (j = 0; j < n; ++j)
-        putchar(' ');
+    if (!adjust_enabled || !fill_enabled || word_count == 0 ||
+        line_len >= ROFF_LINE_WIDTH) {
+        fwrite(line_buf, 1, line_len, stdout);
+        putchar('\n');
+        return;
     }
-  }
-  putchar('\n');
+
+    int i;
+    for (i = 0; i < word_count; ++i) {
+        int j;
+        fputs(word_list[i], stdout);
+        if (i < word_count - 1) {
+            int n = fac;
+            if (fmq > 0) {
+                n++;
+                fmq--;
+            }
+            for (j = 0; j < n; ++j)
+                putchar(' ');
+        }
+    }
+    putchar('\n');
 }
 
 /* force a newline in the output */
