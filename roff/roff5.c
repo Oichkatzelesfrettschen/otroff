@@ -183,3 +183,12 @@ int checkvow(const char *p) {
     (void)p;
     return 0;
 }
+
+/*
+ * rdsuf -- stub representing the `rdsuf` subroutine in roff5.s which read
+ * suffix information.  This simplified version merely logs the call.
+ */
+void rdsuf(const char *name) {
+    (void)name;
+    puts("[stub] rdsuf");
+}

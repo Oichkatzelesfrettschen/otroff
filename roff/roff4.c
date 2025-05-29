@@ -179,3 +179,9 @@ void space(int n, int (*put)(int)) {
     while (n-- > 0)
         put(' ');
 }
+
+/*
+ * headin -- stub for the header input routine labelled `headin` in
+ * roff4.s.  The real implementation parsed header templates.
+ */
+void headin(void) { puts("[stub] headin"); }
