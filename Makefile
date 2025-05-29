@@ -15,16 +15,40 @@ LDFLAGS ?=
 
 # Collect source files across the project.  Only the modern C
 # replacements located under `roff/` are built.
-SRC_C := $(wildcard roff/*.c)
+# Source files for each project directory
+ROFF_SRC := $(wildcard roff/*.c)
+CROFF_SRC := $(wildcard croff/*.c)
+TBL_SRC   := $(wildcard tbl/*.c)
+NEQN_SRC  := $(wildcard neqn/*.c)
+
+# Device driver sources for troff
+CROFF_TERMS ?= $(wildcard croff/term/tab*.c)
+
 OBJDIR := build
-OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(SRC_C))
+
+# Map source files to objects inside $(OBJDIR)
+ROFF_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(ROFF_SRC))
+CROFF_OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_SRC))
+TBL_OBJ   := $(patsubst %.c,$(OBJDIR)/%.o,$(TBL_SRC))
+NEQN_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(NEQN_SRC))
+CROFF_TERM_OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_TERMS))
+
+ALL_OBJ := $(ROFF_OBJ) $(CROFF_OBJ) $(TBL_OBJ) $(NEQN_OBJ) $(CROFF_TERM_OBJ)
 
 ifdef USE_SSE
 SRC_SSE := roff/sse_memops.S
-OBJ += $(patsubst %.S,$(OBJDIR)/%.o,$(SRC_SSE))
+ROFF_OBJ += $(patsubst %.S,$(OBJDIR)/%.o,$(SRC_SSE))
+ALL_OBJ  += $(patsubst %.S,$(OBJDIR)/%.o,$(SRC_SSE))
 endif
 
-all: $(OBJ)
+# Default target builds everything
+all: $(ALL_OBJ)
+
+# Build individual components
+croff: $(CROFF_OBJ) $(CROFF_TERM_OBJ)
+tbl:   $(TBL_OBJ)
+neqn:  $(NEQN_OBJ)
+roff:  $(ROFF_OBJ)
 
 $(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
@@ -37,4 +61,4 @@ $(OBJDIR)/%.o: %.S
 clean:
 	rm -rf $(OBJDIR)
 
-.PHONY: all clean
+.PHONY: all clean croff tbl neqn roff

@@ -26,6 +26,19 @@ make CPU=x86-64   # build using generic x86‑64 settings
 make CPU=haswell  # build for newer Intel chips
 ```
 
+Building individual components
+------------------------------
+Subprojects can be compiled separately by invoking dedicated make
+targets.  The `CROFF_TERMS` variable controls which device drivers are
+built for `troff`:
+
+```
+make croff                  # build croff and all term drivers
+make croff CROFF_TERMS=croff/term/tab37.c  # build for the TTY37 only
+make tbl                    # build the tbl preprocessor
+make neqn                   # build the neqn equation formatter
+```
+
 
 Setup environment
 -----------------
