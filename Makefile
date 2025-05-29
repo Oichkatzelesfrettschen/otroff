@@ -19,9 +19,18 @@ SRC_C := $(wildcard roff/*.c)
 OBJDIR := build
 OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(SRC_C))
 
+ifdef USE_SSE
+SRC_SSE := roff/sse_memops.S
+OBJ += $(patsubst %.S,$(OBJDIR)/%.o,$(SRC_SSE))
+endif
+
 all: $(OBJ)
 
 $(OBJDIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.S
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
