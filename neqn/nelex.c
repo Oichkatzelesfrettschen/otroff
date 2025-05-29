@@ -68,7 +68,11 @@ int speek[10];
 char *swt[10];
 int sw -1;
 
-getc(){
+/*
+ * read next character, handling includes
+ */
+int getc(void)
+{
   loop:
 	if(sw >= 0){
 		lastchar = (peek<0) ? *swt[sw]++ : peek;
@@ -94,8 +98,12 @@ getc(){
 	error(FATAL,"can't open file %s\n", svargv[ifile]);
 }
 
-yylex(){
-	int c, type;
+/*
+ * lexical analyzer for neqn
+ */
+int yylex(void)
+{
+       int c, type;
   beg:
 	while( (c=getc())==' ' || c=='\n');
 	yylval=c;
@@ -160,8 +168,12 @@ yylex(){
 		return( keytab[type].keyval );
 }
 
-getstr(s,c) char *s, c; {
-	for (sp=0; c!=' ' && c!='\t' && c!='\n' && c!='{' && c!='}'
+/*
+ * read a string token terminated by c
+ */
+void getstr(char *s, int c)
+{
+       for (sp=0; c!=' ' && c!='\t' && c!='\n' && c!='{' && c!='}'
 		&& c!='"' && c!='~' && c!='^' && c!=righteq; ) {
 		if(c == '\\') if((c = getc()) != '"')s[sp++] = '\\';
 		s[sp++] = c;
@@ -175,11 +187,12 @@ getstr(s,c) char *s, c; {
 	yylval = s;
 }
 
-lookup(str,tbl)
-char *str;
-struct { char *name; char *val; } tbl[];
+/*
+ * search a lookup table
+ */
+int lookup(char *str, struct { char *name; char *val; } tbl[])
 {
-	register i,j, r;
+       register i, j, r;
 	for(i=0; tbl[i].name!=0; i++){ /* table of tbl wds */
 		for( j=0; (r=tbl[i].name[j])==str[j] && r!='\0'; j++);
 		if( r == str[j] )
@@ -188,8 +201,12 @@ struct { char *name; char *val; } tbl[];
 	return( -1 );
 }
 
-cstr(s,quote) char *s; int quote; {
-	int del,c,i;
+/*
+ * collect a delimited string
+ */
+char *cstr(char *s, int quote)
+{
+       int del, c, i;
 	while((del=getc()) == ' ' || del == '\t' || del == '\n');
 	if(quote)
 		for(i=0; (c=getc()) != del;)
@@ -203,7 +220,11 @@ cstr(s,quote) char *s; int quote; {
 	return(s);
 }
 
-define(type) int type; {
+/*
+ * process a define statement
+ */
+void define(int type)
+{
 	/*	char *alloc (); */
 	int i, c;
 	while( (c=getc())==' ' || c=='\n' );
@@ -230,8 +251,12 @@ define(type) int type; {
 		deftab[yyval].sptr, deftab[yyval].sptr);
 }
 
-delim() {
-	char *s;
+/*
+ * set equation delimiters
+ */
+void delim(void)
+{
+       char *s;
 	yyval = eqnreg = 0;
 	cstr(token,0);
 	lefteq = token[0];
@@ -240,9 +265,13 @@ delim() {
 		lefteq = righteq = '\0';
 }
 
-globsize() {
-	extern int gsize;
-	int c;
+/*
+ * set global size parameter
+ */
+void globsize(void)
+{
+       extern int gsize;
+       int c;
 	while( (c=getc())==' ' || c=='\n' );
 	getstr(token,c);
 	gsize = numb(token);
@@ -250,9 +279,13 @@ globsize() {
 	setps(gsize);
 }
 
-globfont() {
-	extern int gfont;
-	while( (gfont=getc())==' ' || gfont=='\n' );
-	yyval = eqnreg = 0;
-	printf(".ft %c\n", gfont);
+/*
+ * set global font
+ */
+void globfont(void)
+{
+       extern int gfont;
+       while( (gfont=getc())==' ' || gfont=='\n' );
+       yyval = eqnreg = 0;
+       printf(".ft %c\n", gfont);
 }
