@@ -482,6 +482,7 @@ int getrq(void) {
 rtn:
     return (i);
 }
+/* Fetch the next input character and process escapes. */
 int getch(void) {
     register int i, j, k;
 
@@ -712,6 +713,7 @@ g2:
 }
 /* Input filter translation table */
 char ifilt[32] = {0, 001, 002, 003, 0, 005, 006, 007, 010, 011, 012};
+/* Low-level input routine: read next character from buffers or files. */
 int getch0(void) {
     register int i, j, k;
 
@@ -784,6 +786,7 @@ g4:
         i = (i & ~CMASK) | ESC;
     return (i);
 }
+/* Switch to the next input file when needed. */
 int nextfile(void) {
     register char *p;
 
@@ -823,6 +826,7 @@ n2:
     v.cd = ioff = ifile = stdi = mflg = 0;
     return (0);
 }
+/* Restore previous file from the include stack. */
 int popf(void) {
     register i, *p, *q;
 
@@ -847,6 +851,7 @@ int popf(void) {
             return (1);
     return (0);
 }
+/* Drain input until end-of-line, clearing pending characters. */
 void flushi(void) {
     if (nflush)
         return;
@@ -863,6 +868,7 @@ void flushi(void) {
     copyf--;
     v.hp = 0;
 }
+/* Get an ASCII character, stripping motion bits. */
 int getach(void) {
     register i;
 
@@ -877,6 +883,7 @@ int getach(void) {
     lgf--;
     return (i & 0177);
 }
+/* Process the .nx request to continue with the next file. */
 void casenx(void) {
     lgf++;
     skip();
@@ -888,6 +895,7 @@ void casenx(void) {
     frame = stk;
     nxf = frame + STKSIZE;
 }
+/* Read a filename or macro name into nextf. */
 int getname(void) {
     register int i, j, k;
 
@@ -903,6 +911,7 @@ int getname(void) {
     lgf--;
     return (nextf[0]);
 }
+/* Handle the .so request to source another file. */
 void caseso(void) {
     register i, *p, *q;
 
@@ -928,6 +937,7 @@ void caseso(void) {
             *q++ = *p++;
     }
 }
+/* Parse a list of page numbers from a string. */
 void getpn(char *a) {
     register i, neg;
     LONG0 atoi1();
@@ -970,6 +980,7 @@ fini:
     if (*pnp != -1)
         chkpn();
 }
+/* Set up character repetition for the RPT escape. */
 void setrpt(void) {
     register i, j;
 
