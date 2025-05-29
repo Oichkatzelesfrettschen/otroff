@@ -2,7 +2,7 @@
 #include <time.h>
 
 /*
- * Return the current time as a time_t value.
+ * Return the current wall-clock time in seconds since the Epoch.
  */
 time_t current_time(void) {
     return time(NULL);
