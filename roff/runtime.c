@@ -14,8 +14,7 @@
  * Disable or restore write permission on the controlling terminal in
  * a manner similar to the original `mesg` routine.
  */
-void mesg(int enable)
-{
+void mesg(int enable) {
     char *tty = ttyname(STDOUT_FILENO);
     if (!tty)
         return;
@@ -36,8 +35,7 @@ void mesg(int enable)
  * current column in the global variable ``ocol``; here it is passed in
  * explicitly and the distance to the next multiple of eight is returned.
  */
-int dsp(int column)
-{
+int dsp(int column) {
     int r = 0;
     do {
         r += 8;
@@ -51,8 +49,7 @@ int dsp(int column)
 /*
  * Write the contents of ``buf`` to stdout and reset the pointer ``p``.
  */
-void flush_output(char *buf, size_t *p)
-{
+void flush_output(char *buf, size_t *p) {
     if (*p) {
         write(STDOUT_FILENO, buf, *p);
         *p = 0;

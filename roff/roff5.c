@@ -40,22 +40,22 @@ static const char ptab[] = " .,()\"'`";
  * weight of zero.
  */
 static int digram_lookup(int c1, int c2, const unsigned char *table) {
-  if (!alph(c1) || !alph(c2))
-    return 0;
+    if (!alph(c1) || !alph(c2))
+        return 0;
 
-  c1 = tolower(c1) - 'a';
-  c2 = tolower(c2) - 'a';
+    c1 = tolower(c1) - 'a';
+    c2 = tolower(c2) - 'a';
 
-  if (c1 < 0 || c1 >= 26 || c2 < 0 || c2 >= 26)
-    return 0;
+    if (c1 < 0 || c1 >= 26 || c2 < 0 || c2 >= 26)
+        return 0;
 
-  int index = 13 * c1 + (c2 >> 1);
-  unsigned char val = table[index];
+    int index = 13 * c1 + (c2 >> 1);
+    unsigned char val = table[index];
 
-  if (c2 & 1)
-    val >>= 4;
+    if (c2 & 1)
+        val >>= 4;
 
-  return val & 0x0f;
+    return val & 0x0f;
 }
 
 /*
@@ -67,20 +67,20 @@ static int digram_lookup(int c1, int c2, const unsigned char *table) {
  * Returns the suggested hyphen index or -1 if no suffix rule matches.
  */
 static int suffix(const char *start, const char *end) {
-  size_t len = (size_t)(end - start + 1);
+    size_t len = (size_t)(end - start + 1);
 
-  if (len > 5 && strncmp(end - 2, "ing", 3) == 0)
-    return (int)(len - 3);
-  if (len > 4 && strncmp(end - 1, "es", 2) == 0)
-    return (int)(len - 2);
-  if (len > 4 && strncmp(end - 1, "ed", 2) == 0)
-    return (int)(len - 2);
-  if (len > 4 && strncmp(end - 1, "er", 2) == 0)
-    return (int)(len - 2);
-  if (len > 4 && strncmp(end - 1, "ly", 2) == 0)
-    return (int)(len - 2);
+    if (len > 5 && strncmp(end - 2, "ing", 3) == 0)
+        return (int)(len - 3);
+    if (len > 4 && strncmp(end - 1, "es", 2) == 0)
+        return (int)(len - 2);
+    if (len > 4 && strncmp(end - 1, "ed", 2) == 0)
+        return (int)(len - 2);
+    if (len > 4 && strncmp(end - 1, "er", 2) == 0)
+        return (int)(len - 2);
+    if (len > 4 && strncmp(end - 1, "ly", 2) == 0)
+        return (int)(len - 2);
 
-  return -1;
+    return -1;
 }
 
 /*
@@ -93,29 +93,29 @@ static int suffix(const char *start, const char *end) {
  * to `start`, or -1 if no position exceeds a minimal threshold.
  */
 static int digram(const char *start, const char *end) {
-  size_t len = (size_t)(end - start + 1);
-  int best_score = 0;
-  int best_pos = -1;
+    size_t len = (size_t)(end - start + 1);
+    int best_score = 0;
+    int best_pos = -1;
 
-  size_t i;
-  for (i = 1; i + 1 < len; ++i) {
-    int score = 1;
+    size_t i;
+    for (i = 1; i + 1 < len; ++i) {
+        int score = 1;
 
-    score += digram_lookup(start[i - 1], start[i], xxh);
-    score += digram_lookup(start[i], start[i + 1], xhx);
-    score += digram_lookup(start[i - 1], start[i + 1], bxxh);
-    score += digram_lookup(start[i], start[i + 1], hxx);
+        score += digram_lookup(start[i - 1], start[i], xxh);
+        score += digram_lookup(start[i], start[i + 1], xhx);
+        score += digram_lookup(start[i - 1], start[i + 1], bxxh);
+        score += digram_lookup(start[i], start[i + 1], hxx);
 
-    if (i == 1)
-      score += digram_lookup('a', start[i], bxh);
+        if (i == 1)
+            score += digram_lookup('a', start[i], bxh);
 
-    if (score > best_score) {
-      best_score = score;
-      best_pos = (int)i;
+        if (score > best_score) {
+            best_score = score;
+            best_pos = (int)i;
+        }
     }
-  }
 
-  return best_score > 20 ? best_pos : -1;
+    return best_score > 20 ? best_pos : -1;
 }
 
 /*
@@ -126,32 +126,32 @@ static int digram(const char *start, const char *end) {
  * hyphen position was found.
  */
 int hyphenate(const char *w) {
-  const char *p = w;
+    const char *p = w;
 
-  while (*p && punct((unsigned char)*p))
-    ++p;
+    while (*p && punct((unsigned char)*p))
+        ++p;
 
-  if (!*p || !alph((unsigned char)*p))
-    return 0;
+    if (!*p || !alph((unsigned char)*p))
+        return 0;
 
-  const char *start = p++;
-  while (*p && alph((unsigned char)*p))
-    ++p;
-  const char *end = p - 1;
+    const char *start = p++;
+    while (*p && alph((unsigned char)*p))
+        ++p;
+    const char *end = p - 1;
 
-  while (*p && punct((unsigned char)*p))
-    ++p;
-  if (*p)
-    return 0;
+    while (*p && punct((unsigned char)*p))
+        ++p;
+    if (*p)
+        return 0;
 
-  if ((end - start) < 4)
-    return 0;
+    if ((end - start) < 4)
+        return 0;
 
-  int pos = suffix(start, end);
-  if (pos == -1)
-    pos = digram(start, end);
+    int pos = suffix(start, end);
+    if (pos == -1)
+        pos = digram(start, end);
 
-  return pos != -1;
+    return pos != -1;
 }
 
 /*
@@ -160,16 +160,16 @@ int hyphenate(const char *w) {
  * invokes the (stubbed) suffix and digram routines.
  */
 void hyphen_driver(const char *word) {
-  /* Wrapper retained for compatibility with the original source. */
-  if (hyphenate(word))
-    printf("%s-\n", word);
-  else
-    puts(word);
+    /* Wrapper retained for compatibility with the original source. */
+    if (hyphenate(word))
+        printf("%s-\n", word);
+    else
+        puts(word);
 }
 
 void do_hyphen(const char *w) {
-  if (hyphenate(w))
-    printf("%s-\n", w);
-  else
-    puts(w);
+    if (hyphenate(w))
+        printf("%s-\n", w);
+    else
+        puts(w);
 }

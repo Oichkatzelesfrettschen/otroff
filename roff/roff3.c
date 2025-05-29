@@ -24,21 +24,18 @@ int maplow(int c) { return tolower((unsigned char)c); }
  */
 int ch = 0;
 
-
-
 /*
  * getchar -- simplified translation of the `getchar:` routine from
  * roff1.s.  Only the pushback via `ch` is modeled here.
  */
 #undef getchar
-int getchar(void)
-{
-  int c = ch;
-  if (c != 0) {
-    ch = 0;
-    return c;
-  }
-  return fgetc(stdin);
+int getchar(void) {
+    int c = ch;
+    if (c != 0) {
+        ch = 0;
+        return c;
+    }
+    return fgetc(stdin);
 }
 
 /*
@@ -51,11 +48,9 @@ int getchar(void)
  */
 extern void nline(void); /* label `newline` in roff4.s */
 
-void rbreak(void)
-{
-  nline();
+void rbreak(void) {
+    nline();
 }
-
 
 /*
  * skipcont -- consume continuation characters following a request name.
@@ -66,15 +61,15 @@ void rbreak(void)
  * character encountered is stored in `ch` for the caller.
  */
 void skipcont(void) {
-  int c;
+    int c;
 
-  /* Skip over alphabetic continuation characters. */
-  while ((c = getchar()) != EOF && isalpha(c))
-    ;
+    /* Skip over alphabetic continuation characters. */
+    while ((c = getchar()) != EOF && isalpha(c))
+        ;
 
-  /* Consume trailing spaces. */
-  while (c == ' ')
-    c = getchar();
+    /* Consume trailing spaces. */
+    while (c == ' ')
+        c = getchar();
 
-  ch = c;
+    ch = c;
 }

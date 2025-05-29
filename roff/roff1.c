@@ -26,17 +26,16 @@ static unsigned char trtab[128];
 
 /* flags roughly matching the assembly globals */
 static int stop_flag; /* ``stop`` */
-static int slow = 1;  /* ``slow`` */
-static int pfrom;     /* ``pfrom`` */
-static int pto;       /* ``pto`` */
+static int slow = 1; /* ``slow`` */
+static int pfrom; /* ``pfrom`` */
+static int pto; /* ``pto`` */
 
 /* temporary buffer from ``makebf`` */
 static char tmp_name[] = "roffbufXXXXXX";
 static int tmp_fd = -1;
 
 /* cleanup -- corresponds to label ``place`` */
-static void cleanup(int sig)
-{
+static void cleanup(int sig) {
     (void)sig;
     mesg(1);
     if (tmp_fd != -1) {
@@ -47,8 +46,7 @@ static void cleanup(int sig)
 }
 
 /* makebf -- create temporary buffer file */
-static void makebf(void)
-{
+static void makebf(void) {
     tmp_fd = mkstemp(tmp_name);
     if (tmp_fd == -1) {
         perror("mkstemp");
@@ -57,8 +55,7 @@ static void makebf(void)
 }
 
 /* load_suffixes -- part of the ``ibuf`` start-up */
-static void load_suffixes(void)
-{
+static void load_suffixes(void) {
     int fd = open("suffil", O_RDONLY);
     if (fd == -1)
         return;
@@ -68,8 +65,7 @@ static void load_suffixes(void)
 }
 
 /* parse_args -- translate argument handling from ``ibuf`` */
-static void parse_args(int argc, char **argv)
-{
+static void parse_args(int argc, char **argv) {
     int i;
     for (i = 1; i < argc; ++i) {
         char *a = argv[i];
@@ -93,10 +89,9 @@ static void parse_args(int argc, char **argv)
 }
 
 /* main -- entry translated from label ``ibuf`` */
-int main(int argc, char **argv)
-{
-    mesg(0);                    /* disable messages to tty */
-    signal(SIGINT, cleanup);    /* jump to ``place`` on signals */
+int main(int argc, char **argv) {
+    mesg(0); /* disable messages to tty */
+    signal(SIGINT, cleanup); /* jump to ``place`` on signals */
     signal(SIGQUIT, cleanup);
 
     makebf();
