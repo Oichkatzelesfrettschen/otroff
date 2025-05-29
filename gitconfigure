@@ -8,5 +8,7 @@
 set -e
 
 # Register the filter's clean and smudge commands.
-git config filter.stripnul.clean 'tools/git-strip-nul.sh'
-git config filter.stripnul.smudge cat
+# Use an absolute path so Git always finds the script.
+git config filter.stripnul.clean "\"$(pwd)/tools/git-strip-nul.sh\""
+# Quote the smudge command as well for consistency.
+git config filter.stripnul.smudge "\"cat\""
