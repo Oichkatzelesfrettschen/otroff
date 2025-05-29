@@ -1,4 +1,4 @@
-# include "ne.h"
+#include "ne.h" /* main neqn definitions */
 #include <stdio.h> /* printf */
 
 /*

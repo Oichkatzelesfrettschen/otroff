@@ -1,5 +1,5 @@
- /* tt.c: subroutines for drawing horizontal lines */
-# include "tbl.h"
+/* tt.c: subroutines for drawing horizontal lines */
+#include "tbl.h" /* table internals */
 ctype(il, ic)
 {
 if (instead[il])
