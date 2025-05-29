@@ -10,4 +10,4 @@ neqn/neqnrc         linguist-language=Shell
 # Normalize line endings for source files
 *.c text
 *.h text
-*.s text
+*.s text diff
