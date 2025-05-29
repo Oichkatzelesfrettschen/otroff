@@ -36,7 +36,8 @@ extern int cps;
 extern int chbits;
 extern int suffid;
 extern int sufind[26];
-extern const unsigned char suftab_data[];
+/* Table of offsets for each starting letter. */
+extern const unsigned short suftab_index[26];
 extern void sub1(int *, int);
 extern int ibf;
 extern int ttyod;
@@ -313,7 +314,7 @@ char a;
         * Load suffix index table from the built-in array. The first
         * 26 words hold offsets for each letter.
         */
-       memcpy(sufind, suftab_data, sizeof(sufind));
+       memcpy(sufind, suftab_index, sizeof(sufind));
 
 	p = mktemp("/tmp/taXXXXX");
 	if(a == 'a')p = &p[5];
