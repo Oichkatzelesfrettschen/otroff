@@ -105,7 +105,26 @@ extern int nrbits;
 extern int nmbits;
 extern int xxx;
 int brflg;
-static char Sccsid[] "@(#)n7.c	1.2 of 3/4/77";
+static char Sccsid[] = "@(#)n7.c  1.2 of 3/4/77";
+int tbreak(void);
+int donum(void);
+int text(void);
+int nofill(void);
+int callsp(void);
+int ckul(void);
+int storeline(int c, int w);
+int newline(int a);
+int findn1(int a);
+int chkpn(void);
+int findt(int a);
+int findt1(void);
+int eject(int *a);
+int movword(void);
+int horiz(int i);
+int setnel(void);
+int getword(int x);
+int storeword(int c, int w);
+int gettch(void);
 
 tbreak(){
 	register *i, j, pad;

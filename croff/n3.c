@@ -60,7 +60,7 @@ extern struct contab {
 int blist[NBLIST];
 int wbuf[BLK];
 int rbuf[BLK];
-static char Sccsid[] "@(#)n3.c	1.3 of 3/29/77";
+static char Sccsid[] = "@(#)n3.c  1.3 of 3/29/77";
 
 caseig(){
 	register i;

@@ -1,5 +1,5 @@
 #include "tdef.h"
-static char Sccsid[] "@(#)ni.c	1.3 of 4/26/77";
+static char Sccsid[] = "@(#)ni.c  1.3 of 4/26/77";
 char obuf[OBUFSZ];
 char *obufp obuf;
 int r[NN] {'%','nl','yr','hp','ct','dn','mo','dy','dw','ln','dl','st','sb','c.'};

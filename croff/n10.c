@@ -33,7 +33,7 @@ extern int xxx;
 int dtab;
 int bdmode;
 int plotmode;
-static char Sccsid[] "@(#)n10.c	1.3 of 4/26/77";
+static char Sccsid[] = "@(#)n10.c  1.3 of 4/26/77";
 
 ptinit(){
 	register i;
