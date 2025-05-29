@@ -1,4 +1,5 @@
 #include "tdef.h"
+#include <stddef.h>
 
 /*
 troff8.c
@@ -15,7 +16,8 @@ extern int **hyp;
 extern int hyoff;
 extern int suffid;
 extern int sufind[26];
-extern const unsigned char suftab_data[];
+/* Accessor for suffix table bytes. */
+unsigned char suftab_get_byte(size_t);
 extern int noscale;
 extern int xxx;
 #define THRESH 160 /*digram goodness threshold*/
@@ -217,8 +219,8 @@ char *x;
 rdsufb(i)
 char *i;
 {
-       /* direct lookup from in-memory table */
-       return suftab_data[(int)i];
+       /* Direct lookup from the in-memory suffix table. */
+       return suftab_get_byte((size_t)i);
 }
 digram(){
 	register *w, val;
