@@ -16,8 +16,8 @@ Building
 --------
 Run `./setup.sh` while network access is available to install the
 required toolchain.  Afterwards the code can be built using `make`.
-Object files are compiled with the `-std=gnu89` option so that the
-legacy sources build cleanly on modern compilers.  The target CPU can be
+Object files are compiled with the `-std=c90` option so that the legacy
+sources build cleanly on modern compilers.  The target CPU can be
 specified via the `CPU` variable, for example:
 
 ```
