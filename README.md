@@ -25,6 +25,11 @@ make CPU=x86-64   # build using generic x86‑64 settings
 make CPU=haswell  # build for newer Intel chips
 ```
 
+Running Tests
+-------------
+Tests can be executed using `make test` (to be added) or by running `pytest`
+directly. Both approaches run the suite located under the `tests` directory.
+
 Building individual components
 ------------------------------
 Subprojects can be compiled separately by invoking dedicated make
