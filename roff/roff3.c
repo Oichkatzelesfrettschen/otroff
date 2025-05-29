@@ -73,3 +73,10 @@ void skipcont(void) {
 
     ch = c;
 }
+
+/* ---------------------------------------------------------------------- */
+/* number -- placeholder mirroring label ``number`` in roff3.s.  The
+ * original parsed a signed number from the input stream.  The stub
+ * simply returns zero.
+ */
+int number(void) { return 0; }

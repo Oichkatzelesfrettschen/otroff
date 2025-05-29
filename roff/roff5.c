@@ -173,3 +173,13 @@ void do_hyphen(const char *w) {
     else
         puts(w);
 }
+
+/* ---------------------------------------------------------------------- */
+/* checkvow -- stand in for the ``checkvow`` routine of roff5.s.  It
+ * tested for vowels moving backwards from a pointer.  The simplified
+ * version always returns false.
+ */
+int checkvow(const char *p) {
+    (void)p;
+    return 0;
+}
