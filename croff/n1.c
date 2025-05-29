@@ -122,13 +122,11 @@ int ms[] {31,28,31,30,31,30,31,31,30,31,30,31};
 #ifndef NROFF
 int acctf;
 #endif
-static char Sccsid[] "@(#)n1.c	1.7 of 4/26/77";
+static char Sccsid[] = "@(#)n1.c  1.7 of 4/26/77";
 
-main(argc,argv)
-int argc;
-char **argv;
+int main(int argc, char *argv[])
 {
-	char *p, *q;
+    char *p, *q;
 	int *cframe;
 	register i, j;
 	extern catch(), fpecatch(), kcatch();

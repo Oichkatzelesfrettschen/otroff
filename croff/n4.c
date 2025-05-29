@@ -51,7 +51,7 @@ extern struct contab {
 	int rq;
 	int (*f)();
 }contab[NM];
-static char Sccsid[] "@(#)n4.c	1.4 of 4/26/77";
+static char Sccsid[] = "@(#)n4.c  1.4 of 4/26/77";
 
 setn()
 {

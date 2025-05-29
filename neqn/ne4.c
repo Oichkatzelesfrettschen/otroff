@@ -6,9 +6,21 @@ int	gfont	'R';
 
 char	in[600];	/* input buffer */
 int	exit();
+int getline(char *s);
+int inline(void);
+int putout(int p1);
+int max(int i, int j);
+int oalloc(void);
+int ofree(int n);
+int setps(int p);
+int nrwid(int n1, int p, int n2);
+int setfile(int argc, char *argv[]);
+int yyerror(void);
+int init(void);
+int error(int fatal, char *s1, char *s2);
 int noeqn;
 
-main(argc,argv) int argc; char *argv[];{
+int main(int argc, char *argv[]) {
 	int i, type;
 	first = 0;
 	lefteq = righteq = '\0';

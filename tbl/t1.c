@@ -11,10 +11,12 @@
 # define MACROS "cc/troff/smac"
 # endif
 
+int tbl(int argc, char **argv);
+int setinp(int argc, char **argv);
+int swapin(void);
+int badsig(void);
 # define ever (;;)
-
-main(argc,argv)
-	char *argv[];
+int main(int argc, char *argv[])
 {
 # if gcos
 if(!intss()) tabout = fopen("qq", "w"); /* default media code is type 5 */

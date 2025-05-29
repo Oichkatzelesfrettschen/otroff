@@ -57,7 +57,7 @@ int error;
 #ifndef NROFF
 extern int acctf;
 #endif
-static char Sccsid[] "@(#)n2.c	1.8 of 5/13/77";
+static char Sccsid[] = "@(#)n2.c  1.8 of 5/13/77";
 
 pchar(c)
 int c;
