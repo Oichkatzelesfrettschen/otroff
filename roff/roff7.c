@@ -1,10 +1,18 @@
-/* hyphenation digram tables*/
+/*
+ * Hyphenation digram tables originally defined in roff7.s.
+ * Each array provides weighting values for specific letter
+ * combinations used by the hyphenation algorithm.
+ */
 
-char bxh[] = {
-	0060,0000,0040,0000,0040,0000,0000,0040,0000,0000,0040,0000,0040
-	};
+#include <stdint.h>
 
-char hxx[] = {
+/* Digram weights for sequences at the start of a word. */
+static const uint8_t bxh[] = {
+    0060,0000,0040,0000,0040,0000,0000,0040,0000,0000,0040,0000,0040
+};
+
+/* Weights for characters around the candidate hyphen position. */
+static const uint8_t hxx[] = {
 	0006,0042,0041,0123,0021,0024,0063,0042,0002,0043,0021,0001,0022,
 	0140,0000,0200,0003,0260,0006,0000,0160,0007,0000,0140,0000,0320,
 	0220,0000,0160,0005,0240,0010,0000,0100,0006,0000,0200,0000,0320,
@@ -33,7 +41,8 @@ char hxx[] = {
 	0300,0000,0040,0017,0140,0017,0000,0240,0000,0000,0140,0000,0120
 	};
 
-char bxxh[] = {
+/* Table spanning the letter before the break through the next two. */
+static const uint8_t bxxh[] = {
 	0005,0150,0153,0062,0062,0246,0152,0127,0146,0203,0310,0017,0206,
 	0100,0000,0120,0000,0140,0000,0000,0100,0000,0000,0120,0000,0060,
 	0100,0000,0040,0000,0060,0000,0000,0060,0000,0000,0220,0000,0040,
@@ -62,7 +71,8 @@ char bxxh[] = {
 	0240,0000,0020,0000,0120,0000,0000,0200,0000,0000,0200,0000,0240
 	};
 
-char xhx[] = {
+/* Weights starting one character after the break point. */
+static const uint8_t xhx[] = {
 	0032,0146,0042,0107,0076,0102,0042,0146,0202,0050,0006,0000,0051,
 	0036,0377,0057,0013,0057,0366,0377,0057,0001,0377,0057,0000,0040,
 	0037,0377,0020,0000,0100,0022,0377,0057,0362,0116,0100,0000,0017,
@@ -91,7 +101,8 @@ char xhx[] = {
 	0057,0012,0100,0360,0160,0360,0000,0040,0000,0017,0157,0000,0176
 	};
 
-char xxh[] = {
+/* Generic digram weight table used by several lookups. */
+static const uint8_t xxh[] = {
 	0045,0150,0154,0162,0042,0246,0210,0147,0152,0103,0230,0017,0206,
 	0100,0000,0040,0000,0140,0000,0000,0100,0000,0021,0120,0017,0060,
 	0100,0000,0040,0002,0140,0320,0000,0060,0000,0001,0220,0017,0040,
