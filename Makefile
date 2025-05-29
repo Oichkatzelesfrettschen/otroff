@@ -16,7 +16,7 @@ LDFLAGS ?=
 # Collect source files across the project.  Only the modern C
 # replacements located under `roff/` are built.
 # Source files for each project directory
-ROFF_SRC := $(wildcard roff/*.c)
+ROFF_SRC := $(filter-out roff/roff1.c,$(wildcard roff/*.c)) roff/roff1_full.c
 CROFF_SRC := $(wildcard croff/*.c)
 TBL_SRC   := $(wildcard tbl/*.c)
 NEQN_SRC  := $(wildcard neqn/*.c)
