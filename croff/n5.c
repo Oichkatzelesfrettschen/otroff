@@ -1,5 +1,6 @@
 #include "tdef.h"
 #include "t.h"
+#include "proto.h"
 /*
 troff5.c
 
@@ -37,7 +38,7 @@ extern int pl;
 extern int npn;
 extern int npnflg;
 extern int *frame;
-extern int *dip;
+extern struct env *dip;
 extern int copyf;
 extern char nextf[];
 extern int trap;
@@ -686,7 +687,7 @@ rdtty() {
     popi();
     tty = 0;
     if (quiet) {
-        ttys[2] = | ECHO;
+        ttys[2] |= ECHO;
         stty(0, ttys);
     }
     return (0);
@@ -716,10 +717,10 @@ caseta() {
         if (!nonumb)
             switch (j = ch & CMASK) {
             case 'C':
-                tabtab[i] = | CTAB;
+                tabtab[i] |= CTAB;
                 break;
             case 'R':
-                tabtab[i] = | RTAB;
+                tabtab[i] |= RTAB;
                 break;
             default: /*includes L*/
                 break;

@@ -1,6 +1,7 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include "proto.h"
 
 /*
 troff6.c
@@ -228,9 +229,9 @@ makem(i) int i;
         j = -j;
     j = (j & ~MOTV) | MOT;
     if (i < 0)
-        j = | NMOT;
+        j |= NMOT;
     if (vflag)
-        j = | VMOT;
+        j |= VMOT;
     return (j);
 }
 casefp() {
@@ -271,7 +272,7 @@ xlss() {
         j = -j;
     ch0 = ((j & 03700) << 3) | HX;
     if (i < 0)
-        ch0 = | 040000;
+        ch0 |= 040000;
     return (((j & 077) << 9) | LX);
 }
 caseps() {}
