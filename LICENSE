@@ -1,3 +1,16 @@
+AT&T PWB/UNIX troff (1977-1978)
+===============================
+
+This repository contains the source code for the historical `troff` typesetter
+from AT&T's PWB/UNIX distribution.  The files under `croff/`, `neqn/`, `roff/`
+and `tbl/` were extracted from the following archive preserved by The Unix
+Heritage Society:
+
+    http://www.tuhs.org/Archive/PDP-11/Distributions/usdl/bostic_pwb.tar.gz
+
+LICENSE
+=======
+
 Copyright (c) 2002, Caldera International, Inc.
 All rights reserved.
 
@@ -25,3 +38,10 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+MODERNIZATION NOTES
+===================
+
+Only the build helpers in this repository (e.g. `Makefile` and other top-level
+files) were added for modern C17 compilation; the core algorithm sources in the
+subdirectories preserve the original logic while being modernized to C17 standards.
