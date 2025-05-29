@@ -6,6 +6,15 @@
 #include <unistd.h> /* open, close */
 #include <fcntl.h> /* open flags */
 
+/* Forward declarations */
+int ngetc(void);
+#define getc ngetc
+static void *alloc(size_t n) { return calloc(1, n); }
+
+struct {
+    char *key;
+    int keyval;
+} keytab[] = {
 struct {
     char *key;
     int keyval;
@@ -63,17 +72,19 @@ struct {
     "ccol", CCOL,
     "rcol", RCOL,
     0, 0};
-int peek - 1;
+int peek = -1;
 #define SSIZE 400
 char token[SSIZE];
 int sp;
 int speek[10];
 char *swt[10];
-int sw - 1;
+int sw = -1;
 
 /*
  * read next character, handling includes
  */
+/* Custom input routine. */
+int ngetc(void) {
 int getc(void) {
 loop:
     if (sw >= 0) {
@@ -99,6 +110,8 @@ loop:
     if ((fin = open(svargv[ifile], 0)) >= 0)
         goto loop;
     error(FATAL, "can't open file %s\n", svargv[ifile]);
+    return ' ';
+
 }
 
 /*
@@ -193,6 +206,7 @@ void getstr(char *s, int c) {
 /*
  * search a lookup table
  */
+int lookup(char *str, lookup_tab tbl[]) {
 int lookup(char *str, struct { char *name; char *val; } tbl[]) {
     register i, j, r;
     for (i = 0; tbl[i].name != 0; i++) { /* table of tbl wds */

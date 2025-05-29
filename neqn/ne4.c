@@ -4,7 +4,13 @@
 #include <signal.h> /* signal */
 #include <unistd.h> /* open, close */
 #include <fcntl.h> /* open flags */
+#define getc ngetc
 #define SIGPIPE 13 /* troff has stopped reading */
+
+int gsize = 10;
+int gfont = 'R';
+
+char in[600]; /* input buffer */
 
 int gsize 10;
 int gfont 'R';
@@ -20,9 +26,12 @@ int ofree(int n);
 int setps(int p);
 int nrwid(int n1, int p, int n2);
 int setfile(int argc, char *argv[]);
+int yyparse(void);
 int yyerror(void);
 int init(void);
 int error(int fatal, char *s1, char *s2);
+int flush(int fd);
+int ngetc(void);
 int noeqn;
 
 int main(int argc, char *argv[]) {
@@ -56,12 +65,14 @@ int main(int argc, char *argv[]) {
             if (putchar(lastchar) != '\n')
                 while (putchar(getc()) != '\n')
                     ;
+            flush(fout);
             flush();
         } else if (type == lefteq)
             inline();
         else
             printf("%s", in);
     }
+    flush(fout);
     flush();
     exit(0);
 }
@@ -101,6 +112,7 @@ int inline(void) {
     printf(".ps \\n(99\n.ft \\n(98\n");
     printf("\\*(%d\n", ds);
     ofree(ds);
+    flush(fout);
     flush();
     return 0;
 }
@@ -143,6 +155,7 @@ int oalloc(void) {
     for (i = 11; i < 100; i++)
         if (used[i]++ == 0)
             return i;
+    error(FATAL, "no strings left", "");
     error(FATAL, "no strings left", i);
     return 0;
 }
@@ -225,10 +238,49 @@ int init(void) {
     ps = gsize;
     ft = gfont;
     first++;
+
     return 0;
 }
 
 /*
+ * Report an error message.
+ */
+int error(int fatal, char *s1, char *s2) {
+    int sfout;
+    if (fatal > 0)
+        printf("fatal error: ");
+    printf(s1, s2);
+    printf(" file %s, between lines %d and %d\n",
+           svargv[ifile], eqline, linect);
+    flush(fout);
+    sfout = fout;
+    fout = 2;
+    if (fatal > 0)
+        printf("fatal error: ");
+    printf(s1, s2);
+    printf(" file %s, between lines %d and %d\n",
+           svargv[ifile], eqline, linect);
+    flush(2);
+    fout = sfout;
+    if (fatal > 0)
+        exit(1);
+ * Initialize global state.
+ */
+int init(void) {
+    ct = 0;
+    ps = gsize;
+    ft = gfont;
+    first++;
+    return 0;
+}
+
+/*
+ * Flush output for the given file descriptor.
+ */
+int flush(int fd) {
+    if (fd == 2)
+        return fflush(stderr);
+    return fflush(stdout);
  * Report an error message.
  */
 int error(int fatal, char *s1, char *s2) {
