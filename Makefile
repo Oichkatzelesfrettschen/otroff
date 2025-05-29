@@ -58,4 +58,8 @@ $(OBJDIR)/%.o: %.c
 clean:
 	rm -rf $(OBJDIR)
 
-.PHONY: all clean croff tbl neqn roff
+.PHONY: all clean croff tbl neqn roff test
+
+# Run the test-suite using pytest
+test:
+	pytest -q

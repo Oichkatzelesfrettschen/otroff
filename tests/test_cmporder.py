@@ -14,8 +14,9 @@ def run_cmporder(input_lines: list[str]) -> list[str]:
     # Path to the cmporder executable script.
     cmporder_path = Path(__file__).resolve().parents[1] / "tools" / "cmporder.py"
 
-    # Create a single string from the input lines terminated by a newline.
-    joined = "\n".join(input_lines) + "\n"
+    # Create a single string from the input lines and append a newline
+    # only when input is non-empty.
+    joined = "\n".join(input_lines) + ("\n" if input_lines else "")
 
     # Execute the cmporder script using the current Python interpreter.
     result = subprocess.run(
@@ -60,3 +61,8 @@ def test_sorted_input_unchanged() -> None:
     # cmporder should not alter the ordering of an already sorted list.
     output = run_cmporder(lines)
     assert output == lines
+
+
+def test_empty_input_returns_empty_list() -> None:
+    """Verify cmporder returns an empty list for empty input."""
+    assert run_cmporder([]) == []
