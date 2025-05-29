@@ -2,9 +2,13 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include <stdlib.h> /* exit */
+#include <unistd.h> /* read, close, open */
+#include <fcntl.h>  /* open flags */
 #include "proto.h"
 #include <stdlib.h>
 #include <unistd.h>
+
 /*
 nroff10.c
 

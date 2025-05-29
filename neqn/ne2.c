@@ -1,4 +1,5 @@
 # include "ne.h"
+#include <stdio.h> /* printf */
 
 /*
  * build a box from one expression to another
