@@ -1,6 +1,7 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include "proto.h"
 #include <string.h>
 #include <stdlib.h> /* exit */
 #include <unistd.h> /* read, write, open, close */

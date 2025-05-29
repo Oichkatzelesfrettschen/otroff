@@ -126,7 +126,10 @@ static int digram(const char *start, const char *end) {
  * hyphen position was found.
  */
 int hyphenate(const char *w) {
-    const char *p = w;
+    const char *p = w; /* scanning pointer */
+    const char *start; /* start of alphabetic sequence */
+    const char *end; /* end of alphabetic sequence */
+    int pos; /* chosen hyphen position */
 
     while (*p && punct((unsigned char)*p))
         ++p;
@@ -134,10 +137,10 @@ int hyphenate(const char *w) {
     if (!*p || !alph((unsigned char)*p))
         return 0;
 
-    const char *start = p++;
+    start = p++;
     while (*p && alph((unsigned char)*p))
         ++p;
-    const char *end = p - 1;
+    end = p - 1;
 
     while (*p && punct((unsigned char)*p))
         ++p;
@@ -147,7 +150,7 @@ int hyphenate(const char *w) {
     if ((end - start) < 4)
         return 0;
 
-    int pos = suffix(start, end);
+    pos = suffix(start, end);
     if (pos == -1)
         pos = digram(start, end);
 
