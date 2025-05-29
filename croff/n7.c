@@ -1,4 +1,5 @@
 #include "tdef.h"
+#include "env.h"
 #include "t.h"
 #include "tw.h"
 #include "proto.h"
@@ -231,7 +232,7 @@ void tbreak(void) {
     un = in;
     setnel();
     newline(0);
-    if (*dip) {
+    if (dip->op) {
         if (dip->dnl > dip->hnl)
             dip->hnl = dip->dnl;
     } else {
@@ -558,7 +559,7 @@ void chkpn(void) {
         done1(0);
     }
     if (pto & MOT) {
-        pto = &~MOT;
+        pto &= ~MOT;
         print++;
         pfrom = 0;
     }
@@ -845,7 +846,8 @@ int gettch(void) {
         if (cu && (trtab[j] == ' '))
             i = ((i & ~ulbit) & ~CMASK) | '_';
         if (!cu && (j > 32) && (j < 0370) && !(*t.codetab[j - 32] & 0200))
-            i = &~ulbit;
+            i &= ~ulbit;
     }
     return (i);
 }
+#endif /* NROFF */

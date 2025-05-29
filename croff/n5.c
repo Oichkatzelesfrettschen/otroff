@@ -1,4 +1,5 @@
 #include "tdef.h"
+#include "env.h"
 #include "t.h"
 #include "proto.h"
 
@@ -100,7 +101,7 @@ extern struct contab {
     int rq;
     int (*f)();
 } contab[NM];
-static char Sccsid[] "@(#)n5.c	1.6 of 5/27/77";
+static char Sccsid[] = "@(#)n5.c  1.6 of 5/27/77";
 
 /* Adjust line justification */
 static void casead(void) {
@@ -558,7 +559,8 @@ caseif(x) int x;
         true = cmpstr(i);
     }
 i1:
-    true = ^notflag;
+    if (notflag)
+        true = !true;
     if (x == 1)
         iflist[ifx] = !true;
     if (true) {
@@ -604,7 +606,7 @@ cmpstr(delim) int delim;
 
     if (delim & MOT)
         return (0);
-    delim = &CMASK;
+    delim &= CMASK;
     if (dip->op)
         wbfl();
     if ((offset = begin = alloc()) == 0)
@@ -662,7 +664,7 @@ caserd() {
     getname();
     if (!iflg) {
         if (quiet) {
-            ttys[2] = &~ECHO;
+            ttys[2] &= ~ECHO;
             stty(0, ttys);
             prstrfl(""); /*bell*/
         } else {
@@ -758,7 +760,7 @@ casetr() {
     while ((i = getch() & CMASK) != '\n') {
         if ((i & MOT) || ((j = getch()) & MOT))
             return;
-        if ((j = &CMASK) == '\n')
+        if ((j &= CMASK) == '\n')
             j = ' ';
         trtab[i] = j;
     }

@@ -1,4 +1,5 @@
 #include "tdef.h"
+#include "env.h"
 #include "t.h"
 #include "proto.h"
 
@@ -65,6 +66,11 @@ int error;
 extern int acctf;
 #endif
 static char Sccsid[] = "@(#)n2.c  1.8 of 5/13/77";
+
+/* Prototypes for local helpers defined later. */
+static void oput(char i);
+static void oputs(char *i);
+static void flusho(void);
 
 pchar(c) int c;
 {
