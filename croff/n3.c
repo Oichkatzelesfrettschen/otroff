@@ -93,19 +93,19 @@ static void caserm(void) {
     skip();
     clrmn(findmn(getrq()));
 }
-caseas() {
+void caseas(void) {
     app++;
     caseds();
 }
-caseds() {
+void caseds(void) {
     ds++;
     casede();
 }
-caseam() {
+void caseam(void) {
     app++;
     casede();
 }
-casede() {
+void casede(void) {
     register i, savoff, req;
 
     if (dip->op)
@@ -138,8 +138,7 @@ de1:
     ds = app = 0;
     return;
 }
-findmn(i) int i;
-{
+int findmn(int i) {
     register j;
 
     for (j = 0; j < NM; j++) {
@@ -150,16 +149,14 @@ findmn(i) int i;
         j = -1;
     return (j);
 }
-clrmn(i) int i;
-{
+void clrmn(int i) {
     if (i >= 0) {
         if (contab[i].rq & MMASK)
-            free(contab[i].f);
+            blk_free(contab[i].f);
         contab[i].rq = contab[i].f = 0;
     }
 }
-finds(mn) int mn;
-{
+int finds(int mn) {
     register i, savip;
 
     oldmn = findmn(mn);
@@ -202,7 +199,7 @@ finds(mn) int mn;
     app = 0;
     return (offset = nextb);
 }
-skip() {
+int skip(void) {
     register i;
 
     while (((i = getch()) & CMASK) == ' ')
@@ -210,7 +207,7 @@ skip() {
     ch = i;
     return (nlflg);
 }
-copyb() {
+int copyb(void) {
     register i, j, k;
     int ii, req, state, savoff;
 
@@ -265,7 +262,7 @@ copyb() {
     copyf--;
     return (req);
 }
-copys() {
+void copys(void) {
     register i;
 
     copyf++;
@@ -279,7 +276,7 @@ c0:
     wbt(0);
     copyf--;
 }
-alloc() {
+int alloc(void) {
     register i;
     int j;
 
@@ -296,8 +293,7 @@ alloc() {
         return (nextb = j);
     }
 }
-free(i) int i;
-{
+void blk_free(int i) {
     register j;
 
     while ((blist[j = blisti(i)]) != -1) {
@@ -306,17 +302,14 @@ free(i) int i;
     }
     blist[j] = 0;
 }
-boff(i) int i;
-{
+int boff(int i) {
     return (NEV * EVS + i * BLK);
 }
-wbt(i) int i;
-{
+void wbt(int i) {
     wbf(i);
     wbfl();
 }
-wbf(i) int i;
-{
+void wbf(int i) {
     register j;
 
     if (!offset)
@@ -340,7 +333,7 @@ wbf(i) int i;
     if (wbfi >= BLK)
         wbfl();
 }
-wbfl() {
+void wbfl(void) {
     if (woff == 0)
         return;
     seek(ibf, woff << 1, 0);
@@ -349,11 +342,10 @@ wbfl() {
         roff = -1;
     woff = 0;
 }
-blisti(i) int i;
-{
+int blisti(int i) {
     return ((i - NEV * EVS) / (BLK));
 }
-rbf() {
+int rbf(void) {
     register i;
 
     if ((i = rbf0(ip)) == 0) {
@@ -364,8 +356,7 @@ rbf() {
     }
     return (i);
 }
-rbf0(p) int p;
-{
+int rbf0(int p) {
     register i;
 
     if ((i = (p & (~(BLK - 1)))) != roff) {
@@ -376,8 +367,7 @@ rbf0(p) int p;
     }
     return (rbuf[p & (BLK - 1)]);
 }
-incoff(p) int p;
-{
+int incoff(int p) {
     register j;
     if (!((j = (++p)) & (BLK - 1))) {
         if ((j = blist[blisti(--p)]) == -1) {
@@ -387,7 +377,7 @@ incoff(p) int p;
     }
     return (j);
 }
-popi() {
+int popi(void) {
     register int *p;
 
     if (frame == stk)
@@ -406,8 +396,7 @@ popi() {
     ch0 = *p++;
     return (*p);
 }
-pushi(newip) int newip;
-{
+int pushi(int newip) {
     register int *p;
 
     if ((enda - (STKSIZE << 1)) < nxf)
@@ -443,7 +432,7 @@ char *setbrk(int x) {
     }
     return i;
 }
-getsn() {
+int getsn(void) {
     register i;
 
     if ((i = getach()) == 0)
@@ -453,7 +442,7 @@ getsn() {
     else
         return (i);
 }
-setstr() {
+int setstr(void) {
     register i;
 
     lgf++;
@@ -471,7 +460,7 @@ setstr() {
         return (pushi(contab[i].f));
     }
 }
-collect() {
+void collect(void) {
     register i;
     register int *strp;
     int *argpp, *argppend;
@@ -522,18 +511,18 @@ collect() {
 rtn:
     copyf--;
 }
-seta() {
+void seta(void) {
     register i;
 
     if (((i = (getch() & CMASK) - '0') > 0) &&
         (i <= 9) && (i <= *frame))
         ap = *(i + frame + STKSIZE - 1);
 }
-caseda() {
+void caseda(void) {
     app++;
     casedi();
 }
-casedi() {
+void casedi(void) {
     register i, j;
 
     lgf++;
@@ -566,7 +555,7 @@ rtn:
     app = 0;
     diflg = 0;
 }
-casedt() {
+void casedt(void) {
     lgf++;
     dip->dimac = dip->ditrap = dip->ditf = 0;
     skip();
@@ -576,7 +565,7 @@ casedt() {
     skip();
     dip->dimac = getrq();
 }
-casetl() {
+void casetl(void) {
     register i, j;
     int w1, w2, w3, begin, delim;
     extern width(), pchar();
@@ -626,14 +615,12 @@ casetl() {
         if (v.nl > dip->hnl)
             dip->hnl = v.nl;
     }
-    free(begin);
+    blk_free(begin);
 }
-casepc() {
+void casepc(void) {
     pagech = chget(IMP);
 }
-hseg(f, p) int (*f)();
-int *p;
-{
+int hseg(int (*f)(), int *p) {
     register acc, i;
     static int *q;
 
@@ -653,7 +640,7 @@ int *p;
             acc = +(*f)(i);
     }
 }
-casepm() {
+void casepm(void) {
     register i, k;
     register char *p;
     int j, xx, cnt, kk, tot;
@@ -685,9 +672,7 @@ casepm() {
         prstr(pmline);
     }
 }
-kvt(k, p) int k;
-char *p;
-{
+void kvt(int k, char *p) {
     if (k >= 100)
         *p++ = k / 100 + '0';
     if (k >= 10)

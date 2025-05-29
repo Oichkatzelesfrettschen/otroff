@@ -72,8 +72,7 @@ static void oput(char i);
 static void oputs(char *i);
 static void flusho(void);
 
-pchar(c) int c;
-{
+void pchar(int c) {
     register i, j;
 
     if ((i = c) & MOT) {
@@ -110,8 +109,7 @@ pchar(c) int c;
     }
     pchar1(i);
 }
-pchar1(c) int c;
-{
+void pchar1(int c) {
     register i, j, *k;
     extern int chtab[];
 
@@ -232,8 +230,7 @@ int done(int x) {
     eject(0);
     reset();
 }
-done1(x) int x;
-{
+void done1(int x) {
     error |= x;
     if (v.nl) {
         trap = 0;
@@ -250,8 +247,7 @@ done1(x) int x;
         done2(0);
     }
 }
-done2(x) int x;
-{
+void done2(int x) {
     register i;
 
     ptlead();
@@ -267,8 +263,7 @@ done2(x) int x;
     flusho();
     done3(x);
 }
-done3(x) int x;
-{
+void done3(int x) {
     error |= x;
     signal(SIGINT, 1);
     signal(SIGKILL, 1);
@@ -287,15 +282,14 @@ done3(x) int x;
 #endif
     exit(error);
 }
-edone(x) int x;
-{
+void edone(int x) {
     frame = stk;
     nxf = frame + STKSIZE;
     ip = 0;
     done(x);
 }
 #ifndef NROFF
-report() {
+void report(void) {
     register i;
     struct {
         int use;
@@ -312,7 +306,7 @@ report() {
 }
 #endif
 #ifdef NROFF
-casepi() {
+static void casepi(void) {
     register i;
     int id[2];
 
