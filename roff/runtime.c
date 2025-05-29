@@ -12,8 +12,8 @@
  */
 
 /*
- * Disable or restore write permission on the controlling terminal in
- * a manner similar to the original `mesg` routine.
+ * Toggle write permission on the controlling terminal.  This mirrors the
+ * behaviour of the historic mesg(1) command by adjusting group/world access.
  */
 void mesg(int enable) {
     char *tty = ttyname(STDOUT_FILENO);
@@ -32,9 +32,9 @@ void mesg(int enable) {
 }
 
 /*
- * Compute spacing to the next tab stop.  The PDP-11 version stored the
- * current column in the global variable ``ocol``; here it is passed in
- * explicitly and the distance to the next multiple of eight is returned.
+ * Calculate the distance to the next 8-column tab stop from the supplied
+ * column position.  The PDP-11 code kept this in ``ocol``; here it is
+ * provided as an argument.
  */
 int dsp(int column) {
     int r = 0;
@@ -48,7 +48,8 @@ int dsp(int column) {
 }
 
 /*
- * Write the contents of ``buf`` to stdout and reset the pointer ``p``.
+ * Write the buffer contents to stdout and clear the index ``p`` so that
+ * new data overwrites the previous output.
  */
 void flush_output(char *buf, size_t *p) {
     if (*p) {
