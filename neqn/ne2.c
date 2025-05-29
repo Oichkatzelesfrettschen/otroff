@@ -1,7 +1,11 @@
 # include "ne.h"
 
-fromto(p1, p2, p3) int p1, p2, p3; {
-	int h, b, h1, b1, pss;
+/*
+ * build a box from one expression to another
+ */
+void fromto(int p1, int p2, int p3)
+{
+       int h, b, h1, b1, pss;
 	yyval = oalloc();
 	h1 = eht[yyval] = eht[p1];
 	b1 = ebase[p1];
@@ -41,8 +45,12 @@ fromto(p1, p2, p3) int p1, p2, p3; {
 	if( p3>0 ) ofree(p3);
 }
 
-paren(leftc, p1, rightc) int p1, leftc, rightc; {
-	int n, m, h1, j, b1, v;
+/*
+ * surround expression with left and right delimiters
+ */
+void paren(int leftc, int p1, int rightc)
+{
+       int n, m, h1, j, b1, v;
 	h1 = eht[p1]; b1 = ebase[p1];
 	yyval = p1;
 	n = max(b1+VERT(1), h1-b1-VERT(1)) / VERT(1);
@@ -120,16 +128,24 @@ paren(leftc, p1, rightc) int p1, leftc, rightc; {
 		eht[yyval], ebase[yyval], n, v, leftc, rightc);
 }
 
-brack(m, t, c, b) int m; char *t, *c, *b; {
-	int j;
+/*
+ * output a bracket sequence
+ */
+void brack(int m, char *t, char *c, char *b)
+{
+       int j;
 	printf("\\b'%s", t);
 	for( j=0; j<m; j++)
 		printf("%s", c);
 	printf("%s'", b);
 }
 
-diacrit(p1, type) int p1, type; {
-	int c, t;
+/*
+ * apply a diacritical mark to an expression
+ */
+void diacrit(int p1, int type)
+{
+       int c, t;
 	if(dbg)printf(".\tdiacrit: %ctype over S%d\n", type, p1);
 	c = oalloc();
 	t = oalloc();
@@ -167,9 +183,13 @@ diacrit(p1, type) int p1, type; {
 	ofree(c); ofree(t);
 }
 
-move(dir, amt, p) int dir, amt; char *p; {
-	/* 0=fwd, 1=up, 2=back, 3=down */
-	int a, a1, a2;
+/*
+ * move expression in given direction
+ * dir: 0=fwd, 1=up, 2=back, 3=down
+ */
+void move(int dir, int amt, char *p)
+{
+       int a, a1, a2;
 	yyval = p;
 	a1 = amt/100;
 	a2 = amt%100;
@@ -195,8 +215,12 @@ move(dir, amt, p) int dir, amt; char *p; {
 		p, dir, amt, eht[yyval], ebase[yyval]);
 }
 
-funny(n) int n; {
-	int f, t;
+/*
+ * handle special characters
+ */
+void funny(int n)
+{
+       int f, t;
 	yyval = oalloc();
 	switch(n) {
 	case 'S':
