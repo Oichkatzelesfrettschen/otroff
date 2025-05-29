@@ -478,7 +478,7 @@ int getrq(void) {
 rtn:
     return (i);
 }
-getch() {
+int getch(void) {
     register int i, j, k;
 
     level++;
@@ -708,7 +708,7 @@ g2:
 }
 /* Input filter translation table */
 char ifilt[32] = {0, 001, 002, 003, 0, 005, 006, 007, 010, 011, 012};
-getch0() {
+int getch0(void) {
     register int i, j, k;
 
     if (ch0) {
@@ -780,7 +780,7 @@ g4:
         i = (i & ~CMASK) | ESC;
     return (i);
 }
-nextfile() {
+int nextfile(void) {
     register char *p;
 
 n0:
@@ -819,7 +819,7 @@ n2:
     v.cd = ioff = ifile = stdi = mflg = 0;
     return (0);
 }
-popf() {
+int popf(void) {
     register i, *p, *q;
 
     ioff = offl[--ifi];
@@ -843,7 +843,7 @@ popf() {
             return (1);
     return (0);
 }
-flushi() {
+void flushi(void) {
     if (nflush)
         return;
     ch = 0;
@@ -859,7 +859,7 @@ flushi() {
     copyf--;
     v.hp = 0;
 }
-getach() {
+int getach(void) {
     register i;
 
     lgf++;
@@ -873,7 +873,7 @@ getach() {
     lgf--;
     return (i & 0177);
 }
-casenx() {
+void casenx(void) {
     lgf++;
     skip();
     getname();
@@ -884,7 +884,7 @@ casenx() {
     frame = stk;
     nxf = frame + STKSIZE;
 }
-getname() {
+int getname(void) {
     register int i, j, k;
 
     lgf++;
@@ -899,7 +899,7 @@ getname() {
     lgf--;
     return (nextf[0]);
 }
-caseso() {
+void caseso(void) {
     register i, *p, *q;
 
     lgf++;
@@ -924,8 +924,7 @@ caseso() {
             *q++ = *p++;
     }
 }
-getpn(a) char *a;
-{
+void getpn(char *a) {
     register i, neg;
     LONG0 atoi1();
 
@@ -967,7 +966,7 @@ fini:
     if (*pnp != -1)
         chkpn();
 }
-setrpt() {
+void setrpt(void) {
     register i, j;
 
     copyf++;
