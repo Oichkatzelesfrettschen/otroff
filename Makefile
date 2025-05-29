@@ -35,11 +35,10 @@ CROFF_TERM_OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_TERMS))
 
 ALL_OBJ := $(ROFF_OBJ) $(CROFF_OBJ) $(TBL_OBJ) $(NEQN_OBJ) $(CROFF_TERM_OBJ)
 
-ifdef USE_SSE
-SRC_SSE := roff/sse_memops.S
-ROFF_OBJ += $(patsubst %.S,$(OBJDIR)/%.o,$(SRC_SSE))
-ALL_OBJ  += $(patsubst %.S,$(OBJDIR)/%.o,$(SRC_SSE))
-endif
+
+# SSE accelerated routines were originally implemented in assembly.
+# They are now provided as portable C sources and will be built
+# automatically as part of $(ROFF_SRC).
 
 # Default target builds everything
 all: $(ALL_OBJ)
