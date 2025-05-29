@@ -1,4 +1,4 @@
-CC ?= cc
+CC ?= clang
 CPU ?= native
 
 # Map CPU values to 64-bit -march options

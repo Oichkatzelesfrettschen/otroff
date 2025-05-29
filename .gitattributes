@@ -18,7 +18,7 @@ croff/term/*.c -text -filter
 croff/nii.c -text -filter
 croff/n9.c -text -filter
 croff/tacct.c -text -filter
-croff/t.h -text -filter
-croff/tdef.h -text -filter
+croff/t.h text diff
+croff/tdef.h text diff
 neqn/*.c -text -filter
 tbl/*.c -text -filter
