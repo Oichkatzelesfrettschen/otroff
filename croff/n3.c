@@ -1,6 +1,7 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include "proto.h"
 
 /*
 troff3.c
@@ -32,7 +33,7 @@ extern int *stk;
 extern int pendt;
 extern int rchar;
 extern int dilev;
-extern int *dip;
+extern struct env *dip;
 extern int nonumb;
 extern int lt;
 extern int nrbits;

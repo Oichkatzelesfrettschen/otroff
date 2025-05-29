@@ -1,6 +1,7 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include "proto.h"
 /*
 troff4.c
 
@@ -35,7 +36,7 @@ extern int font;
 extern int lss;
 extern int pts;
 extern int font1;
-extern int *dip;
+extern struct env *dip;
 extern int fi;
 extern int res;
 extern int cwidth;
@@ -350,13 +351,13 @@ a0:
             prstrfl("Divide by zero.\n");
             acc = 0;
         } else
-            acc = / i;
+            acc /= i;
         goto a0;
     case '%':
         i = ckph();
         if (nonumb)
             break;
-        acc = % i;
+        acc %= i;
         goto a0;
     case '&': /*and*/
         i = ckph();
@@ -528,7 +529,7 @@ a1:
     }
     if ((field != digits) && (digits > 0))
         while (digits--)
-            acc = / 10;
+            acc /= 10;
     if (abs) {
         if (dip->op)
             j = dip->dnl;

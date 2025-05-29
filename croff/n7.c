@@ -1,6 +1,7 @@
 #include "tdef.h"
 #include "t.h"
 #include "tw.h"
+#include "proto.h"
 #ifdef NROFF
 #define GETCH gettch
 #endif
@@ -14,7 +15,7 @@ troff7.c
 text
 */
 
-extern int *dip;
+extern struct env *dip;
 extern int pl;
 extern int trap;
 extern int flss;
