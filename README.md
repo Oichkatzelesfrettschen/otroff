@@ -49,3 +49,11 @@ for disassembling and fuzzing troff-based software.
 
 [1]: https://web.archive.org/web/20060823034049/http://www.tuhs.org/Archive/PDP-11/Distributions/usdl/bostic_pwb.tar.gz
 [2]: https://github.com/Alhadis/otroff/pulls
+
+License
+-------
+The contents of this repository are made available under the terms of the
+Caldera "Ancient UNIX" license released in 2002.  This permissive
+BSD-style license allows modification and redistribution so the sources
+can be modernized and built on contemporary hardware.  See the LICENSE
+file for full details.
