@@ -60,6 +60,10 @@ static char Sccsid[] = "@(#)n4.c  1.4 of 4/26/77";
 /* Prototypes for local helpers used before definition. */
 static int fnumb(int i, int (*f)());
 static int decml(int i, int (*f)());
+static int wrc(int i);
+static LONG0 atoi0(void);
+static LONG0 ckph(void);
+static LONG0 atoi1(void);
 
 /* Set a number register */
 static void setn(void) {
@@ -181,19 +185,23 @@ static void setn(void) {
     setn1(i);
     cp = &cbuf;
 }
-setn1(i) int i;
-{
+/*
+ * Convert number register value to a character buffer.
+ */
+void setn1(int i) {
     int j;
-    extern int wrc();
 
+    /* Output single digits using wrc. */
     cp = &cbuf;
     nrbits = 0;
     j = fnumb(i, wrc);
     *cp = 0;
     cp = &cbuf;
 }
-findr(i) int i;
-{
+/*
+ * Locate or create a number register slot for register i.
+ */
+int findr(int i) {
     register j;
     static int numerr;
 
@@ -253,19 +261,18 @@ static int decml(int i, int (*f)()) {
         k = decml(j, f);
     return (k + (*f)((i % 10 + '0') | nrbits));
 }
-roman(i, f) int i, (*f)();
-{
-
+/*
+ * Output integer i in roman numerals using callback f.
+ */
+static int roman(int i, int (*f)()) {
     if (!i)
-        return ((*f)('0' | nrbits));
+        return (*f)('0' | nrbits);
     if (nform == 'i')
-        return (roman0(i, f, "ixcmz", "vldw"));
+        return roman0(i, f, "ixcmz", "vldw");
     else
-        return (roman0(i, f, "IXCMZ", "VLDW"));
+        return roman0(i, f, "IXCMZ", "VLDW");
 }
-roman0(i, f, onesp, fivesp) int i, (*f)();
-char *onesp, *fivesp;
-{
+static int roman0(int i, int (*f)(), char *onesp, char *fivesp) {
     register q, rem, k;
 
     k = 0;
@@ -288,15 +295,16 @@ char *onesp, *fivesp;
         k = +(*f)(*onesp | nrbits);
     return (k);
 }
-abc(i, f) int i, (*f)();
-{
+/*
+ * Output integer i using alphabetic sequence via callback f.
+ */
+static int abc(int i, int (*f)()) {
     if (!i)
-        return ((*f)('0' | nrbits));
-    else
-        return (abc0(i - 1, f));
+        return (*f)('0' | nrbits);
+    return abc0(i - 1, f);
 }
-abc0(i, f) int i, (*f)();
-{
+
+static int abc0(int i, int (*f)()) {
     register j, k;
 
     k = 0;
@@ -304,20 +312,28 @@ abc0(i, f) int i, (*f)();
         k = abc0(j - 1, f);
     return (k + (*f)((i % 26 + nform) | nrbits));
 }
-wrc(i) int i;
-{
+/*
+ * Write a single character into the number buffer.
+ */
+static int wrc(int i) {
     if (cp >= &cbuf[NC])
-        return (0);
+        return 0;
     *cp++ = i;
-    return (1);
+    return 1;
 }
+/*
+ * Read an integer from input.
+ */
 int tatoi(void) {
     register i;
     extern LONG0 atoi0();
 
     return i = atoi0();
 }
-LONG0 atoi0() {
+/*
+ * Evaluate arithmetic expressions recursively.
+ */
+static LONG0 atoi0(void) {
     register ii, k, cnt;
     LONG0 i, acc;
     extern LONG0 ckph();
@@ -438,7 +454,10 @@ a0:
     }
     return (acc);
 }
-LONG0 ckph() {
+/*
+ * Parse parentheses during arithmetic evaluation.
+ */
+static LONG0 ckph(void) {
     register i;
     LONG0 j;
     extern LONG0 atoi0();
@@ -452,7 +471,10 @@ LONG0 ckph() {
     }
     return (j);
 }
-LONG0 atoi1() {
+/*
+ * Basic atoi used by arithmetic evaluator.
+ */
+static LONG0 atoi1(void) {
     register i, j, digits;
     long acc;
     int neg, abs, field;
@@ -553,7 +575,10 @@ a2:
     nonumb = !field;
     return (acc);
 }
-caserr() {
+/*
+ * Clear a number register.
+ */
+void caserr(void) {
     register i, j;
 
     lgf++;
@@ -568,7 +593,10 @@ caserr() {
         r[j] = vlist[j] = inc[j] = fmt[j] = 0;
     }
 }
-casenr() {
+/*
+ * Set number register and increment values.
+ */
+void casenr(void) {
     register i, j;
 
     lgf++;
@@ -588,7 +616,10 @@ casenr() {
 rtn:
     return;
 }
-caseaf() {
+/*
+ * Assign format for a number register.
+ */
+void caseaf(void) {
     register i, j, k;
 
     lgf++;
@@ -605,21 +636,27 @@ caseaf() {
         k = j;
     fmt[findr(i)] = k & BMASK;
 }
-vnumb(i) int i;
-{
+/*
+ * Parse a vertical motion number.
+ */
+int vnumb(int i) {
     vflag++;
     dfact = lss;
     res = VERT;
     return (inumb(i));
 }
-hnumb(i) int i;
-{
+/*
+ * Parse a horizontal motion number.
+ */
+int hnumb(int i) {
     dfact = EM;
     res = HOR;
     return (inumb(i));
 }
-inumb(n) int *n;
-{
+/*
+ * Convert an input number with scaling.
+ */
+int inumb(int *n) {
     register i, j, f;
 
     f = 0;
@@ -641,8 +678,10 @@ inumb(n) int *n;
         i = 0;
     return (i);
 }
-quant(n, m) int n, m;
-{
+/*
+ * Quantize n to the nearest multiple of m.
+ */
+int quant(int n, int m) {
     register i, neg;
 
     neg = 0;

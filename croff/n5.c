@@ -103,6 +103,14 @@ extern struct contab {
 } contab[NM];
 static char Sccsid[] = "@(#)n5.c  1.6 of 5/27/77";
 
+/* Local helper prototypes */
+static int max(int aa, int bb);
+int chget(int c);
+int findn(int i);
+static int eatblk(int right, int left);
+static int cmpstr(int delim);
+static void getnm(int *p, int min);
+
 /* Adjust line justification */
 static void casead(void) {
     register i;
@@ -154,14 +162,16 @@ static void casenf(void) {
 	lnsize = LNSIZE + WDSIZE;
 */
 }
-casers() {
+void casers(void) {
     dip->nls = 0;
 }
-casens() {
+void casens(void) {
     dip->nls++;
 }
-chget(c) int c;
-{
+/*
+ * Fetch a character argument or return the default c.
+ */
+int chget(int c) {
     register i;
 
     if (skip() ||
@@ -173,22 +183,22 @@ chget(c) int c;
     } else
         return (i & BMASK);
 }
-casecc() {
+void casecc(void) {
     cc = chget('.');
 }
-casec2() {
+void casec2(void) {
     c2 = chget('\'');
 }
-casehc() {
+void casehc(void) {
     ohc = chget(OHC);
 }
-casetc() {
+void casetc(void) {
     tabc = chget(0);
 }
-caselc() {
+void caselc(void) {
     dotc = chget(0);
 }
-casehy() {
+void casehy(void) {
     register i;
 
     hyf = 1;
@@ -201,17 +211,19 @@ casehy() {
         return;
     hyf = max(i, 0);
 }
-casenh() {
+void casenh(void) {
     hyf = 0;
 }
-max(aa, bb) int aa, bb;
-{
+/*
+ * Return the larger of two integers.
+ */
+static int max(int aa, int bb) {
     if (aa > bb)
-        return (aa);
+        return aa;
     else
-        return (bb);
+        return bb;
 }
-casece() {
+void casece(void) {
     register i;
 
     noscale++;
@@ -223,7 +235,7 @@ casece() {
     ce = i;
     noscale = 0;
 }
-casein() {
+void casein(void) {
     register i;
 
     if (skip())
@@ -238,7 +250,7 @@ casein() {
         setnel();
     }
 }
-casell() {
+void casell(void) {
     register i;
 
     if (skip())
@@ -249,7 +261,7 @@ casell() {
     ll = i;
     setnel();
 }
-caselt() {
+void caselt(void) {
     register i;
 
     if (skip())
@@ -259,7 +271,7 @@ caselt() {
     lt1 = lt;
     lt = i;
 }
-caseti() {
+void caseti(void) {
     register i;
 
     if (skip())
@@ -269,7 +281,7 @@ caseti() {
     un1 = i;
     setnel();
 }
-casels() {
+void casels(void) {
     register i;
 
     noscale++;
@@ -281,7 +293,7 @@ casels() {
     ls = i;
     noscale = 0;
 }
-casepo() {
+void casepo(void) {
     register i;
 
     if (skip())
@@ -295,7 +307,7 @@ casepo() {
         esc = +po - po1;
 #endif
 }
-casepl() {
+void casepl(void) {
     register i;
 
     skip();
@@ -306,7 +318,7 @@ casepl() {
     if (v.nl > pl)
         v.nl = pl;
 }
-casewh() {
+void casewh(void) {
     register i, j, k;
 
     lgf++;
@@ -330,7 +342,7 @@ casewh() {
     mlist[k] = j;
     nlist[k] = i;
 }
-casech() {
+void casech(void) {
     register i, j, k;
 
     lgf++;
@@ -349,8 +361,10 @@ casech() {
         mlist[k] = 0;
     nlist[k] = i;
 }
-findn(i) int i;
-{
+/*
+ * Find trap number associated with page position i.
+ */
+int findn(int i) {
     register k;
 
     for (k = 0; k < NTRAP; k++)
@@ -358,7 +372,7 @@ findn(i) int i;
             break;
     return (k);
 }
-casepn() {
+void casepn(void) {
     register i;
 
     skip();
@@ -370,7 +384,7 @@ casepn() {
         npnflg++;
     }
 }
-casebp() {
+void casebp(void) {
     register i, savframe;
 
     if (dip->op)
@@ -387,8 +401,10 @@ casebp() {
         return;
     eject(savframe);
 }
-casetm(x) int x;
-{
+/*
+ * Print a message string; x indicates user abort when non-zero.
+ */
+void casetm(int x) {
     register i;
     char tmbuf[NTM];
 
@@ -405,8 +421,10 @@ casetm(x) int x;
     prstrfl(tmbuf);
     copyf--;
 }
-casesp(a) int a;
-{
+/*
+ * Space the requested distance.
+ */
+void casesp(int a) {
     register i, j, savlss;
 
     tbreak();
@@ -435,7 +453,7 @@ casesp(a) int a;
     newline(0);
     lss = savlss;
 }
-casert() {
+void casert(void) {
     register a, *p;
 
     skip();
@@ -451,16 +469,16 @@ casert() {
     nb++;
     casesp(a - *p);
 }
-caseem() {
+void caseem(void) {
     lgf++;
     skip();
     em = getrq();
 }
-casefl() {
+void casefl(void) {
     tbreak();
     flusho();
 }
-caseev() {
+void caseev(void) {
     register nxev;
     extern int block;
 
@@ -495,14 +513,14 @@ e1:
     read(ibf, &block, EVS * 2);
     ev = nxev;
 }
-caseel() {
+void caseel(void) {
     if (--ifx < 0) {
         ifx = 0;
         iflist[0] = 0;
     }
     caseif(2);
 }
-caseie() {
+void caseie(void) {
     if (ifx >= NIF) {
         prstr("if-else overflow.\n");
         ifx = 0;
@@ -511,8 +529,10 @@ caseie() {
     caseif(1);
     ifx++;
 }
-caseif(x) int x;
-{
+/*
+ * Handle conditional requests.
+ */
+void caseif(int x) {
     register i, notflag, true;
 
     if (x == 2) {
@@ -581,8 +601,10 @@ i1:
         copyf--;
     }
 }
-eatblk(right, left) int right, left;
-{
+/*
+ * Consume input up to matching delimiter.
+ */
+static int eatblk(int right, int left) {
     register i;
 
 e0:
@@ -597,8 +619,10 @@ e0:
     }
     return (i);
 }
-cmpstr(delim) int delim;
-{
+/*
+ * Compare a delimited string with data on input.
+ */
+static int cmpstr(int delim) {
     register i, j, p;
     int begin, cnt, k;
     int savapts, savapts1, savfont, savfont1,
@@ -657,7 +681,7 @@ rtn:
     free(begin);
     return (k);
 }
-caserd() {
+void caserd(void) {
 
     lgf++;
     skip();
@@ -680,7 +704,10 @@ caserd() {
     tty++;
     pushi(-1);
 }
-rdtty() {
+/*
+ * Read a single character from the terminal.
+ */
+int rdtty(void) {
     int onechar;
 
     onechar = 0;
@@ -700,13 +727,13 @@ rdtty() {
     }
     return (0);
 }
-caseec() {
+void caseec(void) {
     eschar = chget('\\');
 }
-caseeo() {
+void caseeo(void) {
     eschar = 0;
 }
-caseli() {
+void caseli(void) {
 
     skip();
     lit = max(inumb(0), 1);
@@ -714,7 +741,7 @@ caseli() {
     if ((!dip->op) && (v.nl == -1))
         newline(1);
 }
-caseta() {
+void caseta(void) {
     register i, j;
 
     tabtab[0] = nonumb = 0;
@@ -737,7 +764,7 @@ caseta() {
     }
     tabtab[i] = 0;
 }
-casene() {
+void casene(void) {
     register i, j;
 
     skip();
@@ -752,7 +779,7 @@ casene() {
         lss = i;
     }
 }
-casetr() {
+void casetr(void) {
     register i, j;
 
     lgf++;
@@ -765,11 +792,11 @@ casetr() {
         trtab[i] = j;
     }
 }
-casecu() {
+void casecu(void) {
     cu++;
     caseul();
 }
-caseul() {
+void caseul(void) {
     register i;
 
     noscale++;
@@ -791,7 +818,7 @@ caseul() {
     noscale = 0;
     mchbits();
 }
-caseuf() {
+void caseuf(void) {
     register i, j;
 
     if (skip() || !(i = getrq()) || (i == 'S') ||
@@ -805,7 +832,7 @@ caseuf() {
 #endif
     ulbit = ulfont << 9;
 }
-caseit() {
+void caseit(void) {
     register i;
 
     lgf++;
@@ -818,7 +845,7 @@ caseit() {
         it = i;
     noscale = 0;
 }
-casemc() {
+void casemc(void) {
     register i;
 
     if (icf > 1)
@@ -833,7 +860,7 @@ casemc() {
     if (!nonumb)
         ics = i;
 }
-casemk() {
+void casemk(void) {
     register i, j;
 
     if (dip->op)
@@ -848,7 +875,7 @@ casemk() {
         return;
     vlist[findr(i)] = j;
 }
-casesv() {
+void casesv(void) {
     register i;
 
     skip();
@@ -859,7 +886,7 @@ casesv() {
     sv = +i;
     caseos();
 }
-caseos() {
+void caseos(void) {
     register savlss;
 
     if (sv <= findt1()) {
@@ -870,7 +897,7 @@ caseos() {
         sv = 0;
     }
 }
-casenm() {
+void casenm(void) {
     register i;
 
     lnmod = nn = 0;
@@ -887,8 +914,10 @@ casenm() {
     noscale = 0;
     nmbits = chbits;
 }
-getnm(p, min) int *p, min;
-{
+/*
+ * Read a numeric parameter with a minimum value.
+ */
+static void getnm(int *p, int min) {
     register i;
 
     eat(' ');
@@ -899,15 +928,15 @@ getnm(p, min) int *p, min;
         return;
     *p = max(i, min);
 }
-casenn() {
+void casenn(void) {
     noscale++;
     skip();
     nn = max(tatoi(), 1);
     noscale = 0;
 }
-caseab() {
+void caseab(void) {
     dummy();
     casetm(1);
     done2(0);
 }
-dummy() {}
+void dummy(void) {}
