@@ -12,8 +12,12 @@
  */
 
 /*
- * Disable or restore write permission on the controlling terminal in
- * a manner similar to the original `mesg` routine.
+ * Disable or restore write permission on the controlling terminal.
+ *
+ * The historical implementation toggled permissions via assembly code.
+ * This function performs the same job by inspecting the current terminal
+ * device and adjusting its mode bits.  If the terminal cannot be
+ * determined the call simply returns.
  */
 void mesg(int enable) {
     char *tty = ttyname(STDOUT_FILENO);
@@ -32,9 +36,11 @@ void mesg(int enable) {
 }
 
 /*
- * Compute spacing to the next tab stop.  The PDP-11 version stored the
- * current column in the global variable ``ocol``; here it is passed in
- * explicitly and the distance to the next multiple of eight is returned.
+ * Compute spacing to the next tab stop.
+ *
+ * The PDP-11 assembler used a global ``ocol`` variable to track output
+ * columns.  Here the current column is passed as an argument and the
+ * distance to the next 8-character boundary is returned.
  */
 int dsp(int column) {
     int r = 0;
@@ -48,7 +54,11 @@ int dsp(int column) {
 }
 
 /*
- * Write the contents of ``buf`` to stdout and reset the pointer ``p``.
+ * Write buffered output and reset the write pointer.
+ *
+ * ``buf`` contains pending output and ``p`` tracks the current length.
+ * When any data is buffered, it is written to STDOUT and ``p`` is reset
+ * to zero so that callers can reuse the buffer.
  */
 void flush_output(char *buf, size_t *p) {
     if (*p) {

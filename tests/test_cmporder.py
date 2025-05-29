@@ -25,3 +25,18 @@ def test_unsorted_input_sorted_output() -> None:
     output = run_cmporder(numbers)
     assert output == expected
 
+
+def test_duplicates_preserved() -> None:
+    """Ensure duplicate lines remain after sorting."""
+    numbers = ["5", "3", "3", "7"]
+    expected = sorted(numbers)
+    output = run_cmporder(numbers)
+    assert output == expected
+
+
+def test_sorted_input_unchanged() -> None:
+    """Ensure already sorted input is returned unchanged."""
+    numbers = [str(i) for i in range(10)]
+    output = run_cmporder(numbers)
+    assert output == numbers
+

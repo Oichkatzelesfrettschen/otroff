@@ -1,7 +1,13 @@
 #!/bin/bash
 # setup.sh - Install troff tooling, BCPL, and ACK compilers
 # This script should be run while network access is available.
-set -e
+set -euo pipefail
+
+# Ensure the script is executed as root.
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script must be run as root." >&2
+    exit 1
+fi
 
 # Update package lists
 apt-get update

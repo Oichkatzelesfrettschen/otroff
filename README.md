@@ -46,6 +46,13 @@ install modern troff tools along with BCPL and ACK compilers and their
 dependencies. The script also installs Python and Node utilities useful
 for disassembling and fuzzing troff-based software.
 
+Repository configuration
+-----------------------
+After cloning the repository you should run `./gitconfigure` once to
+enable the `stripnul` filter defined in `.gitattributes`. This ensures
+that zero bytes are stripped from source files when checking out and
+committing, matching the behaviour used by the maintainer.
+
 [1]: https://web.archive.org/web/20060823034049/http://www.tuhs.org/Archive/PDP-11/Distributions/usdl/bostic_pwb.tar.gz
 [2]: https://github.com/Alhadis/otroff/pulls
 
