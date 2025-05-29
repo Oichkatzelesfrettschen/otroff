@@ -146,3 +146,9 @@ static int switch_code(int c, const unsigned char *tab) {
         return tab == pfxtab ? 037 : 0;
     return p[1];
 }
+
+/*
+ * control -- stub matching the historic label `control` in roff1.s.
+ * The original parsed a request name and dispatched to a handler.
+ */
+void control(void) { puts("[stub] control"); }
