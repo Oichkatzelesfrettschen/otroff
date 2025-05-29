@@ -3,11 +3,15 @@
 #include "tw.h"
 #include "proto.h"
 #include <string.h>
-#include <stdlib.h> /* exit */
+#include <time.h>
 #include <stdio.h>
 #include <unistd.h> /* read, write, open, close */
 #include <signal.h> /* signal */
 #include <fcntl.h> /* open flags */
+
+/* Prototypes for libc functions used without including <stdlib.h> */
+extern void exit(int);
+char *mktemp(char *);
 /*
 troff1.c
 
@@ -332,7 +336,7 @@ static void acctg(void) {
  * Initialize temporary files and default tables. The argument indicates
  * whether the program name started with 'a' (ASCII mode).
  */
-static void init1(char a) {
+void init1(char a) {
     register char *p;
     register i;
 
@@ -363,7 +367,7 @@ static void init1(char a) {
 /*
  * Perform runtime initialization after processing command line options.
  */
-static void init2(void) {
+void init2(void) {
     register i, j;
     extern int block;
 
@@ -397,40 +401,29 @@ static void init2(void) {
     nx = mflg;
 }
 /* Compute current date and time into numeric registers */
-static void cvtime(void) {
+void cvtime(void) {
+    time_t now = time(NULL);
+    struct tm *tm = localtime(&now);
 
-    int tt[2];
-    register i;
+    v.yr = tm->tm_year;
+    v.mo = tm->tm_mon + 1;
+    v.dy = tm->tm_mday;
+    v.dw = tm->tm_wday + 1;
 
-    time(tt);
-    v.dy = ldiv(tt[0], tt[1], 60 * 60 * 8) / 3 + 1;
-    v.dw = (v.dy + 3) % 7 + 1;
-    for (v.yr = 70;; v.yr++) {
-        if ((v.yr) % 4)
-            ms[1] = 28;
-        else
-            ms[1] = 29;
-        for (i = 0; i < 12;) {
-            if (v.dy <= ms[i]) {
-                v.mo = i + 1;
-                return;
-            }
-            v.dy -= ms[i++];
-        }
-    }
+    ms[1] = (v.yr % 4) ? 28 : 29;
 }
 /* Convert a string to a number using troff's internal atoi */
-static int cnum(char *a) {
+int cnum(char *a) {
     register i;
 
     ibufp = a;
     eibuf = -1;
-    i = atoi();
+    i = tatoi();
     ch = 0;
     return (i);
 }
 /* Enable or disable write permission to the controlling terminal */
-static void mesg(int f) {
+void mesg(int f) {
     static int mode;
 
     if (!f) {
@@ -442,12 +435,12 @@ static void mesg(int f) {
     }
 }
 /* Print a string after flushing output buffers */
-static void prstrfl(char *s) {
+void prstrfl(const char *s) {
     flusho();
     prstr(s);
 }
 /* Write a raw string directly to the output device */
-static void prstr(char *s) {
+void prstr(const char *s) {
     register i;
 
     for (i = 0; *s; i++)

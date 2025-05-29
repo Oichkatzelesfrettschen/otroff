@@ -227,7 +227,7 @@ int mot(void) {
 
     j = HOR;
     getch(); /*eat delim*/
-    if (i = atoi()) {
+    if (i = tatoi()) {
         if (vflag)
             j = VERT;
         i = makem(quant(i, j));
@@ -304,7 +304,7 @@ int xlss(void) {
 
     getch();
     dfact = lss;
-    i = quant(atoi(), VERT);
+    i = quant(tatoi(), VERT);
     dfact = 1;
     getch();
     if ((j = i) < 0)

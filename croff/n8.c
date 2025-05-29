@@ -87,7 +87,7 @@ void caseht(void) {
     if (skip())
         return;
     noscale++;
-    thresh = atoi();
+    thresh = tatoi();
     noscale = 0;
 }
 void casehw(void) {
