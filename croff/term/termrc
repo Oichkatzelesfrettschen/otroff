@@ -1,4 +1,37 @@
-cc -c tab$1.c
-strip tab$1.o
-chmod 755 tab$1.o
-mv tab$1.o /usr/lib/term/$1
+#!/bin/bash
+# Script to compile and install terminal tab files
+# Usage: ./termrc <terminal_name>
+
+set -e  # Exit on any error
+
+# Check if argument is provided
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <terminal_name>" >&2
+    exit 1
+fi
+
+TERM_NAME="$1"
+SOURCE_FILE="tab${TERM_NAME}.c"
+OBJECT_FILE="tab${TERM_NAME}.o"
+INSTALL_DIR="/usr/lib/term"
+
+# Verify source file exists
+if [ ! -f "$SOURCE_FILE" ]; then
+    echo "Error: Source file $SOURCE_FILE not found" >&2
+    exit 1
+fi
+
+# Compile the source file
+cc -c "$SOURCE_FILE"
+
+# Strip debug symbols to reduce size
+strip "$OBJECT_FILE"
+
+# Make executable (though .o files are typically not executable)
+chmod 755 "$OBJECT_FILE"
+
+# Create install directory if it doesn't exist
+mkdir -p "$INSTALL_DIR"
+
+# Move to final location
+mv "$OBJECT_FILE" "$INSTALL_DIR/$TERM_NAME"

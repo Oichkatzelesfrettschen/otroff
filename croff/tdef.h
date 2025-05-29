@@ -1,115 +1,202 @@
-/*static char Sccsid[] "@(#)tdef.h	1.7 of 4/26/77"*/
+/*
+ * tdef.h - Type definitions and constants for troff/nroff typesetting system
+ * 
+ * This header defines fundamental constants and macros used throughout the
+ * troff (typesetter) and nroff (line printer) formatting systems.
+ * The file uses conditional compilation to provide different values
+ * for TROFF (high-resolution typesetter) vs NROFF (line printer) modes.
+ */
+
+#ifndef TDEF_H
+#define TDEF_H
+
+/* Standard C library includes */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
-#ifdef NROFF /*NROFF*/
-#define EM t.Em
-#define HOR t.Hor
-#define VERT t.Vert
-#define INCH 240 /*increments per inch*/
-#define SPS INCH / 10 /*space size*/
-#define SS INCH / 10 /* " */
-#define TRAILER 0
-#define UNPAD 0227
-#define PO 0 /*page offset*/
-#define ASCII 1
-#define PTID 1
-#define LG 0
-#define DTAB 0 /*set at 8 Ems at init time*/
-#define ICS 2 * SPS
-#endif
-#ifndef NROFF /*TROFF*/
-#define INCH 432 /*troff resolution*/
-#define SPS 20 /*space size at 10pt; 1/3 Em*/
-#define SS 12 /*space size in 36ths of an em*/
-#define TRAILER 4968 /*144*11.5*3 = 11.5 inches*/
-#define UNPAD 027
-#define PO 416 /*page offset 26/27ths inch*/
-#define HOR 1
-#define VERT 3
-#define EM (6 * (pts & 077))
-#define ASCII 0
-#define PTID 0
-#define LG 1
-#define DTAB (INCH / 2)
-#define ICS 3 * SPS
-#endif
 
-#define SIGHUP 1
-#define SIGINT 2
-#define SIGQUIT 3
-#define SIGFPE 8
-#define SIGKILL 15
-#define SIGPIPE 13
-#define ECHO 010 /*tty echo mode*/
-#define NARSP 0177 /*narrow space*/
-#define HNSP 0226 /*half narrow space*/
-#define PS 10 /*default point size*/
-#define FT 0 /*default font position*/
-#define LL 65 * INCH / 10 /*line length; 39picas=6.5in*/
-#define VS INCH / 6 /*vert space; 12points*/
-#define NN 170 /*number registers*/
-#define NNAMES 14 /*predefined reg names*/
-#define NIF 5 /*if-else nesting*/
-#define NS 64 /*name buffer*/
-#define NTM 256 /*tm buffer*/
-#define NEV 3 /*environments*/
-#define EVLSZ 10 /*size of ev stack*/
-#define EVS 3 * 256 /*environment size in words*/
-#define NM 252 /*requests + macros*/
-#define DELTA 512 /*delta core bytes*/
-#define STKSIZE 10 /*words*/
-#define NHYP 10 /*max hyphens per word*/
-#define NHEX 128 /*byte size of exception word list*/
-#define NTAB 35 /*tab stops*/
-#define NSO 5 /*"so" depth*/
-#define WDSIZE 170 /*word buffer size*/
-#define LNSIZE 480 /*line buffer size*/
-#define NDI 5 /*number of diversions*/
-#define DBL 0100000 /*double size indicator*/
-#define MOT 0100000 /*motion character indicator*/
-#define MOTV 0160000 /*clear for motion part*/
-#define VMOT 0040000 /*vert motion bit*/
-#define NMOT 0020000 /* negative motion indicator*/
-#define MMASK 0100000 /*macro mask indicator*/
-#define CMASK 0100377
-#define ZBIT 0400 /*zero width char*/
-#define BMASK 0377
-#define BYTE 8
-#define IMP 004 /*impossible char*/
-#define FILLER 037
-#define PRESC 026
-#define HX 0376 /*High-order part of xlss*/
-#define LX 0375 /*low-order part of xlss*/
-#define CONT 025
-#define COLON 013
-#define XPAR 030
-#define ESC 033
-#define FLSS 031
-#define RPT 014
-#define JREG 0374
-#define NTRAP 20 /*number of traps*/
-#define NPN 20 /*numbers in "-o"*/
-#define T_PAD 0101 /*cat padding*/
-#define T_INIT 0100
-#define T_IESC 16 /*initial offset*/
-#define T_STOP 0111
-#define NPP 10 /*pads per field*/
-#define FBUFSZ 256 /*field buf size words*/
-#define OBUFSZ 512 /*bytes*/
-#define IBUFSZ 512 /*bytes*/
-#define NC 256 /*cbuf size words*/
-#define NOV 10 /*number of overstrike chars*/
-#define LONG0 long /*long flag for atoi0,1*/
-#define ZONE 5 /*5hrs for EST*/
-#define TDELIM 032
-#define LEFT 035
-#define RIGHT 036
-#define LEADER 001
-#define TAB 011
-#define TMASK 037777
-#define RTAB 0100000
-#define CTAB 0040000
-#define OHC 024
+/*
+ * Conditional compilation for NROFF (line printer output)
+ * NROFF produces output suitable for line printers and terminals
+ */
+#ifdef NROFF
+
+/* Basic measurement units for NROFF */
+#define EM              (t.Em)          /* Em space (width of 'M' character) */
+#define HOR             (t.Hor)         /* Horizontal resolution */
+#define VERT            (t.Vert)        /* Vertical resolution */
+#define INCH            240             /* Increments per inch for NROFF */
+#define SPS             (INCH / 10)     /* Standard space size */
+#define SS              (INCH / 10)     /* Space size (same as SPS) */
+
+/* Page layout constants for NROFF */
+#define TRAILER         0               /* Trailer space (none for NROFF) */
+#define UNPAD           0227            /* Unpadded character code (octal) */
+#define PO              0               /* Page offset (left margin) */
+
+/* Character set and formatting flags for NROFF */
+#define ASCII           1               /* ASCII character set flag */
+#define PTID            1               /* Point size identifier */
+#define LG              0               /* Ligature flag (disabled) */
+#define DTAB            0               /* Default tab spacing (set at init) */
+#define ICS             (2 * SPS)       /* Inter-character spacing */
+
+#else /* TROFF - high-resolution typesetter output */
+
+/* Basic measurement units for TROFF */
+#define INCH            432             /* TROFF resolution (points per inch) */
+#define SPS             20              /* Space size at 10pt (1/3 Em) */
+#define SS              12              /* Space size in 36ths of an Em */
+
+/* Page layout constants for TROFF */
+#define TRAILER         4968            /* Trailer: 144*11.5*3 = 11.5 inches */
+#define UNPAD           027             /* Unpadded character code (octal) */
+#define PO              416             /* Page offset: 26/27ths inch */
+
+/* Resolution and spacing for TROFF */
+#define HOR             1               /* Horizontal resolution unit */
+#define VERT            3               /* Vertical resolution unit */
+#define EM              (6 * (pts & 077)) /* Em space based on point size */
+
+/* Character set and formatting flags for TROFF */
+#define ASCII           0               /* Non-ASCII character set */
+#define PTID            0               /* Point size identifier */
+#define LG              1               /* Ligature flag (enabled) */
+#define DTAB            (INCH / 2)      /* Default tab spacing (half inch) */
+#define ICS             (3 * SPS)       /* Inter-character spacing */
+
+#endif /* NROFF/TROFF conditional compilation */
+
+/*
+ * Signal definitions (for older systems lacking signal.h)
+ * These may be redundant on modern systems but ensure portability
+ */
+#define SIGHUP          1               /* Hangup signal */
+#define SIGINT          2               /* Interrupt signal */
+#define SIGQUIT         3               /* Quit signal */
+#define SIGFPE          8               /* Floating point exception */
+#define SIGKILL         15              /* Kill signal */
+#define SIGPIPE         13              /* Broken pipe signal */
+
+/*
+ * Terminal and character constants
+ */
+#define ECHO            010             /* TTY echo mode flag (octal) */
+#define NARSP           0177            /* Narrow space character (octal) */
+#define HNSP            0226            /* Half narrow space character (octal) */
+
+/*
+ * Default formatting parameters
+ */
+#define PS              10              /* Default point size */
+#define FT              0               /* Default font position */
+#define LL              (65 * INCH / 10) /* Line length: 39 picas = 6.5 inches */
+#define VS              (INCH / 6)      /* Vertical spacing: 12 points */
+
+/*
+ * System limits and buffer sizes
+ */
+#define NN              170             /* Number of number registers */
+#define NNAMES          14              /* Predefined register names */
+#define NIF             5               /* If-else nesting depth */
+#define NS              64              /* Name buffer size */
+#define NTM             256             /* Terminal message buffer size */
+#define NEV             3               /* Number of environments */
+#define EVLSZ           10              /* Environment stack size */
+#define EVS             (3 * 256)       /* Environment size in words */
+#define NM              252             /* Requests plus macros */
+#define DELTA           512             /* Delta core bytes for allocation */
+#define STKSIZE         10              /* Stack size in words */
+
+/*
+ * Hyphenation and word processing limits
+ */
+#define NHYP            10              /* Maximum hyphens per word */
+#define NHEX            128             /* Exception word list byte size */
+#define NTAB            35              /* Number of tab stops */
+#define NSO             5               /* "so" (source file) nesting depth */
+#define WDSIZE          170             /* Word buffer size */
+#define LNSIZE          480             /* Line buffer size */
+#define NDI             5               /* Number of diversions */
+
+/*
+ * Character and motion encoding bits
+ * These constants define bit patterns used for character encoding
+ */
+#define DBL             0100000         /* Double size indicator bit */
+#define MOT             0100000         /* Motion character indicator */
+#define MOTV            0160000         /* Motion part clear mask */
+#define VMOT            0040000         /* Vertical motion bit */
+#define NMOT            0020000         /* Negative motion indicator */
+#define MMASK           0100000         /* Macro mask indicator */
+#define CMASK           0100377         /* Character mask */
+#define ZBIT            0400            /* Zero width character bit */
+#define BMASK           0377            /* Byte mask (8 bits) */
+
+/*
+ * Miscellaneous constants
+ */
+#define BYTE            8               /* Bits per byte */
+#define IMP             004             /* Impossible character code */
+#define FILLER          037             /* Filler character (octal) */
+#define PRESC           026             /* Prescaler character */
+#define HX              0376            /* High-order part of xlss */
+#define LX              0375            /* Low-order part of xlss */
+#define CONT            025             /* Continuation character */
+#define COLON           013             /* Colon character code */
+#define XPAR            030             /* Extra parameter character */
+#define ESC             033             /* Escape character */
+#define FLSS            031             /* Flush character */
+#define RPT             014             /* Repeat character */
+#define JREG            0374            /* Jump register character */
+
+/*
+ * Trap and pagination constants
+ */
+#define NTRAP           20              /* Number of traps */
+#define NPN             20              /* Numbers in "-o" option */
+
+/*
+ * Output device control constants
+ */
+#define T_PAD           0101            /* CAT (phototypesetter) padding */
+#define T_INIT          0100            /* Terminal initialization */
+#define T_IESC          16              /* Initial escape offset */
+#define T_STOP          0111            /* Terminal stop code */
+#define NPP             10              /* Pads per field */
+
+/*
+ * Buffer sizes for I/O operations
+ */
+#define FBUFSZ          256             /* Field buffer size in words */
+#define OBUFSZ          512             /* Output buffer size in bytes */
+#define IBUFSZ          512             /* Input buffer size in bytes */
+#define NC              256             /* Character buffer size in words */
+#define NOV             10              /* Number of overstrike characters */
+
+/*
+ * System-specific constants
+ */
+#define LONG0           long            /* Long integer type flag */
+#define ZONE            5               /* Time zone offset (5 hrs for EST) */
+
+/*
+ * Special delimiter and formatting characters
+ */
+#define TDELIM          032             /* Table delimiter */
+#define LEFT            035             /* Left delimiter */
+#define RIGHT           036             /* Right delimiter */
+#define LEADER          001             /* Leader character (dots) */
+#define TAB             011             /* Tab character */
+#define OHC             024             /* Optional hyphen character */
+
+/*
+ * Tab processing bit masks
+ */
+#define TMASK           037777          /* Tab mask (15 bits) */
+#define RTAB            0100000         /* Right-aligned tab bit */
+#define CTAB            0040000         /* Centered tab bit */
+
+#endif /* TDEF_H */

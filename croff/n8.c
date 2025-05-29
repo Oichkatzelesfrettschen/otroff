@@ -1,6 +1,5 @@
 #include "tdef.h"
 #include <stddef.h>
-#include "proto.h"
 
 /*
 troff8.c
@@ -8,8 +7,28 @@ troff8.c
 hyphenation
 */
 
-char hbuf[NHEX];
-char *nexth hbuf;
+/* Function declarations */
+int punct(int i);
+int alph(int i);
+int exword(void);
+int suffix(void);
+void digram(void);
+int skip(void);
+int tatoi(void);
+void prstr(char *);
+int getch(void);
+int maplow(int i);
+int chkvow(int *w);
+char *getsuf(char *x);
+unsigned char rdsufb(char *i);
+int vowel(int i);
+int *find_next_vowel(int *start);
+int *find_max_digram(int *start, int *end, int *maxval);
+int calculate_digram_value(int *w, char bxh[], char bxxh[], char xxh[], char xhx[], char hxx[]);
+int dilook(int a, int b, char t[26][13]);
+
+char hbuf[NHEX] = {0};
+char *nexth = hbuf;
 int *hyend;
 extern int *wdstart, *wdend;
 extern int *hyptr[];
@@ -22,10 +41,10 @@ unsigned char suftab_get_byte(size_t);
 extern int noscale;
 extern int xxx;
 #define THRESH 160 /*digram goodness threshold*/
-int thresh THRESH;
+int thresh = THRESH;
 
 /* Hyphenate the word pointed to by wp. */
-void hyphen(int *wp) {
+void hyphenateWord(int *wp) {
     int *i, j;
 
     i = wp;
@@ -105,7 +124,7 @@ void casehw(void) {
         while (1) {
             if ((i = getch()) & MOT)
                 continue;
-            if (((i = &CMASK) == ' ') || (i == '\n')) {
+            if (((i & CMASK) == ' ') || (i == '\n')) {
                 *j++ = 0;
                 nexth = j;
                 *j = 0;
@@ -157,8 +176,8 @@ int exword(void) {
             } else {
                 e++;
                 continue;
-            }
-        } else
+    if (!(off = (char *)sufind[i]))
+        return (0);
             while (*e++)
                 ;
     }
@@ -173,15 +192,15 @@ again:
     if (!alph(i = *hyend & CMASK))
         return (0);
     if (i < 'a')
-        i = -'A';
+        i += 'a' - 'A';
     else
-        i = -'a';
+        i += 'a' - 'a';
     if (!(off = sufind[i]))
         return (0);
     while (1) {
         if ((i = *(s0 = getsuf(off)) & 017) == 0)
             return (0);
-        off = +i;
+        off += i;
         s = s0 + i - 1;
         w = hyend - 1;
         while (((s > s0) && (w >= wdstart)) &&
@@ -194,12 +213,8 @@ again:
     }
     s = s0 + i - 1;
     w = hyend;
-    if (*s0 & 0200)
-        goto mark;
-    while (s > s0) {
-        w--;
-        if (*s-- & 0200) {
-        mark:
+    if (*s0 & 0200) {
+        while (s >= s0) {
             hyend = w - 1;
             if (*s0 & 0100)
                 continue;
@@ -214,9 +229,10 @@ again:
         return (1);
     goto again;
 }
+
 int maplow(int i) {
-    if ((i = &CMASK) < 'a')
-        i = +'a' - 'A';
+    if ((i &= CMASK) < 'a')
+        i += 'a' - 'A';
     return i;
 }
 
@@ -251,51 +267,72 @@ char *getsuf(char *x) {
     suff[suff[0] & 017] = 0;
     return (suff);
 }
-#define SBSZ 128 /*suffix file buffer size*/
+#define SBSZ 128 /* Size of the buffer used for suffix file operations */
+/* 
+ * Function: rdsufb
+ * ----------------
+ * Performs a direct lookup from the in-memory suffix table using the given index.
+ * 
+ * Parameters:
+ *   i - A pointer representing the index in the suffix table.
+ * 
+ * Returns:
+ *   The byte value retrieved from the suffix table at the specified index.
+ */
 unsigned char rdsufb(char *i) {
-    /* Direct lookup from the in-memory suffix table. */
+    /* Ensure suftab_get_byte is defined and accessible. */
     return suftab_get_byte((size_t)i);
 }
 
 void digram(void) {
-    int *w, val;
-    int *nhyend, *maxw, maxval;
-    extern char bxh[], bxxh[], xxh[], xhx[], hxx[];
+    int *w, *nhyend, *maxw;
+    int maxval;
 
-again:
-    if (!(w = chkvow(hyend + 1)))
-        return;
-    hyend = w;
-    if (!(w = chkvow(hyend)))
-        return;
-    nhyend = w;
-    maxval = 0;
-    w--;
-    while ((++w < hyend) && (w < (wdend - 1))) {
-        val = 1;
-        if (w == wdstart)
-            val = *dilook('a', *w, bxh);
-        else if (w == wdstart + 1)
-            val = *dilook(*(w - 1), *w, bxxh);
-        else
-            val = *dilook(*(w - 1), *w, xxh);
-        val = *dilook(*w, *(w + 1), xhx);
-        val = *dilook(*(w + 1), *(w + 2), hxx);
-        if (val > maxval) {
-            maxval = val;
-            maxw = w + 1;
-        }
+    while ((w = find_next_vowel(hyend + 1))) {
+        hyend = w;
+        if (!(w = find_next_vowel(hyend)))
+            return;
+        nhyend = w;
+        maxval = 0;
+        maxw = find_max_digram(w, nhyend, &maxval);
+        hyend = nhyend;
+        if (maxval > thresh)
+            *hyp++ = maxw;
     }
-    hyend = nhyend;
-    if (maxval > thresh)
-        *hyp++ = maxw;
-    goto again;
 }
+
+int calculate_digram_value(int *w, char bxh[], char bxxh[], char xxh[], char xhx[], char hxx[]) {
+    int val = 1;
+    if (w == wdstart)
+        val = dilook('a', *w, bxh);
+    else if (w == wdstart + 1)
+        val = dilook(*(w - 1), *w, bxxh);
+    else
+        val = dilook(*(w - 1), *w, xxh);
+    val = dilook(*w, *(w + 1), xhx);
+    val = dilook(*(w + 1), *(w + 2), hxx);
+    return val;
+}
+
+/*
+ * Function: dilook
+ * ----------------
+ * Performs a lookup in the digram table for the given character pair.
+ * 
+ * Parameters:
+ *   a - First character of the digram
+ *   b - Second character of the digram  
+ *   t - The digram lookup table
+ * 
+ * Returns:
+ *   An integer representing the digram value for the given characters.
+ */
 int dilook(int a, int b, char t[26][13]) {
     int i, j;
 
     i = t[maplow(a) - 'a'][(j = maplow(b) - 'a') / 2];
     if (!(j & 01))
-        i = >> 4;
+        i = i >> 4;
     return (i & 017);
 }
+    }

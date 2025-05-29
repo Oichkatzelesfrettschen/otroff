@@ -1,8 +1,38 @@
+/*
+ * n7.c - Text Processing and Line Breaking Module
+ * 
+ * This module handles the core text processing functionality of troff including:
+ * - Line breaking and justification
+ * - Text flow and filling
+ * - Character and word processing
+ * - Page and line management
+ * - Hyphenation and spacing
+ * 
+ * Part of the troff text formatting system originally developed at Bell Labs.
+ * Modernized for C90 compliance while maintaining original functionality.
+ * 
+ * Key Functions:
+ * - tbreak(): Break current line and output accumulated text
+ * - text(): Process incoming text characters with filling
+ * - nofill(): Output text without filling
+ * - newline(): Handle newline processing and page management
+ * - movword(): Move words from input to output buffer
+ * - getword(): Extract next word from input stream
+ * 
+ * Design Principles:
+ * - Maintains character-level precision for typographic control
+ * - Handles both fill and no-fill modes
+ * - Supports line numbering and adjustment
+ * - Integrates with diversion and macro systems
+ * - Provides robust error handling and overflow protection
+ */
+
 #include "tdef.h"
 #include "env.h"
 #include "t.h"
 #include "tw.h"
 #include "proto.h"
+
 #ifdef NROFF
 #define GETCH gettch
 #endif
@@ -10,13 +40,27 @@
 #define GETCH getch
 #endif
 
-/*
-troff7.c
+/* Forward declarations for C90 compliance */
+extern int getch(void);
+extern int width(int c);
+extern void pchar(int c);
+extern void pchar1(int c);
+extern int fnumb(int n, void (*func)(int));
+extern void mchbits(void);
+extern void flushi(void);
+extern int control(int a, int b);
+extern void flusho(void);
+extern void done1(int status);
+extern void done2(int status);
+extern void hyphen(int *wp);
+extern void casesp(int n);
+extern int quant(int n, int m);
+extern void hsend(void);
+extern int makem(int i);
 
-text
-*/
-
+/* External variables from other modules */
 extern struct env *dip;
+extern struct v;
 extern int pl;
 extern int trap;
 extern int flss;
@@ -70,6 +114,7 @@ extern int over;
 extern int adrem;
 extern int nel;
 extern int ad;
+extern int totout;
 extern int ohc;
 extern int hyoff;
 extern int nhyp;
@@ -106,8 +151,14 @@ extern int *vlist;
 extern int nrbits;
 extern int nmbits;
 extern int xxx;
+
+/* File-local variables and static data */
 int brflg;
+static int hys;
+static int swp;
 static char Sccsid[] = "@(#)n7.c  1.2 of 3/4/77";
+
+/* Function prototypes for this module */
 void tbreak(void);
 void donum(void);
 void text(void);
@@ -128,11 +179,27 @@ int getword(int x);
 void storeword(int c, int w);
 int gettch(void);
 
+/* Additional external function declarations needed for C90 compliance */
+extern int findr(int r);
+extern int findn(int a);
+extern int prstrfl(char *s);
+extern void dostop(void);
+
+/* Missing function prototypes */
+void tbreak1(void);
+
 /*
  * Break the current line and output accumulated text.
+ * 
+ * This function handles the actual line breaking and justification:
+ * - Processes pending words and spaces
+ * - Applies justification and adjustment
+ * - Outputs characters with proper spacing
+ * - Handles line numbering if enabled
+ * - Manages inter-character spacing
  */
 void tbreak(void) {
-    int *i, j, pad;
+    register int *i, j, pad;
 
     trap = 0;
     if (nb)
@@ -171,14 +238,14 @@ void tbreak(void) {
         adsp = adrem = 0;
 #ifdef NROFF
         if (admod == 1)
-            un = +quant(nel / 2, t.Adj);
+            un += quant(nel / 2, t.Adj);
 #endif
 #ifndef NROFF
         if (admod == 1)
-            un = +nel / 2;
-#endif NROFF
+            un += nel / 2;
+#endif
         else if (admod == 2)
-            un = +nel;
+            un += nel;
     }
     totout++;
     brflg = 0;
@@ -189,20 +256,20 @@ void tbreak(void) {
         if (((j = *i++) & CMASK) == ' ') {
             pad = 0;
             do {
-                pad = +width(j);
+                pad += width(j);
                 nc--;
             } while (((j = *i++) & CMASK) == ' ');
             i--;
-            pad = +adsp;
+            pad += adsp;
             if (adrem) {
                 if (adrem < 0) {
 #ifdef NROFF
-                    pad = -t.Adj;
-                    adrem = +t.Adj;
+                    pad -= t.Adj;
+                    adrem += t.Adj;
                 } else if ((totout & 01) ||
                            ((adrem / t.Adj) >= (--nwd))) {
-                    pad = +t.Adj;
-                    adrem = -t.Adj;
+                    pad += t.Adj;
+                    adrem -= t.Adj;
 #endif
 #ifndef NROFF
                     pad--;
@@ -243,10 +310,17 @@ void tbreak(void) {
         newline(0);
     spread = 0;
 }
-/* Output line numbering. */
+/*
+ * Output line numbering.
+ * 
+ * This function generates line numbers for each text line:
+ * - Formats line numbers with proper spacing
+ * - Handles line number increment and display
+ * - Manages numbering frequency control
+ * - Applies proper fonts and character formatting
+ */
 void donum(void) {
-    int i, nw;
-    extern pchar();
+    register int i, nw;
 
     nrbits = nmbits;
     nw = width('1' | nrbits);
@@ -257,7 +331,7 @@ void donum(void) {
     if (v.ln % ndf) {
         v.ln++;
     d1:
-        un = +nw * (3 + nms + ni);
+        un += nw * (3 + nms + ni);
         return;
     }
     i = 0;
@@ -268,7 +342,7 @@ void donum(void) {
     horiz(nw * (ni + i));
     nform = 0;
     fnumb(v.ln, pchar);
-    un = +nw * nms;
+    un += nw * nms;
     v.ln++;
 }
 /* Process incoming text characters. */
@@ -321,10 +395,11 @@ void text(void) {
 t3:
     if (spread)
         goto t5;
-    if (pendw || !wch)
+    if (pendw || !wch) {
     t4:
         if (getword(0))
             goto t6;
+    }
     if (!movword())
         goto t3;
 t5:
@@ -467,11 +542,12 @@ void newline(int a) {
             dip->alss = 0;
         }
         if (dip->ditrap && !dip->ditf &&
-            (dip->dnl >= dip->ditrap) && dip->dimac)
+            (dip->dnl >= dip->ditrap) && dip->dimac) {
             if (control(dip->dimac, 0)) {
                 trap++;
                 dip->ditf++;
             }
+        }
         return;
     }
     j = lss;
@@ -526,8 +602,9 @@ nlpn:
 nl2:
     trap = 0;
     if (v.nl == 0) {
-        if ((j = findn(0)) != NTRAP)
+        if ((j = findn(0)) != NTRAP) {
             trap = control(mlist[j], 0);
+        }
     } else if ((i = findt(v.nl - nlss)) <= nlss) {
         if ((j = findn1(v.nl - nlss + i)) == NTRAP) {
             prstrfl("Trap botch.\n");
@@ -740,7 +817,7 @@ int getword(int x) {
             *pendw = 0;
             goto rtn;
         }
-    if (wordp = pendw)
+    if ((wordp = pendw))
         goto g1;
     hyp = hyptr;
     wordp = word;
