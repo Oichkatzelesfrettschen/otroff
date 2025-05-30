@@ -5,17 +5,20 @@
 
 #ifndef SUFTAB_H
 #define SUFTAB_H
+
 #include "cxx23_scaffold.hpp"
-#include <array> // std::array container
+
+#include <array>
 #include <span>
 
-/* External declarations */
+namespace roff::data {
+
+constexpr std::size_t SUFTAB_SIZE = 4096;
+
 extern const std::array<char, SUFTAB_SIZE> suftab; // suffix data storage
 
-/* Function prototypes */
-void print_suftab_info(void); // display suffix table stats
+void print_suftab_info(); // display suffix table stats
 
-/* Utility macros */
-#define SUFTAB_SIZE 4096
+} // namespace roff::data
 
-#endif /* SUFTAB_H */
+#endif // SUFTAB_H

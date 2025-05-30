@@ -1,21 +1,26 @@
 #include "cxx23_scaffold.hpp"
-/*
- * suftab.c - Suffix table for text processing
- * Modernized to C90 standards
- */
+#include "suftab.hpp"
 
-#include <array> // std::array for fixed data
-#include <cstdio>
-#include <cstdlib>
-#include "suftab.h"
+#include <array>
+#include <format>
+#include <print>
 
-/* Suffix table data - modernized array declaration */
+namespace roff::data {
+
+// Suffix table data - modernized array declaration
 constexpr std::array<char, SUFTAB_SIZE> suftab = {
     // ...existing code...
 };
 
-/* Function to print suffix table information */
-void print_suftab_info(void) {
-    printf("Suffix table size: %lu bytes\n", (unsigned long)sizeof(suftab));
-    printf("First few bytes: %d, %d, %d, %d\n", (unsigned char)suftab[0], (unsigned char)suftab[1], (unsigned char)suftab[2], (unsigned char)suftab[3]);
+// Function to print suffix table information
+void print_suftab_info() {
+    std::print("Suffix table size: {} bytes\n", suftab.size());
+    std::print(
+        "First few bytes: {}, {}, {}, {}\n",
+        static_cast<unsigned char>(suftab[0]),
+        static_cast<unsigned char>(suftab[1]),
+        static_cast<unsigned char>(suftab[2]),
+        static_cast<unsigned char>(suftab[3]));
 }
+
+} // namespace roff::data

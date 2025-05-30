@@ -1,10 +1,11 @@
 #include "cxx23_scaffold.hpp"
-/* t2.c:  subroutine sequencing for one table */
 #include "tbl.h"
-#include <stdio.h>
-#include <stdlib.h>
-/* Execute all stages needed for a single table. */
-void tableput(void) {
+
+#include <cstdlib>
+#include <cstdio>
+
+// Execute all stages needed for a single table.
+void tableput() {
     saveline();
     savefill();
     ifdivert();
