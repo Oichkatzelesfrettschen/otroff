@@ -1,5 +1,5 @@
 # Build the roff formatter
-file(GLOB ROFF_SOURCES *.c)
+file(GLOB ROFF_SOURCES *.c *.cpp)
 add_executable(roff ${ROFF_SOURCES})
 # Include headers from the roff directory
 target_include_directories(roff PRIVATE ${CMAKE_SOURCE_DIR}/roff)

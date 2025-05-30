@@ -51,80 +51,22 @@
  * - Clear documentation and maintainability
  */
 
-#include <stdio.h>      /* Standard I/O operations */
-#include <stdlib.h>     /* Standard library functions */
-#include <string.h>     /* String manipulation functions */
-#include <ctype.h>      /* Character classification */
-#include <limits.h>     /* System limits */
+#include <stdio.h> /* Standard I/O operations */
+#include <stdlib.h> /* Standard library functions */
+#include <string.h> /* String manipulation functions */
+#include <ctype.h> /* Character classification */
+#include <limits.h> /* System limits */
 
 /* Local headers - these should exist in the project */
-#include "roff.h"       /* ROFF system definitions and globals */
+#include "roff.h" /* ROFF system definitions and globals */
+#include "roff_globals.hpp" /* Shared globals and prototypes */
 
 /* SCCS version identifier */
 static const char sccs_id[] ROFF_UNUSED = "@(#)roff2.c 1.3 25/05/29 (converted from PDP-11 assembly)";
 
 /* External variables from roff1.c and other modules */
-extern int ad;              /* Adjust mode flag */
-extern int fi;              /* Fill mode flag */
-extern int ce;              /* Center lines count */
-extern int ls;              /* Line spacing */
-extern int ls1;             /* Saved line spacing */
-extern int in;              /* Indent value */
-extern int un;              /* Temporary indent */
-extern int ll;              /* Line length */
-extern int pl;              /* Page length */
-extern int pn;              /* Page number */
-extern int skip;            /* Skip lines count */
-extern int ul;              /* Underline count */
-extern int nl;              /* Current line number */
-extern int nn;              /* Line numbering skip */
-extern int ni;              /* Line number indent */
-extern int po;              /* Page offset */
-extern int ma1, ma2, ma3, ma4; /* Margins */
-extern int numbmod;         /* Line numbering mode */
-extern int lnumber;         /* Line number */
-extern int jfomod;          /* Justification/format mode */
-extern int ro;              /* Read-only mode */
-extern int nx;              /* Next file flag */
-extern int hx;              /* Header/footer processing flag */
-extern int hyf;             /* Hyphenation flag */
-extern int ohc;             /* Output hyphenation character */
-extern int tabc;            /* Tab character */
-extern int nlflg;           /* Newline flag */
-extern int ch;              /* Current character */
-extern int skp;             /* Skip processing flag */
-extern int ip;              /* Include pointer */
-extern int nextb;           /* Next buffer pointer */
-extern char cc;             /* Control character */
-extern char *ehead, *efoot; /* Even page header/footer */
-extern char *ohead, *ofoot; /* Odd page header/footer */
-extern char nextf[];        /* Next file name */
-extern char bname[];        /* Buffer name */
-extern unsigned char trtab[]; /* Character translation table */
-extern unsigned char tabtab[]; /* Tab table */
-extern int ilist[];         /* Include list */
-extern int *ilistp;         /* Include list pointer */
 
 /* Function prototypes for external functions */
-extern void rbreak(void);
-extern void eject(void);
-extern void need(int lines);
-extern void need2(int lines);
-extern void nlines(int count, int spacing);
-extern void topbot(void);
-extern void skipcont(void);
-extern void flushi(void);
-extern int getchar_roff(void);
-extern void putchar_roff(int c);
-extern void storeline(int c);
-extern int min(int value);
-extern int number(int default_val);
-extern int number1(int default_val);
-extern void text(void);
-extern void headin(char **header_ptr);
-extern void getname(char *name_buffer);
-extern void copyb(void);
-extern int nextfile(void);
 
 /* Local function prototypes for C90 compliance */
 static void validate_line_count(int count);
@@ -143,8 +85,7 @@ static void handle_header_footer(char **target_ptr);
  *
  * @param count Line count to validate
  */
-static void validate_line_count(int count) 
-{
+static void validate_line_count(int count) {
     if (count < 0) {
         /* Negative values are treated as zero */
         count = 0;
@@ -162,8 +103,7 @@ static void validate_line_count(int count)
  *
  * @param value Indent value to validate
  */
-static void validate_indent_value(int value) 
-{
+static void validate_indent_value(int value) {
     if (value < 0) {
         value = 0;
     } else if (value > ll) {
@@ -179,8 +119,7 @@ static void validate_indent_value(int value)
  *
  * @param value Page-related value to validate
  */
-static void validate_page_value(int value) 
-{
+static void validate_page_value(int value) {
     if (value < 1) {
         value = 1;
     } else if (value > 9999) {
@@ -194,20 +133,19 @@ static void validate_page_value(int value)
  * Reads two characters and sets up translation from first to second.
  * Used by the .tr command for character substitution.
  */
-static void process_translation_pair(void) 
-{
+static void process_translation_pair(void) {
     int from_char, to_char;
-    
+
     from_char = getchar_roff();
     if (from_char == '\n') {
         return; /* End of translation pairs */
     }
-    
+
     to_char = getchar_roff();
     if (to_char == '\n') {
         to_char = ' '; /* Default to space if no second character */
     }
-    
+
     /* Validate character range */
     if (from_char >= 0 && from_char < 128) {
         trtab[from_char] = (unsigned char)to_char;
@@ -220,25 +158,24 @@ static void process_translation_pair(void)
  * Reads numeric tab stop positions and stores them in the tab table.
  * Used by the .ta command for setting custom tab stops.
  */
-static void process_tab_stops(void) 
-{
+static void process_tab_stops(void) {
     int tab_pos;
     int tab_index = 0;
-    
+
     while (tab_index < 20) { /* Maximum 20 tab stops */
         tab_pos = number(0);
         tab_pos = min(tab_pos);
-        
+
         if (tab_pos <= 0) {
             break; /* End of tab stops */
         }
-        
+
         tab_pos--; /* Convert to zero-based indexing */
         if (tab_pos >= 0 && tab_pos < 256) {
             tabtab[tab_index++] = (unsigned char)tab_pos;
         }
     }
-    
+
     /* Mark end of tab stops */
     if (tab_index < 20) {
         tabtab[tab_index] = 0;
@@ -254,8 +191,7 @@ static void process_tab_stops(void)
  * @param mode Line numbering mode (1 or 2)
  * @param start_value Starting line number
  */
-static void setup_line_numbering(int mode, int start_value) 
-{
+static void setup_line_numbering(int mode, int start_value) {
     if (start_value > 0) {
         numbmod = mode;
         lnumber = start_value;
@@ -273,8 +209,7 @@ static void setup_line_numbering(int mode, int start_value)
  *
  * @param target_ptr Pointer to target header/footer string pointer
  */
-static void handle_header_footer(char **target_ptr) 
-{
+static void handle_header_footer(char **target_ptr) {
     headin(target_ptr);
 }
 
@@ -294,8 +229,7 @@ static void handle_header_footer(char **target_ptr)
  * the available width by adding extra spaces between words.
  * Calls rbreak() to ensure any pending line is output first.
  */
-void case_ad(void) 
-{
+void case_ad(void) {
     rbreak();
     ad = 1; /* Enable adjust mode */
 }
@@ -307,8 +241,7 @@ void case_ad(void)
  * accumulated without waiting for the line to fill.
  * This is the most basic formatting command.
  */
-void case_br(void) 
-{
+void case_br(void) {
     rbreak();
 }
 
@@ -319,17 +252,16 @@ void case_br(void)
  * character. If no character is specified, retains current setting.
  * The control character begins command lines.
  */
-void case_cc(void) 
-{
+void case_cc(void) {
     int new_cc;
-    
+
     skipcont();
     new_cc = getchar_roff();
-    
+
     if (new_cc != '\n') {
         cc = (char)new_cc;
     }
-    
+
     ch = new_cc; /* Save character for potential reuse */
 }
 
@@ -346,10 +278,9 @@ void case_cc(void)
  * 3. Ensure adequate space on page
  * 4. Set centering counter
  */
-void case_ce(void) 
-{
+void case_ce(void) {
     int lines_to_center;
-    
+
     rbreak();
     lines_to_center = number(0);
     lines_to_center = min(lines_to_center);
@@ -363,8 +294,7 @@ void case_ce(void)
  * Sets line spacing to double (2). This affects the vertical
  * spacing between lines of text output.
  */
-void case_ds(void) 
-{
+void case_ds(void) {
     rbreak();
     ls = 2; /* Set double spacing */
 }
@@ -376,8 +306,7 @@ void case_ds(void)
  * maximum width before breaking. This is the normal
  * text processing mode.
  */
-void case_fi(void) 
-{
+void case_fi(void) {
     rbreak();
     fi = 1; /* Enable fill mode */
 }
@@ -391,15 +320,14 @@ void case_fi(void)
  *
  * @note The indent persists until changed by another .in command.
  */
-void case_in(void) 
-{
+void case_in(void) {
     int indent_value;
-    
+
     rbreak();
     indent_value = number(in); /* Use current indent as default */
     indent_value = min(indent_value);
     validate_indent_value(indent_value);
-    
+
     in = indent_value;
     un = indent_value; /* Also set temporary indent */
 }
@@ -411,14 +339,13 @@ void case_in(void)
  * breaking the current line first. Used for special
  * formatting where indent change takes effect immediately.
  */
-void case_ix(void) 
-{
+void case_ix(void) {
     int indent_value;
-    
+
     indent_value = number(in);
     indent_value = min(indent_value);
     validate_indent_value(indent_value);
-    
+
     in = indent_value;
 }
 
@@ -436,13 +363,12 @@ void case_ix(void)
  *    - Clear newline flag
  *    - Process line as text
  */
-void case_li(void) 
-{
+void case_li(void) {
     int literal_count;
-    
+
     literal_count = number(0);
     validate_line_count(literal_count);
-    
+
     while (literal_count > 0) {
         literal_count--;
         flushi();
@@ -458,13 +384,12 @@ void case_li(void)
  * This controls where lines are broken during fill mode.
  * The line length includes any indentation.
  */
-void case_ll(void) 
-{
+void case_ll(void) {
     int line_length;
-    
+
     line_length = number(ll); /* Use current line length as default */
     line_length = min(line_length);
-    
+
     if (line_length > 0) {
         ll = line_length;
     }
@@ -477,26 +402,25 @@ void case_ll(void)
  * restores the previously saved line spacing (ls1).
  * Line spacing controls vertical space between text lines.
  */
-void case_ls(void) 
-{
+void case_ls(void) {
     int spacing_value;
-    
+
     rbreak();
     skipcont();
-    
+
     spacing_value = getchar_roff();
     if (spacing_value == '\n') {
         /* No argument - restore saved spacing */
         ls = ls1;
         return;
     }
-    
+
     ch = spacing_value; /* Put character back */
     spacing_value = number1(ls); /* Use current spacing as default */
     spacing_value--;
     spacing_value = min(spacing_value);
     spacing_value++;
-    
+
     if (spacing_value > 0) {
         ls = spacing_value;
         ls1 = spacing_value; /* Save for later restoration */
@@ -510,8 +434,7 @@ void case_ls(void)
  * with natural spacing between words, not stretched
  * to fill the available width.
  */
-void case_na(void) 
-{
+void case_na(void) {
     rbreak();
     ad = 0; /* Disable adjust mode */
 }
@@ -523,14 +446,13 @@ void case_na(void)
  * on the current page. If not enough space is available,
  * forces a page break.
  */
-void case_ne(void) 
-{
+void case_ne(void) {
     int lines_needed;
-    
+
     lines_needed = number(0);
     lines_needed = min(lines_needed);
     validate_line_count(lines_needed);
-    
+
     need(lines_needed);
 }
 
@@ -541,8 +463,7 @@ void case_ne(void)
  * appear in the input, without attempting to fill them
  * to the maximum width.
  */
-void case_nf(void) 
-{
+void case_nf(void) {
     rbreak();
     fi = 0; /* Disable fill mode */
 }
@@ -559,14 +480,13 @@ void case_nf(void)
  * 3. Skip to end of command line
  * 4. If number provided and not at line start, set page number
  */
-void case_pa(void) 
-{
+void case_pa(void) {
     int new_page_num;
-    
+
     rbreak();
     eject();
     skipcont();
-    
+
     if (nlflg == 0) {
         /* Number provided */
         new_page_num = number(pn);
@@ -582,8 +502,7 @@ void case_pa(void)
  * Identical to .pa command. Forces a page break with
  * optional page number setting.
  */
-void case_bp(void) 
-{
+void case_bp(void) {
     case_pa(); /* Delegate to page break handler */
 }
 
@@ -599,17 +518,16 @@ void case_bp(void)
  * 3. Ensure space is available
  * 4. Output blank lines by storing spaces and breaking
  */
-void case_bl(void) 
-{
+void case_bl(void) {
     int blank_count;
-    
+
     rbreak();
     blank_count = number(0);
     blank_count = min(blank_count);
     validate_line_count(blank_count);
-    
+
     need2(blank_count);
-    
+
     while (blank_count > 0) {
         blank_count--;
         storeline(' '); /* Store a space to create blank line */
@@ -623,13 +541,12 @@ void case_bl(void)
  * Sets the page length in lines. This controls when
  * automatic page breaks occur during text processing.
  */
-void case_pl(void) 
-{
+void case_pl(void) {
     int page_length;
-    
+
     page_length = number(pl); /* Use current page length as default */
     validate_page_value(page_length);
-    
+
     pl = page_length;
     topbot(); /* Recalculate top/bottom margins */
 }
@@ -640,14 +557,13 @@ void case_pl(void)
  * Sets the number of lines to skip at the next page break.
  * This is used for positioning text on the following page.
  */
-void case_sk(void) 
-{
+void case_sk(void) {
     int skip_count;
-    
+
     skip_count = number(0);
     skip_count = min(skip_count);
     validate_line_count(skip_count);
-    
+
     skip = skip_count;
 }
 
@@ -658,14 +574,13 @@ void case_sk(void)
  * the current line spacing. Different from .bl in that
  * it respects line spacing settings.
  */
-void case_sp(void) 
-{
+void case_sp(void) {
     int space_count;
-    
+
     rbreak();
     space_count = number(0);
     validate_line_count(space_count);
-    
+
     nlines(space_count, nl); /* Use current line for spacing calculation */
 }
 
@@ -675,8 +590,7 @@ void case_sp(void)
  * Sets line spacing to single (1). This is the default
  * line spacing for normal text output.
  */
-void case_ss(void) 
-{
+void case_ss(void) {
     rbreak();
     ls = 1; /* Set single spacing */
 }
@@ -691,23 +605,22 @@ void case_ss(void)
  * Format: .tr ab cd ef
  * This translates 'a' to 'b', 'c' to 'd', 'e' to 'f'
  */
-void case_tr(void) 
-{
+void case_tr(void) {
     skipcont();
-    
+
     while (1) {
         int from_char = getchar_roff();
         int to_char;
-        
+
         if (from_char == '\n') {
             break; /* End of translation pairs */
         }
-        
+
         to_char = getchar_roff();
         if (to_char == '\n') {
             to_char = ' '; /* Default to space */
         }
-        
+
         /* Set up translation */
         if (from_char >= 0 && from_char < 128) {
             trtab[from_char] = (unsigned char)to_char;
@@ -724,8 +637,7 @@ void case_tr(void)
  * Format: .ta 8 16 24 32
  * Sets tab stops at columns 8, 16, 24, and 32
  */
-void case_ta(void) 
-{
+void case_ta(void) {
     process_tab_stops();
 }
 
@@ -736,15 +648,14 @@ void case_ta(void)
  * After that line is output, the indent reverts to the
  * previous setting.
  */
-void case_ti(void) 
-{
+void case_ti(void) {
     int temp_indent;
-    
+
     rbreak();
     temp_indent = number(in); /* Use current indent as default */
     temp_indent = min(temp_indent);
     validate_indent_value(temp_indent);
-    
+
     un = temp_indent; /* Set temporary indent */
 }
 
@@ -755,14 +666,13 @@ void case_ti(void)
  * text has underscores inserted between characters
  * for emphasis on devices that support it.
  */
-void case_ul(void) 
-{
+void case_ul(void) {
     int underline_count;
-    
+
     underline_count = number(0);
     underline_count = min(underline_count);
     validate_line_count(underline_count);
-    
+
     ul = underline_count;
 }
 
@@ -773,18 +683,17 @@ void case_ul(void)
  * current indent setting. Used for hanging indents
  * and outdented paragraphs.
  */
-void case_un(void) 
-{
+void case_un(void) {
     int undent_value;
-    
+
     undent_value = number(0);
     undent_value = in - undent_value; /* Calculate relative to current indent */
     undent_value = min(undent_value);
-    
+
     if (undent_value < 0) {
         undent_value = 0; /* Don't allow negative indents */
     }
-    
+
     un = undent_value;
 }
 
@@ -795,14 +704,13 @@ void case_un(void)
  * When enabled, headers and footers are printed on pages.
  * When disabled, pages contain only body text.
  */
-void case_hx(void) 
-{
+void case_hx(void) {
     if (hx) {
         hx = 0; /* Disable header/footer processing */
     } else {
         hx = 1; /* Enable header/footer processing */
     }
-    
+
     topbot(); /* Recalculate page layout */
 }
 
@@ -812,8 +720,7 @@ void case_hx(void)
  * Sets the header for even-numbered pages.
  * Also copies to odd header if not separately set.
  */
-void case_he(void) 
-{
+void case_he(void) {
     handle_header_footer(&ehead);
     ohead = ehead; /* Copy to odd header */
 }
@@ -824,8 +731,7 @@ void case_he(void)
  * Sets the footer for pages.
  * Also copies to odd footer if not separately set.
  */
-void case_fo(void) 
-{
+void case_fo(void) {
     handle_header_footer(&efoot);
     ofoot = efoot; /* Copy to odd footer */
 }
@@ -835,8 +741,7 @@ void case_fo(void)
  *
  * Sets the header specifically for even-numbered pages.
  */
-void case_eh(void) 
-{
+void case_eh(void) {
     handle_header_footer(&ehead);
 }
 
@@ -845,8 +750,7 @@ void case_eh(void)
  *
  * Sets the header specifically for odd-numbered pages.
  */
-void case_oh(void) 
-{
+void case_oh(void) {
     handle_header_footer(&ohead);
 }
 
@@ -855,8 +759,7 @@ void case_oh(void)
  *
  * Sets the footer specifically for even-numbered pages.
  */
-void case_ef(void) 
-{
+void case_ef(void) {
     handle_header_footer(&efoot);
 }
 
@@ -865,8 +768,7 @@ void case_ef(void)
  *
  * Sets the footer specifically for odd-numbered pages.
  */
-void case_of(void) 
-{
+void case_of(void) {
     handle_header_footer(&ofoot);
 }
 
@@ -875,14 +777,13 @@ void case_of(void)
  *
  * Sets the top margin (space before header).
  */
-void case_m1(void) 
-{
+void case_m1(void) {
     int margin_value;
-    
+
     margin_value = number(ma1);
     margin_value = min(margin_value);
     validate_line_count(margin_value);
-    
+
     ma1 = margin_value;
     topbot(); /* Recalculate page layout */
 }
@@ -892,14 +793,13 @@ void case_m1(void)
  *
  * Sets the margin between header and text.
  */
-void case_m2(void) 
-{
+void case_m2(void) {
     int margin_value;
-    
+
     margin_value = number(ma2);
     margin_value = min(margin_value);
     validate_line_count(margin_value);
-    
+
     ma2 = margin_value;
     topbot(); /* Recalculate page layout */
 }
@@ -909,14 +809,13 @@ void case_m2(void)
  *
  * Sets the margin between text and footer.
  */
-void case_m3(void) 
-{
+void case_m3(void) {
     int margin_value;
-    
+
     margin_value = number(ma3);
     margin_value = min(margin_value);
     validate_line_count(margin_value);
-    
+
     ma3 = margin_value;
     topbot(); /* Recalculate page layout */
 }
@@ -926,14 +825,13 @@ void case_m3(void)
  *
  * Sets the bottom margin (space after footer).
  */
-void case_m4(void) 
-{
+void case_m4(void) {
     int margin_value;
-    
+
     margin_value = number(ma4);
     margin_value = min(margin_value);
     validate_line_count(margin_value);
-    
+
     ma4 = margin_value;
     topbot(); /* Recalculate page layout */
 }
@@ -945,13 +843,12 @@ void case_m4(void)
  * If no character is specified, uses a special
  * internal value (128) to disable hyphenation.
  */
-void case_hc(void) 
-{
+void case_hc(void) {
     int hyph_char;
-    
+
     skipcont();
     hyph_char = getchar_roff();
-    
+
     if (hyph_char == '\n') {
         ohc = 128; /* Special value for no hyphenation */
     } else {
@@ -965,13 +862,12 @@ void case_hc(void)
  * Sets the character used for tab expansion.
  * If no character is specified, uses space.
  */
-void case_tc(void) 
-{
+void case_tc(void) {
     int tab_char;
-    
+
     skipcont();
     tab_char = getchar_roff();
-    
+
     if (tab_char == '\n') {
         tabc = ' '; /* Default to space */
     } else {
@@ -985,10 +881,9 @@ void case_tc(void)
  * Sets the hyphenation mode. Zero disables hyphenation,
  * non-zero enables it with the specified algorithm.
  */
-void case_hy(void) 
-{
+void case_hy(void) {
     int hyph_mode;
-    
+
     hyph_mode = number(0);
     hyf = hyph_mode;
 }
@@ -999,10 +894,9 @@ void case_hy(void)
  * Enables line numbering in mode 1 format.
  * If a number is provided, it becomes the starting line number.
  */
-void case_n1(void) 
-{
+void case_n1(void) {
     int start_num;
-    
+
     rbreak();
     start_num = number(0);
     setup_line_numbering(1, start_num);
@@ -1014,10 +908,9 @@ void case_n1(void)
  * Enables line numbering in mode 2 format.
  * If a number is provided, it becomes the starting line number.
  */
-void case_n2(void) 
-{
+void case_n2(void) {
     int start_num;
-    
+
     rbreak();
     start_num = number(0);
     setup_line_numbering(2, start_num);
@@ -1030,14 +923,13 @@ void case_n2(void)
  * line numbering. Used to suppress line numbers
  * for headings or special text.
  */
-void case_nn(void) 
-{
+void case_nn(void) {
     int skip_count;
-    
+
     skip_count = number(0);
     skip_count = min(skip_count);
     validate_line_count(skip_count);
-    
+
     nn = skip_count;
 }
 
@@ -1047,14 +939,13 @@ void case_nn(void)
  * Sets the indent for line numbers. This controls
  * how far from the left margin line numbers appear.
  */
-void case_ni(void) 
-{
+void case_ni(void) {
     int number_indent;
-    
+
     number_indent = number(ni);
     number_indent = min(number_indent);
     validate_indent_value(number_indent);
-    
+
     ni = number_indent;
 }
 
@@ -1064,10 +955,9 @@ void case_ni(void)
  * Sets justification and formatting options.
  * Controls how text is justified and formatted.
  */
-void case_jo(void) 
-{
+void case_jo(void) {
     int justify_mode;
-    
+
     justify_mode = number(0);
     jfomod = justify_mode;
 }
@@ -1077,8 +967,7 @@ void case_jo(void)
  *
  * Disables read-only mode, allowing normal text processing.
  */
-void case_ar(void) 
-{
+void case_ar(void) {
     ro = 0; /* Disable read-only mode */
 }
 
@@ -1087,8 +976,7 @@ void case_ar(void)
  *
  * Enables read-only mode for special text processing.
  */
-void case_ro(void) 
-{
+void case_ro(void) {
     ro = 1; /* Enable read-only mode */
 }
 
@@ -1105,8 +993,7 @@ void case_ro(void)
  * 4. Switch to new file
  * 5. Reset include processing state
  */
-void case_nx(void) 
-{
+void case_nx(void) {
     skipcont();
     getname(nextf); /* Read filename into nextf buffer */
     nx = 1; /* Set next file flag */
@@ -1122,15 +1009,14 @@ void case_nx(void)
  * Sets the left page offset (left margin) for all text.
  * This shifts the entire text block horizontally.
  */
-void case_po(void) 
-{
+void case_po(void) {
     int offset_value;
-    
+
     rbreak();
     offset_value = number(po);
     offset_value = min(offset_value);
     validate_indent_value(offset_value);
-    
+
     po = offset_value;
 }
 
@@ -1149,21 +1035,20 @@ void case_po(void)
  * 5. Set up macro definition or update existing
  * 6. Copy macro body to buffer
  */
-void case_de(void) 
-{
+void case_de(void) {
     /* Implementation depends on macro system structure */
     /* This is a simplified version */
-    
+
     if (ip != 0) {
         return; /* Skip if in include processing */
     }
-    
+
     skipcont();
     getname(bname); /* Read macro name */
-    
+
     /* Macro definition processing would go here */
     /* This involves complex buffer management */
-    
+
     copyb(); /* Copy macro body */
 }
 
@@ -1173,8 +1058,7 @@ void case_de(void)
  * Ignores text until the matching end marker.
  * Used for comments and conditional text.
  */
-void case_ig(void) 
-{
+void case_ig(void) {
     skp = 1; /* Set skip flag */
     copyb(); /* Skip until end marker */
 }
@@ -1186,9 +1070,7 @@ void case_ig(void)
  * reference. Outputs a special control character
  * that can be used for positioning.
  */
-void case_mk(void) 
-{
+void case_mk(void) {
     rbreak();
     putchar_roff(002); /* Output STX (start of text) marker */
 }
-
