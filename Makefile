@@ -1,4 +1,7 @@
-CC ?= clang
+# Use clang as the compiler. The built-in 'cc' is typically GCC which
+# yields slightly different diagnostics. Force clang unless the user
+# explicitly overrides it on the command line.
+CC := clang
 CPU ?= native
 
 # Map CPU values to 64-bit -march options
@@ -62,6 +65,18 @@ clean:
 	rm -rf $(OBJDIR)
 
 .PHONY: all clean croff tbl neqn roff test
+
+# Build using CMake in a separate directory
+.PHONY: cmake
+cmake:
+	cmake -S . -B build-cmake
+	cmake --build build-cmake
+
+# Build using Meson in a separate directory
+.PHONY: meson
+meson:
+	meson setup build-meson --reconfigure || meson setup build-meson
+	ninja -C build-meson
 
 # Run the test-suite using pytest
 test:

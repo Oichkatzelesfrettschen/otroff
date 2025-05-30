@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include "hyphen_utils.h"
 
 /* Simple helpers used by the old hyphenation code. */
 

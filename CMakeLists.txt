@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
+
     project(otroff C)
 
         set(CMAKE_C_STANDARD 90)
@@ -30,3 +31,6 @@ cmake_minimum_required(VERSION 3.5)
                                                                                             endif() if (BUILD_NEQN)
                                                                                                 add_subdirectory(neqn)
                                                                                                     endif()
+                file(GLOB ROFF_SRC CONFIGURE_DEPENDS "roff/*.c")
+                    add_executable(troff ${ROFF_SRC})
+                        target_compile_options(troff PRIVATE - Wall - O2)
