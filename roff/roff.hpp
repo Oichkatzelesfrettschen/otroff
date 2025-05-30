@@ -1,18 +1,18 @@
 #pragma once
 
-// Enforce C++23 compilation
-#if __cplusplus < 202302L
-#error "This code requires C++23 or later. Use -std=c++23 or equivalent."
+// Enforce C++17 compilation
+#if __cplusplus < 201703L
+#error "This code requires C++17 or later. Use -std=c++17 or equivalent."
 #endif
 
 // Disable C compatibility
 #ifdef __STDC__
-#error "This is pure C++23 code. Do not compile with a C compiler."
+#error "This is pure C++17 code. Do not compile with a C compiler."
 #endif
 
-// Platform checks for C++23 features
+// Platform checks for C++17 features
 #ifndef __cpp_concepts
-#error "C++23 concepts support required"
+#error "C++17 concepts support required"
 #endif
 
 #ifndef __cpp_modules
@@ -20,10 +20,10 @@
 #endif
 
 #ifndef __cpp_consteval
-#error "C++23 consteval support required"
+#error "C++17 consteval support required"
 #endif
 
-// Modern C++23 includes - replace all C headers
+// Modern C++17 includes - replace all C headers
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -36,12 +36,12 @@
 #include <expected>
 #include <memory>
 
-// Force strict C++23 mode
+// Force strict C++17 mode
 #define PURE_CPP23_ONLY
 #include "cxx23_scaffold.hpp"
 
 // Roff version information for diagnostics
-inline constexpr std::string_view roff_version{"C++23-modern"};
+inline constexpr std::string_view roff_version{"C++17-modern"};
 #include <ranges>
 #include <algorithm>
 #include <format>
@@ -66,7 +66,7 @@ inline constexpr std::string_view roff_version{"C++23-modern"};
 
 namespace roff {
 
-// Core type aliases for modern C++23
+// Core type aliases for modern C++17
 using byte_t = std::byte;
 using size_type = std::size_t;
 using string = std::string;
@@ -88,7 +88,7 @@ using shared_ptr = std::shared_ptr<T>;
 template <typename T>
 using span = std::span<T>;
 
-// Compiler attribute macros (C++23 style)
+// Compiler attribute macros (C++17 style)
 #if defined(__clang__) || defined(__GNUC__)
 #define ROFF_UNUSED [[maybe_unused]]
 #define ROFF_NODISCARD [[nodiscard]]

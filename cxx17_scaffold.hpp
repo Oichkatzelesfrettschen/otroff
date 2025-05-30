@@ -1,18 +1,18 @@
 // ==========================================
-// === C++23 Scaffold Enforcement Header ===
+// === C++17 Scaffold Enforcement Header ===
 // === REMOVE OR INLINE ONCE STABILIZED! ===
 // ==========================================
 
-#ifndef CXX23_SCAFFOLD_HPP
-#define CXX23_SCAFFOLD_HPP
+#ifndef CXX17_SCAFFOLD_HPP
+#define CXX17_SCAFFOLD_HPP
 
 // Enforce strict compile-time C++ standard check
-#if __cplusplus < 202302L
-#error "C++23 or later is required. Set -std=c++23 or equivalent in your build system."
+#if __cplusplus < 201703L
+#error "C++17 or later is required. Set -std=c++17 or equivalent in your build system."
 #endif
 
 // Enable attributes, modules (if available), constexpr enhancements
-#define CXX23 [[nodiscard]] constexpr
+#define CXX17 [[nodiscard]] constexpr
 
 // Safe narrow cast: replace C-style casts
 #include <bit>
@@ -28,7 +28,7 @@ constexpr T narrow_cast(U value) {
     return static_cast<T>(value);
 }
 
-// Compile-time type reflection marker (C++23 feature)
+// Compile-time type reflection marker (C++17 feature)
 #if defined(__cpp_reflection) // not widely supported yet
 #warning "Native reflection supported. Consider integrating <experimental/reflection>."
 #endif
@@ -43,6 +43,6 @@ constexpr T narrow_cast(U value) {
 #endif
 
 // Placeholder macro for future linting, static analysis or CI
-#define MODERNIZED_BY_CXX23
+#define MODERNIZED_BY_CXX17
 
-#endif // CXX23_SCAFFOLD_HPP
+#endif // CXX17_SCAFFOLD_HPP

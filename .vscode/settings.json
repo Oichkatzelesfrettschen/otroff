@@ -3,7 +3,7 @@
         {
             "name": "default",
             "cStandard": "c23",
-            "cppStandard": "c++23",
+            "cppStandard": "c++17",
             "includePath": [],
             "defines": []
         }
