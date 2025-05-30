@@ -3,6 +3,8 @@
 #include "tbl.hpp"
 #include <stdio.h> /* fprintf */
 #define realsplit ((ct == 'a' || ct == 'n') && table[nl][c].rcol)
+
+namespace tbl {
 int watchout;
 int once;
 int topat[MAXCOL];
@@ -256,3 +258,4 @@ void putsize(char *s) {
     if (s && *s)
         fprintf(tabout, "\\s%s", s);
 }
+} // namespace tbl

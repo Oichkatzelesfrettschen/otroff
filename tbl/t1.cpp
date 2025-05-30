@@ -17,10 +17,12 @@
 #define MACROS "/usr/lib/tmac.s"
 #endif
 
+namespace tbl {
 int tbl(int argc, char **argv);
 void setinp(int argc, char **argv);
 int swapin(void);
 int badsig(int signo);
+} // namespace tbl
 #define ever (;;)
 /* Entry point. */
 int main(int argc, char *argv[]) {
@@ -33,9 +35,10 @@ int main(int argc, char *argv[]) {
 #endif
     tabin = stdin;
     tabout = stdout;
-    exit(tbl(argc, argv));
+    exit(tbl::tbl(argc, argv));
 }
 
+namespace tbl {
 /* Process command line arguments and tables in input files. */
 int tbl(int argc, char **argv) {
     char line[512];
@@ -83,3 +86,4 @@ int badsig(int signo) {
     exit(0);
 }
 #endif
+} // namespace tbl
