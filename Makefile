@@ -80,7 +80,7 @@ roff:  $(ROFF_OBJ)
 clean:
 	rm -rf $(OBJDIR)
 
-.PHONY: all clean croff tbl neqn roff test
+.PHONY: all clean croff tbl neqn roff test format
 
 # Build using CMake in a separate directory
 .PHONY: cmake
@@ -97,3 +97,7 @@ meson:
 # Run the test-suite using pytest
 test:
 	pytest -q
+
+# Format all C and header files using clang-format
+format:
+	find . \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
