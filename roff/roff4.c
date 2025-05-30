@@ -150,6 +150,11 @@ static void roman1(void);
 static void nlines(int count, void (*func)(int));
 void nofill(void);
 
+/* Conversion state used by decimal and Roman numeral routines */
+static int conv_value;
+static void (*conv_out)(int);
+static int conv_width;
+
 /**
  * @brief Main text processing function with fill/no-fill mode handling.
  *
@@ -1133,8 +1138,10 @@ static void nlines(int count, void (*func)(int))
  */
 void decimal(int num, void (*output_func)(int))
 {
+    conv_value = num;
+    conv_out = output_func;
+    conv_width = 0;
     decml();
-    /* Width calculation and output handled in decml() */
 }
 
 /**
@@ -1162,8 +1169,16 @@ static void decml(void)
  */
 static void decml1(void)
 {
-    /* Implementation would go here */
-    /* This is a simplified placeholder */
+    int q = conv_value / 10;
+    int r = conv_value % 10;
+
+    if (q > 0) {
+        conv_value = q;
+        decml();
+    }
+
+    conv_out('0' + r);
+    conv_width += width('0' + r);
 }
 
 /**
@@ -1177,6 +1192,16 @@ static void decml1(void)
  */
 static void roman(void)
 {
+    conv_value = pn;
+    conv_out = putchar_roff;
+    conv_width = 0;
+
+    if (conv_value == 0) {
+        conv_out('0');
+        conv_width += width('0');
+        return;
+    }
+
     roman1();
 }
 
@@ -1191,6 +1216,46 @@ static void roman(void)
  */
 static void roman1(void)
 {
-    /* Implementation would go here */
-    /* This is a simplified placeholder */
+    int saved = conv_value;
+    int q = saved / 10;
+    int r = saved % 10;
+    char c;
+
+    if (saved == 0) {
+        return;
+    }
+
+    if (q > 0) {
+        conv_value = q;
+        ++onesp;
+        ++fivesp;
+        roman();
+        --onesp;
+        --fivesp;
+    }
+
+    q = r / 5;
+    r %= 5;
+
+    if (r == 4) {
+        c = *onesp;
+        conv_out(c);
+        conv_width += width(c);
+        c = q ? *(onesp + 1) : *fivesp;
+        conv_out(c);
+        conv_width += width(c);
+        return;
+    }
+
+    if (q) {
+        c = *fivesp;
+        conv_out(c);
+        conv_width += width(c);
+    }
+
+    while (r-- > 0) {
+        c = *onesp;
+        conv_out(c);
+        conv_width += width(c);
+    }
 }

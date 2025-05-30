@@ -27,17 +27,17 @@
 /* ================================================================
  * SYSTEM INCLUDES - C90 Standard Library Headers
  * ================================================================ */
-#include <stdio.h>      /* Standard I/O operations */
-#include <stdlib.h>     /* Memory allocation, program control */
-#include <string.h>     /* String manipulation functions */
-#include <ctype.h>      /* Character classification */
-#include <errno.h>      /* Error number definitions */
-#include <signal.h>     /* Signal handling */
+#include <stdio.h> /* Standard I/O operations */
+#include <stdlib.h> /* Memory allocation, program control */
+#include <string.h> /* String manipulation functions */
+#include <ctype.h> /* Character classification */
+#include <errno.h> /* Error number definitions */
+#include <signal.h> /* Signal handling */
 
 /* ================================================================
  * PROJECT INCLUDES - Local Header Files
  * ================================================================ */
-#include "ne.h"         /* Main neqn header with type definitions */
+#include "ne.h" /* Main neqn header with type definitions */
 
 /* ================================================================
  * PROGRAM CONSTANTS AND CONFIGURATION
@@ -135,66 +135,65 @@ static int setup_signal_handlers(void);
  * @param argv Argument vector
  * @return Exit status code
  */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int result = NEQN_EXIT_SUCCESS;
     char **input_files = NULL;
     int file_count = 0;
-    
+
     /* Set up program name for error messages */
     if (argc > 0 && argv[0] != NULL) {
         const char *basename = strrchr(argv[0], '/');
         program_name = (basename != NULL) ? basename + 1 : argv[0];
     }
-    
+
     /* Parse command-line arguments */
     file_count = parse_command_line(argc, argv);
     if (file_count < 0) {
         cleanup_and_exit(NEQN_EXIT_USAGE);
     }
-    
+
     /* Handle special flags */
     if (show_version) {
         print_version();
         cleanup_and_exit(NEQN_EXIT_SUCCESS);
     }
-    
+
     if (show_help) {
         print_help();
         cleanup_and_exit(NEQN_EXIT_SUCCESS);
     }
-    
+
     /* Set up signal handlers for clean shutdown */
     if (setup_signal_handlers() != 0) {
         fprintf(stderr, "%s: Warning - could not set up signal handlers\n",
                 program_name);
     }
-    
+
     /* Initialize the neqn system */
     if (neqn_init() != NEQN_SUCCESS) {
         fprintf(stderr, "%s: Failed to initialize neqn system\n", program_name);
         cleanup_and_exit(NEQN_EXIT_FAILURE);
     }
-    
+
     /* Register cleanup function */
     if (atexit(neqn_cleanup) != 0) {
         fprintf(stderr, "%s: Warning - could not register cleanup function\n",
                 program_name);
     }
-    
+
     /* Create processing context */
     neqn_current_context = neqn_context_create();
     if (neqn_current_context == NULL) {
         fprintf(stderr, "%s: Failed to create processing context\n", program_name);
         cleanup_and_exit(NEQN_EXIT_FAILURE);
     }
-    
+
     /* Set debug level if verbose mode enabled */
     if (verbose_mode) {
         neqn_set_debug_level(1);
         neqn_current_context->debug_level = 1;
     }
-    
+
     /* Extract input files from command line arguments */
     if (file_count > 0) {
         int i;
@@ -203,7 +202,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "%s: Memory allocation failed\n", program_name);
             cleanup_and_exit(NEQN_EXIT_FAILURE);
         }
-        
+
         /* Collect non-option arguments as input files */
         for (i = 1; i < argc && file_count > 0; i++) {
             if (argv[i][0] != '-') {
@@ -212,15 +211,15 @@ int main(int argc, char *argv[])
         }
         file_count = argc - 1 - file_count; /* Restore actual count */
     }
-    
+
     /* Process input files or stdin */
     result = process_input_files(input_files, file_count);
-    
+
     /* Clean up and exit */
     if (input_files != NULL) {
         free(input_files);
     }
-    
+
     cleanup_and_exit(result);
     return result; /* Never reached, but satisfies compiler */
 }
@@ -239,11 +238,10 @@ int main(int argc, char *argv[])
  * @param argv Argument vector
  * @return Number of input files, or -1 on error
  */
-static int parse_command_line(int argc, char *argv[])
-{
+static int parse_command_line(int argc, char *argv[]) {
     int i;
     int file_count = 0;
-    
+
     for (i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             /* Process options */
@@ -275,21 +273,20 @@ static int parse_command_line(int argc, char *argv[])
             file_count++;
         }
     }
-    
+
     /* Count remaining arguments as files */
     while (i < argc) {
         file_count++;
         i++;
     }
-    
+
     return file_count;
 }
 
 /**
  * @brief Print program usage information
  */
-static void print_usage(void)
-{
+static void print_usage(void) {
     printf("Usage: %s [OPTIONS] [FILE...]\n", program_name);
     printf("\nOptions:\n");
     printf("  -h, --help       Show this help message\n");
@@ -303,8 +300,7 @@ static void print_usage(void)
 /**
  * @brief Print version information
  */
-static void print_version(void)
-{
+static void print_version(void) {
     printf("%s version %s\n", program_name, neqn_get_version());
     printf("Mathematical equation preprocessor for terminal output\n");
     printf("Based on original AT&T eqn (1977)\n");
@@ -314,8 +310,7 @@ static void print_version(void)
 /**
  * @brief Print detailed help information
  */
-static void print_help(void)
-{
+static void print_help(void) {
     print_version();
     printf("\n");
     print_usage();
@@ -343,38 +338,37 @@ static void print_help(void)
  * @param file_count Number of input files
  * @return NEQN_EXIT_SUCCESS on success, error code on failure
  */
-static int process_input_files(char **input_files, int file_count)
-{
+static int process_input_files(char **input_files, int file_count) {
     int i;
     int result = NEQN_EXIT_SUCCESS;
-    
+
     if (file_count == 0) {
         /* Process stdin */
         if (verbose_mode) {
             fprintf(stderr, "%s: Processing standard input\n", program_name);
         }
-        
+
         if (neqn_context_set_input(neqn_current_context, NULL) != NEQN_SUCCESS) {
             fprintf(stderr, "%s: Failed to set up standard input\n", program_name);
             return NEQN_EXIT_FAILURE;
         }
-        
+
         result = process_single_file(NULL);
     } else {
         /* Process each input file */
         for (i = 0; i < file_count; i++) {
             if (verbose_mode) {
-                fprintf(stderr, "%s: Processing file: %s\n", 
+                fprintf(stderr, "%s: Processing file: %s\n",
                         program_name, input_files[i]);
             }
-            
+
             if (process_single_file(input_files[i]) != NEQN_EXIT_SUCCESS) {
                 result = NEQN_EXIT_FAILURE;
                 /* Continue processing other files */
             }
         }
     }
-    
+
     return result;
 }
 
@@ -387,48 +381,50 @@ static int process_input_files(char **input_files, int file_count)
  * @param filename Input filename (NULL for stdin)
  * @return NEQN_EXIT_SUCCESS on success, error code on failure
  */
-static int process_single_file(const char *filename)
-{
+static int process_single_file(const char *filename) {
     char *line_buffer = NULL;
     size_t line_capacity = 0;
     int line_length;
     int line_number = 0;
     int result = NEQN_EXIT_SUCCESS;
-    
+
     /* Set up input file */
     if (neqn_context_set_input(neqn_current_context, filename) != NEQN_SUCCESS) {
-        fprintf(stderr, "%s: Cannot open file: %s\n", 
+        fprintf(stderr, "%s: Cannot open file: %s\n",
                 program_name, filename ? filename : "stdin");
         return NEQN_EXIT_FAILURE;
     }
-    
+
     /* Register this processing instance */
-    neqn_register_instance();
-    
+    if (neqn_register_instance() < 0) {
+        fprintf(stderr, "%s: internal error registering instance\n", program_name);
+        return NEQN_EXIT_FAILURE;
+    }
+
     /* Process each line */
-    while ((line_length = neqn_read_line(neqn_current_context, 
-                                         &line_buffer, 
+    while ((line_length = neqn_read_line(neqn_current_context,
+                                         &line_buffer,
                                          &line_capacity)) >= 0) {
         line_number++;
         neqn_current_context->line_number = line_number;
-        
+
         /* Process the line */
         if (neqn_process_line(neqn_current_context, line_buffer) != NEQN_SUCCESS) {
             result = NEQN_EXIT_FAILURE;
             /* Continue processing for error reporting */
         }
-        
+
         /* Check for EOF */
         if (line_length == 0) {
             break;
         }
     }
-    
+
     /* Clean up */
     if (line_buffer != NULL) {
         free(line_buffer);
     }
-    
+
     /* Report statistics if in verbose mode */
     if (verbose_mode) {
         fprintf(stderr, "%s: Processed %d lines", program_name, line_number);
@@ -436,21 +432,23 @@ static int process_single_file(const char *filename)
             fprintf(stderr, " from %s", filename);
         }
         fprintf(stderr, "\n");
-        
+
         if (neqn_current_context->error_count > 0) {
-            fprintf(stderr, "%s: %d errors encountered\n", 
+            fprintf(stderr, "%s: %d errors encountered\n",
                     program_name, neqn_current_context->error_count);
         }
-        
+
         if (neqn_current_context->warning_count > 0) {
-            fprintf(stderr, "%s: %d warnings issued\n", 
+            fprintf(stderr, "%s: %d warnings issued\n",
                     program_name, neqn_current_context->warning_count);
         }
     }
-    
+
     /* Unregister processing instance */
-    neqn_unregister_instance();
-    
+    if (neqn_unregister_instance() < 0) {
+        fprintf(stderr, "%s: internal error unregistering instance\n", program_name);
+    }
+
     return result;
 }
 
@@ -466,23 +464,22 @@ static int process_single_file(const char *filename)
  *
  * @param exit_code Exit status code
  */
-static void cleanup_and_exit(int exit_code)
-{
+static void cleanup_and_exit(int exit_code) {
     /* Clean up processing context */
     if (neqn_current_context != NULL) {
         neqn_context_destroy(neqn_current_context);
         neqn_current_context = NULL;
     }
-    
+
     /* Report final statistics if in verbose mode */
     if (verbose_mode && neqn_get_error_count() > 0) {
-        fprintf(stderr, "%s: Total errors: %d\n", 
+        fprintf(stderr, "%s: Total errors: %d\n",
                 program_name, neqn_get_error_count());
     }
-    
+
     /* Set global exit status */
     neqn_exit_status = exit_code;
-    
+
     /* Exit the program */
     exit(exit_code);
 }
@@ -499,33 +496,32 @@ static void cleanup_and_exit(int exit_code)
  *
  * @param sig Signal number
  */
-static void signal_handler(int sig)
-{
+static void signal_handler(int sig) {
     const char *signal_name = "Unknown";
-    
+
     /* Determine signal name for logging */
     switch (sig) {
-        case SIGINT:
-            signal_name = "SIGINT";
-            break;
-        case SIGTERM:
-            signal_name = "SIGTERM";
-            break;
+    case SIGINT:
+        signal_name = "SIGINT";
+        break;
+    case SIGTERM:
+        signal_name = "SIGTERM";
+        break;
 #ifdef SIGHUP
-        case SIGHUP:
-            signal_name = "SIGHUP";
-            break;
+    case SIGHUP:
+        signal_name = "SIGHUP";
+        break;
 #endif
-        default:
-            break;
+    default:
+        break;
     }
-    
+
     /* Log signal reception if in verbose mode */
     if (verbose_mode) {
         fprintf(stderr, "\n%s: Received signal %s (%d), shutting down...\n",
                 program_name, signal_name, sig);
     }
-    
+
     /* Perform clean shutdown */
     cleanup_and_exit(NEQN_EXIT_FAILURE);
 }
@@ -538,8 +534,7 @@ static void signal_handler(int sig)
  *
  * @return 0 on success, -1 on failure
  */
-static int setup_signal_handlers(void)
-{
+static int setup_signal_handlers(void) {
 #ifdef SIGINT
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
         return -1;

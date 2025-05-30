@@ -44,10 +44,11 @@ Running Tests
 Tests can be executed using `make test` (to be added) or by running `pytest`
 directly. Both approaches run the suite located under the `tests` directory.
 
-Formatting source code
-----------------------
-Run `make format` to apply `clang-format` across all `*.c` and `*.h` files
-using the style defined by `.clang-format`.
+Code Formatting
+---------------
+Run `make format` to apply `clang-format` across all C and header files. This
+ensures a consistent style throughout the project.
+
 
 Building individual components
 ------------------------------

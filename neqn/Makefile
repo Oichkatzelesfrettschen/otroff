@@ -47,13 +47,17 @@ DEPDIR = deps
 
 # Source files
 SOURCES = neqn.c ne0.c ne_core.c ne_symbols.c
+OS_SOURCES = ../src/os/os_unix.c
+OS_OBJECTS = $(OS_SOURCES:../src/os/%.c=$(OBJDIR)/%.o)
 
 # Test source files
 TEST_SOURCES = test_neqn.c ne0.c ne_core.c ne_symbols.c
+TEST_OS_SOURCES = ../src/os/os_unix.c
+TEST_OS_OBJECTS = $(TEST_OS_SOURCES:../src/os/%.c=$(OBJDIR)/%.o)
 
 # Object files
-OBJECTS = $(SOURCES:%.c=$(OBJDIR)/%.o)
-TEST_OBJECTS = $(TEST_SOURCES:%.c=$(OBJDIR)/%.o)
+OBJECTS = $(SOURCES:%.c=$(OBJDIR)/%.o) $(OS_OBJECTS)
+TEST_OBJECTS = $(TEST_SOURCES:%.c=$(OBJDIR)/%.o) $(TEST_OS_OBJECTS)
 
 # Dependency files
 DEPENDS = $(SOURCES:%.c=$(DEPDIR)/%.d)
@@ -83,6 +87,10 @@ test_$(PROGRAM): $(TEST_OBJECTS)
 
 # Object files with dependency generation
 $(OBJDIR)/%.o: %.c | $(OBJDIR) $(DEPDIR)
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) $(CPPFLAGS) -MMD -MP -MF $(DEPDIR)/$*.d -c $< -o $@
+
+$(OBJDIR)/%.o: ../src/os/%.c | $(OBJDIR) $(DEPDIR)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(INCLUDES) $(CPPFLAGS) -MMD -MP -MF $(DEPDIR)/$*.d -c $< -o $@
 

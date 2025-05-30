@@ -202,7 +202,6 @@ void casemk(void);
 void casesv(void);
 void casenn(void);
 void caseab(void);
-void dummy(void);
 
 /*
  * Return the larger of two integers
@@ -1210,21 +1209,13 @@ void casenn(void)
 }
 
 /*
- * Abort processing
+ * caseab - abort processing
+ *
+ * Print the remainder of the input line as an error message and then
+ * terminate processing cleanly.
  */
 void caseab(void)
 {
-    dummy();
-    casetm(1);
-    done2(0);
-}
-
-/*
- * Dummy function placeholder
- * This function is a placeholder that currently does nothing.
- * It may be used for future implementation or as a stub for testing purposes.
- */
-void dummy(void)
-{
-    /* Intentionally empty */
+    casetm(1); /* Output the user-supplied abort message */
+    done2(0);  /* Perform cleanup and exit */
 }

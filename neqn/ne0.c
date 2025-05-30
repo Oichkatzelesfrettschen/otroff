@@ -39,18 +39,20 @@
 /* ================================================================
  * SYSTEM INCLUDES - C90 Standard Library Headers
  * ================================================================ */
-#include <stdio.h>      /* Standard I/O operations */
-#include <stdlib.h>     /* Memory allocation, program control */
-#include <string.h>     /* String manipulation functions */
-#include <ctype.h>      /* Character classification */
-#include <errno.h>      /* Error number definitions */
-#include <limits.h>     /* Implementation-defined limits */
-#include <assert.h>     /* Assertion macros for debugging */
+#include <stdio.h> /* Standard I/O operations */
+#include <stdlib.h> /* Memory allocation, program control */
+#include <string.h> /* String manipulation functions */
+#include <ctype.h> /* Character classification */
+#include <errno.h> /* Error number definitions */
+#include <limits.h> /* Implementation-defined limits */
+#include <assert.h> /* Assertion macros for debugging */
+#include <signal.h> /* Signal handling */
+#include <locale.h> /* Locale support */
 
 /* ================================================================
  * PROJECT INCLUDES - Local Header Files
  * ================================================================ */
-#include "ne.h"         /* Main neqn header with type definitions */
+#include "ne.h" /* Main neqn header with type definitions */
 
 /* ================================================================
  * MODULE-LEVEL CONSTANTS AND MACROS
@@ -60,31 +62,31 @@
  * @def NEQN_VERSION_MAJOR
  * @brief Major version number of the neqn processor
  */
-#define NEQN_VERSION_MAJOR      2
+#define NEQN_VERSION_MAJOR 2
 
 /**
  * @def NEQN_VERSION_MINOR  
  * @brief Minor version number of the neqn processor
  */
-#define NEQN_VERSION_MINOR      0
+#define NEQN_VERSION_MINOR 0
 
 /**
  * @def NEQN_VERSION_PATCH
  * @brief Patch level of the neqn processor
  */
-#define NEQN_VERSION_PATCH      0
+#define NEQN_VERSION_PATCH 0
 
 /**
  * @def NEQN_BUILD_DATE
  * @brief Compilation timestamp for version tracking
  */
-#define NEQN_BUILD_DATE         __DATE__ " " __TIME__
+#define NEQN_BUILD_DATE __DATE__ " " __TIME__
 
 /**
  * @def NEQN_MAX_INIT_RETRIES
  * @brief Maximum number of initialization retry attempts
  */
-#define NEQN_MAX_INIT_RETRIES   3
+#define NEQN_MAX_INIT_RETRIES 3
 
 /* ================================================================
  * MODULE-LEVEL VARIABLES - Internal State Management
@@ -130,6 +132,28 @@ static int neqn_error_count = 0;
  */
 static int neqn_debug_level = 0;
 
+/**
+ * @brief Tracking information for installed signal handlers
+ */
+typedef struct {
+#ifdef SIGINT
+    void (*prev_int)(int); /**< Previous SIGINT handler */
+#endif
+#ifdef SIGTERM
+    void (*prev_term)(int); /**< Previous SIGTERM handler */
+#endif
+#ifdef SIGHUP
+    void (*prev_hup)(int); /**< Previous SIGHUP handler */
+#endif
+    int installed; /**< Flag indicating handlers installed */
+} neqn_signal_state_t;
+
+/** Global signal handler state */
+static neqn_signal_state_t neqn_sig_state = {0};
+
+/** Subsystem initialization flag */
+static int neqn_subsystems_initialized = 0;
+
 /* ================================================================
  * FORWARD FUNCTION DECLARATIONS - C90 Style Prototypes
  * ================================================================ */
@@ -139,6 +163,7 @@ static int neqn_validate_environment(void);
 static int neqn_setup_signal_handlers(void);
 static int neqn_initialize_subsystems(void);
 static void neqn_cleanup_subsystems(void);
+static void neqn_internal_signal_handler(int sig);
 
 /* Utility and helper functions */
 static void neqn_print_version_info(void);
@@ -181,11 +206,10 @@ static int neqn_validate_internal_state(void);
  * }
  * @endcode
  */
-int neqn_init(void)
-{
+int neqn_init(void) {
     int retry_count = 0;
     int result = NEQN_ERROR_INVALID;
-    
+
     /* Check if already initialized */
     if (neqn_initialized == 1) {
         if (neqn_debug_level > 0) {
@@ -193,7 +217,7 @@ int neqn_init(void)
         }
         return NEQN_SUCCESS;
     }
-    
+
     /* Check if previous initialization failed */
     if (neqn_initialized == -1) {
         if (neqn_debug_level > 0) {
@@ -201,14 +225,14 @@ int neqn_init(void)
         }
         return NEQN_ERROR_INVALID;
     }
-    
+
     /* Attempt initialization with retry logic */
     for (retry_count = 0; retry_count < NEQN_MAX_INIT_RETRIES; retry_count++) {
         if (neqn_debug_level > 1) {
-            fprintf(stderr, "neqn: Initialization attempt %d of %d\n", 
+            fprintf(stderr, "neqn: Initialization attempt %d of %d\n",
                     retry_count + 1, NEQN_MAX_INIT_RETRIES);
         }
-        
+
         /* Step 1: Validate runtime environment */
         if (neqn_validate_environment() != 0) {
             if (neqn_debug_level > 0) {
@@ -216,7 +240,7 @@ int neqn_init(void)
             }
             continue;
         }
-        
+
         /* Step 2: Setup signal handlers for clean shutdown */
         if (neqn_setup_signal_handlers() != 0) {
             if (neqn_debug_level > 0) {
@@ -224,7 +248,7 @@ int neqn_init(void)
             }
             continue;
         }
-        
+
         /* Step 3: Initialize all subsystems */
         if (neqn_initialize_subsystems() != 0) {
             if (neqn_debug_level > 0) {
@@ -232,7 +256,7 @@ int neqn_init(void)
             }
             continue;
         }
-        
+
         /* Step 4: Validate final state */
         if (neqn_validate_internal_state() != 0) {
             if (neqn_debug_level > 0) {
@@ -240,36 +264,36 @@ int neqn_init(void)
             }
             continue;
         }
-        
+
         /* Success - break out of retry loop */
         result = NEQN_SUCCESS;
         break;
     }
-    
+
     /* Update global state based on result */
     if (result == NEQN_SUCCESS) {
         neqn_initialized = 1;
         neqn_instance_count = 0;
         neqn_error_count = 0;
-        
+
         if (neqn_debug_level > 0) {
             fprintf(stderr, "neqn: Initialization successful\n");
             neqn_print_version_info();
         }
-        
+
         if (neqn_debug_level > 2) {
             neqn_print_build_info();
             neqn_debug_print_state();
         }
     } else {
         neqn_initialized = -1;
-        
+
         if (neqn_debug_level > 0) {
             fprintf(stderr, "neqn: Initialization failed after %d attempts\n",
                     NEQN_MAX_INIT_RETRIES);
         }
     }
-    
+
     return result;
 }
 
@@ -294,37 +318,36 @@ int neqn_init(void)
  * atexit(neqn_cleanup);
  * @endcode
  */
-void neqn_cleanup(void)
-{
+void neqn_cleanup(void) {
     /* Check if cleanup already performed */
     if (neqn_initialized == 0) {
         return; /* Nothing to clean up */
     }
-    
+
     if (neqn_debug_level > 0) {
         fprintf(stderr, "neqn: Beginning system cleanup\n");
     }
-    
+
     /* Warn about active instances */
     if (neqn_instance_count > 0) {
         fprintf(stderr, "neqn: Warning - %d active instances during cleanup\n",
                 neqn_instance_count);
     }
-    
+
     /* Report final error statistics */
     if (neqn_error_count > 0 && neqn_debug_level > 0) {
-        fprintf(stderr, "neqn: Total errors encountered: %d\n", 
+        fprintf(stderr, "neqn: Total errors encountered: %d\n",
                 neqn_error_count);
     }
-    
+
     /* Perform subsystem cleanup */
     neqn_cleanup_subsystems();
-    
+
     /* Reset global state */
     neqn_initialized = 0;
     neqn_instance_count = 0;
     neqn_error_count = 0;
-    
+
     if (neqn_debug_level > 0) {
         fprintf(stderr, "neqn: System cleanup completed\n");
     }
@@ -346,18 +369,17 @@ void neqn_cleanup(void)
  * printf("neqn version: %s\n", neqn_get_version());
  * @endcode
  */
-const char *neqn_get_version(void)
-{
+const char *neqn_get_version(void) {
     static char version_buffer[64];
     static int version_initialized = 0;
-    
+
     if (!version_initialized) {
         /* Use sprintf for C90 compatibility instead of snprintf */
         sprintf(version_buffer, "%d.%d.%d",
                 NEQN_VERSION_MAJOR, NEQN_VERSION_MINOR, NEQN_VERSION_PATCH);
         version_initialized = 1;
     }
-    
+
     return version_buffer;
 }
 
@@ -376,16 +398,15 @@ const char *neqn_get_version(void)
  * @note Debug output is sent to stderr to avoid interfering with
  *       normal program output
  */
-void neqn_set_debug_level(int level)
-{
+void neqn_set_debug_level(int level) {
     if (level < 0) {
         level = 0;
     } else if (level > 3) {
         level = 3;
     }
-    
+
     neqn_debug_level = level;
-    
+
     if (level > 0) {
         fprintf(stderr, "neqn: Debug level set to %d\n", level);
     }
@@ -398,8 +419,7 @@ void neqn_set_debug_level(int level)
  *
  * @return Current debug level (0-3)
  */
-int neqn_get_debug_level(void)
-{
+int neqn_get_debug_level(void) {
     return neqn_debug_level;
 }
 
@@ -411,18 +431,17 @@ int neqn_get_debug_level(void)
  *
  * @return New instance count, or -1 if system not initialized
  */
-int neqn_register_instance(void)
-{
+int neqn_register_instance(void) {
     if (neqn_initialized != 1) {
         return -1;
     }
-    
+
     neqn_instance_count++;
-    
+
     if (neqn_debug_level > 1) {
         fprintf(stderr, "neqn: Registered instance %d\n", neqn_instance_count);
     }
-    
+
     return neqn_instance_count;
 }
 
@@ -434,21 +453,20 @@ int neqn_register_instance(void)
  *
  * @return New instance count, or -1 if system not initialized
  */
-int neqn_unregister_instance(void)
-{
+int neqn_unregister_instance(void) {
     if (neqn_initialized != 1) {
         return -1;
     }
-    
+
     if (neqn_instance_count > 0) {
         neqn_instance_count--;
     }
-    
+
     if (neqn_debug_level > 1) {
-        fprintf(stderr, "neqn: Unregistered instance, %d remaining\n", 
+        fprintf(stderr, "neqn: Unregistered instance, %d remaining\n",
                 neqn_instance_count);
     }
-    
+
     return neqn_instance_count;
 }
 
@@ -461,17 +479,16 @@ int neqn_unregister_instance(void)
  * @param error_code Error code (application-specific)
  * @param message Optional error message (can be NULL)
  */
-void neqn_report_error(int error_code, const char *message)
-{
+void neqn_report_error(int error_code, const char *message) {
     neqn_error_count++;
-    
+
     if (neqn_debug_level > 0) {
         fprintf(stderr, "neqn: Error %d", error_code);
-        
+
         if (message != NULL) {
             fprintf(stderr, ": %s", message);
         }
-        
+
         fprintf(stderr, " (total errors: %d)\n", neqn_error_count);
     }
 }
@@ -483,8 +500,7 @@ void neqn_report_error(int error_code, const char *message)
  *
  * @return Total error count
  */
-int neqn_get_error_count(void)
-{
+int neqn_get_error_count(void) {
     return neqn_error_count;
 }
 
@@ -500,8 +516,7 @@ int neqn_get_error_count(void)
  *
  * @return 0 on success, non-zero on validation failure
  */
-static int neqn_validate_environment(void)
-{
+static int neqn_validate_environment(void) {
     /* Check basic C library functionality */
     if (sizeof(int) < 2) {
         if (neqn_debug_level > 0) {
@@ -509,7 +524,7 @@ static int neqn_validate_environment(void)
         }
         return -1;
     }
-    
+
     /* Validate memory allocation */
     {
         void *test_ptr = malloc(1024);
@@ -521,7 +536,7 @@ static int neqn_validate_environment(void)
         }
         free(test_ptr);
     }
-    
+
     /* Check file I/O capabilities */
     if (stdin == NULL || stdout == NULL || stderr == NULL) {
         if (neqn_debug_level > 0) {
@@ -529,7 +544,7 @@ static int neqn_validate_environment(void)
         }
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -542,10 +557,34 @@ static int neqn_validate_environment(void)
  *
  * @return 0 on success, non-zero on failure
  */
-static int neqn_setup_signal_handlers(void)
-{
-    /* Signal handling setup would go here in a full implementation */
-    /* For now, this is a placeholder that always succeeds */
+static int neqn_setup_signal_handlers(void) {
+    /* Install handlers only once */
+    if (neqn_sig_state.installed) {
+        return 0;
+    }
+
+#ifdef SIGINT
+    neqn_sig_state.prev_int = signal(SIGINT, neqn_internal_signal_handler);
+    if (neqn_sig_state.prev_int == SIG_ERR) {
+        return -1;
+    }
+#endif
+
+#ifdef SIGTERM
+    neqn_sig_state.prev_term = signal(SIGTERM, neqn_internal_signal_handler);
+    if (neqn_sig_state.prev_term == SIG_ERR) {
+        return -1;
+    }
+#endif
+
+#ifdef SIGHUP
+    neqn_sig_state.prev_hup = signal(SIGHUP, neqn_internal_signal_handler);
+    if (neqn_sig_state.prev_hup == SIG_ERR) {
+        return -1;
+    }
+#endif
+
+    neqn_sig_state.installed = 1;
     return 0;
 }
 
@@ -557,10 +596,23 @@ static int neqn_setup_signal_handlers(void)
  *
  * @return 0 on success, non-zero on failure
  */
-static int neqn_initialize_subsystems(void)
-{
-    /* Subsystem initialization would go here */
-    /* For now, this is a placeholder that always succeeds */
+static int neqn_initialize_subsystems(void) {
+    /* Prevent double initialization */
+    if (neqn_subsystems_initialized) {
+        return 0;
+    }
+
+    /* Register global cleanup */
+    if (atexit(neqn_cleanup) != 0) {
+        return -1;
+    }
+
+    /* Initialize locale for wide character support */
+    if (setlocale(LC_ALL, "") == NULL) {
+        return -1;
+    }
+
+    neqn_subsystems_initialized = 1;
     return 0;
 }
 
@@ -570,10 +622,52 @@ static int neqn_initialize_subsystems(void)
  * Calls cleanup functions for all neqn subsystems in reverse
  * order of initialization.
  */
-static void neqn_cleanup_subsystems(void)
-{
-    /* Subsystem cleanup would go here */
-    /* For now, this is a placeholder */
+static void neqn_cleanup_subsystems(void) {
+    if (neqn_sig_state.installed) {
+#ifdef SIGINT
+        signal(SIGINT, neqn_sig_state.prev_int);
+#endif
+#ifdef SIGTERM
+        signal(SIGTERM, neqn_sig_state.prev_term);
+#endif
+#ifdef SIGHUP
+        signal(SIGHUP, neqn_sig_state.prev_hup);
+#endif
+        neqn_sig_state.installed = 0;
+    }
+
+    neqn_subsystems_initialized = 0;
+}
+
+/**
+ * @brief Internal handler for termination signals
+ * @param sig Signal number
+ */
+static void neqn_internal_signal_handler(int sig) {
+    const char *name = "UNKNOWN";
+
+#ifdef SIGINT
+    if (sig == SIGINT) {
+        name = "SIGINT";
+    }
+#endif
+#ifdef SIGTERM
+    if (sig == SIGTERM) {
+        name = "SIGTERM";
+    }
+#endif
+#ifdef SIGHUP
+    if (sig == SIGHUP) {
+        name = "SIGHUP";
+    }
+#endif
+
+    if (neqn_debug_level > 0) {
+        fprintf(stderr, "\nneqn: Caught signal %s (%d)\n", name, sig);
+    }
+
+    neqn_cleanup();
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -582,8 +676,7 @@ static void neqn_cleanup_subsystems(void)
  * Outputs formatted version information including version number
  * and basic system information.
  */
-static void neqn_print_version_info(void)
-{
+static void neqn_print_version_info(void) {
     fprintf(stderr, "neqn version %s\n", neqn_get_version());
     fprintf(stderr, "Mathematical equation preprocessor\n");
     fprintf(stderr, "Based on original AT&T eqn (1977)\n");
@@ -595,12 +688,11 @@ static void neqn_print_version_info(void)
  * Outputs detailed build information including compilation timestamp
  * and system configuration details.
  */
-static void neqn_print_build_info(void)
-{
+static void neqn_print_build_info(void) {
     fprintf(stderr, "Build: %s\n", NEQN_BUILD_DATE);
     fprintf(stderr, "C90 compliant implementation\n");
     fprintf(stderr, "Integer size: %lu bytes\n", (unsigned long)sizeof(int));
-    fprintf(stderr, "Pointer size: %lu bytes\n", (unsigned long)sizeof(void*));
+    fprintf(stderr, "Pointer size: %lu bytes\n", (unsigned long)sizeof(void *));
 }
 
 /**
@@ -611,15 +703,14 @@ static void neqn_print_build_info(void)
  * @param error_code Numeric error code
  * @return Pointer to static error description string
  */
-static const char *neqn_get_error_string(int error_code)
-{
+static const char *neqn_get_error_string(int error_code) {
     switch (error_code) {
-        case 0:
-            return "No error";
-        case NEQN_ERROR_INVALID:
-            return "Initialization failure";
-        default:
-            return "Unknown error";
+    case 0:
+        return "No error";
+    case NEQN_ERROR_INVALID:
+        return "Initialization failure";
+    default:
+        return "Unknown error";
     }
 }
 
@@ -630,8 +721,7 @@ static const char *neqn_get_error_string(int error_code)
  * neqn system including initialization status, instance counts,
  * and error statistics.
  */
-static void neqn_debug_print_state(void)
-{
+static void neqn_debug_print_state(void) {
     fprintf(stderr, "=== NEQN Internal State ===\n");
     fprintf(stderr, "Initialized: %d\n", neqn_initialized);
     fprintf(stderr, "Instance count: %d\n", neqn_instance_count);
@@ -648,21 +738,20 @@ static void neqn_debug_print_state(void)
  *
  * @return 0 if state is valid, non-zero if inconsistencies detected
  */
-static int neqn_validate_internal_state(void)
-{
+static int neqn_validate_internal_state(void) {
     /* Check for impossible state combinations */
     if (neqn_initialized == 1 && neqn_instance_count < 0) {
         return -1;
     }
-    
+
     if (neqn_error_count < 0) {
         return -1;
     }
-    
+
     if (neqn_debug_level < 0 || neqn_debug_level > 3) {
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -678,13 +767,12 @@ static int neqn_validate_internal_state(void)
  *
  * @deprecated Use neqn_init() instead
  */
-void neqn_module_init(void)
-{
+void neqn_module_init(void) {
     if (neqn_debug_level > 0) {
         fprintf(stderr, "neqn: Warning - using deprecated neqn_module_init()\n");
         fprintf(stderr, "neqn: Please update code to use neqn_init()\n");
     }
-    
+
     neqn_init();
 }
 
