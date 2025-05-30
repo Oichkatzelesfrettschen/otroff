@@ -55,6 +55,7 @@
 #include <sys/stat.h> /* File status operations */
 #include <ctype.h> /* Character classification */
 #include "os_abstraction.h" /* Cross-platform wrappers */
+#include "roff.h" /* Common ROFF macros */
 
 /* SCCS version identifier */
 static const char sccs_id[] = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)";
@@ -74,7 +75,7 @@ static const char sccs_id[] = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 a
 
 /* Character translation and formatting */
 static unsigned char trtab[128]; /**< Character translation table */
-static unsigned char tabtab[MAX_TABS]; /**< Tab stop table */
+static unsigned char tabtab[MAX_TABS] ROFF_UNUSED; /**< Tab stop table */
 
 /* Input/output buffers and state */
 static char ibuf[IBUF_SIZE]; /**< Input buffer */
@@ -86,7 +87,7 @@ static char *obufp; /**< Output buffer pointer */
 /* File handling state */
 static int ifile = 0; /**< Current input file descriptor */
 static int ibf = -1; /**< Temporary file descriptor */
-static int ibf1 = -1; /**< Secondary temporary file descriptor */
+static int ibf1 ROFF_UNUSED = -1; /**< Secondary temporary file descriptor */
 static int suff = -1; /**< Suffix file descriptor */
 static char **argp; /**< Argument pointer */
 static int argc; /**< Argument count */
@@ -116,9 +117,9 @@ static int ulc = 0; /**< Underline character count */
 static int bsc = 0; /**< Backspace count */
 
 /* Include stack for nested files */
-static int ip = 0; /**< Include pointer */
-static int ilistp = 0; /**< Include list pointer */
-static int iliste = 0; /**< Include list end */
+static int ip ROFF_UNUSED = 0; /**< Include pointer */
+static int ilistp ROFF_UNUSED = 0; /**< Include list pointer */
+static int iliste ROFF_UNUSED = 0; /**< Include list end */
 
 /* Suffix table for hyphenation */
 static unsigned short suftab[26]; /**< Suffix lookup table */
@@ -126,7 +127,7 @@ static unsigned short suftab[26]; /**< Suffix lookup table */
 /* Temporary file management */
 static char bfn[] = "/tmp/roffXXXXXXa"; /**< Temporary file name template */
 static char suffil[] = "/usr/lib/suftab"; /**< Suffix table file */
-static char ttyx[] = "/dev/ttyx"; /**< TTY device name */
+static char ttyx[] ROFF_UNUSED = "/dev/ttyx"; /**< TTY device name */
 
 /* Error messages */
 static const char emes1[] = "Too many files.\n";
@@ -141,7 +142,6 @@ static void cleanup_and_exit(int status);
 /* Character input/output functions */
 static int ngetc(void);
 static int getchar_roff(void);
-static int gettchar(void);
 static void putchar_roff(int c);
 static void pchar1(int c);
 static void flush_output(void);
@@ -151,11 +151,9 @@ static void text_handler(void);
 static void control_handler(void);
 static void flushi(void);
 static int width(int c);
-static void dsp(void);
 
 /* Utility functions */
 static void make_temp_file(void);
-static void string_output(const char *str);
 static void error_exit(const char *msg);
 static int next_file(void);
 static void signal_setup(void);
@@ -694,18 +692,6 @@ static int width(int c) {
         return 0; /* Control characters have no width */
     }
     return 1;
-}
-
-/**
- * @brief Calculate tab stop position.
- *
- * Determines the next tab stop position based on current
- * column position.
- */
-static void dsp(void) {
-    /* Simple 8-column tab stops */
-    int next_tab = ((ocol + 8) / 8) * 8;
-    /* Implementation would set appropriate spacing */
 }
 
 /**
