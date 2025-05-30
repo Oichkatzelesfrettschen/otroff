@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 #include "vt220_terminal.hpp"
 #include <stdexcept>
 #include <algorithm>
@@ -41,14 +42,14 @@ struct termtab {
 };
 
 // Legacy C interface
-const struct termtab* get_vt220_table() {
+const struct termtab *get_vt220_table() {
     static struct termtab legacy_table = {};
     static bool initialized = false;
 
     if (!initialized) {
-        const auto& terminal = otroff::terminal::g_vt220_instance;
-        const auto& caps = terminal.capabilities();
-        const auto& seqs = terminal.control_sequences();
+        const auto &terminal = otroff::terminal::g_vt220_instance;
+        const auto &caps = terminal.capabilities();
+        const auto &seqs = terminal.control_sequences();
 
         legacy_table.bset = caps.bset;
         legacy_table.breset = caps.breset;

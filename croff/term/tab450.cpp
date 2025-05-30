@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * tab450.c - DASI450 nroff driving tables (C90 portable)
  *
@@ -50,15 +51,15 @@
  *   zzz       - Reserved/unused
  */
 struct TermTab {
-    std::uint32_t  bset{};
-    std::uint32_t  breset{};
-    int            Hor{};
-    int            Vert{};
-    int            Newline{};
-    int            Char{};
-    int            Em{};
-    int            Halfline{};
-    int            Adj{};
+    std::uint32_t bset{};
+    std::uint32_t breset{};
+    int Hor{};
+    int Vert{};
+    int Newline{};
+    int Char{};
+    int Em{};
+    int Halfline{};
+    int Adj{};
     std::string_view twinit{};
     std::string_view twrest{};
     std::string_view twnl{};

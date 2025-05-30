@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * tab300.c - DASI 300 nroff driving tables (C90 portable)
  *

@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /**
  * @file roff2.c
  * @brief ROFF text formatter - Control command handlers and text processing.

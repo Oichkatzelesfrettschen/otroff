@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * termtab structure and DASI300S terminal table definition
  *
@@ -59,7 +60,7 @@ struct termtab {
     const char *codetab[256 - 32];
     [[maybe_unused]] std::uint16_t zzz{};
 };
-static_assert(sizeof(decltype(*((termtab*)nullptr))) <= 4096, "terminal table must remain small");
+static_assert(sizeof(decltype(*((termtab *)nullptr))) <= 4096, "terminal table must remain small");
 
 inline const termtab t{
     /*bset*/ 0,

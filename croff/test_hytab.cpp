@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * test_hytab.cpp - Comprehensive test suite for hyphenation tables
  */
@@ -10,7 +11,7 @@
 namespace croff::hyphenation::test {
 
 class HyphenationTest : public ::testing::Test {
-protected:
+  protected:
     HyphenationTables tables_;
     HyphenationEngine engine_{tables_};
 };
@@ -53,15 +54,14 @@ TEST_F(HyphenationTest, CommonWordHyphenation) {
         {"hyphenation", {"hy-phenation", "hyphen-ation"}},
         {"algorithm", {"al-gorithm", "algo-rithm"}},
         {"beautiful", {"beau-tiful", "beauti-ful"}},
-        {"understanding", {"un-derstanding", "under-standing", "understand-ing"}}
-    };
+        {"understanding", {"un-derstanding", "under-standing", "understand-ing"}}};
 
-    for (const auto& [word, expected_patterns] : test_cases) {
+    for (const auto &[word, expected_patterns] : test_cases) {
         const auto result = engine_.hyphenate(word);
         EXPECT_FALSE(result.empty()) << "No hyphenation found for: " << word;
 
         // Verify that hyphenation points create valid splits
-        for (const auto& point : result) {
+        for (const auto &point : result) {
             EXPECT_GT(point.position, 0);
             EXPECT_LT(point.position, word.length());
             EXPECT_EQ(point.prefix.length() + point.suffix.length(), word.length());
@@ -73,7 +73,7 @@ TEST_F(HyphenationTest, ShortWordHandling) {
     // Short words should not be hyphenated
     const std::vector<std::string> short_words = {"a", "an", "the", "cat", "dog"};
 
-    for (const auto& word : short_words) {
+    for (const auto &word : short_words) {
         const auto result = engine_.hyphenate(word);
         EXPECT_TRUE(result.empty()) << "Short word should not be hyphenated: " << word;
     }
