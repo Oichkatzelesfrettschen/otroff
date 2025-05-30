@@ -76,14 +76,15 @@
  */
 #define NROFF 1
 #include "tdef.hpp" /* Main definitions, likely includes t.hpp */
-#include "env.hpp"  /* Environment structure definition */
+#include "env.hpp" /* Environment structure definition */
 /* #include "t.hpp" -- Likely included by tdef.hpp */
-#include "tw.hpp"  /* Terminal/writer specific definitions */
+#include "tw.hpp" /* Terminal/writer specific definitions */
 #include <stdlib.h> /* For exit(), NULL */
 #include <unistd.h> /* For read(), close(), open(), lseek(), sbrk() if setbrk is a wrapper */
 #include <fcntl.h> /* For open() flags */
 #include <sys/wait.h> /* For wait() */
 #include "proto.hpp" /* Function prototypes for this project */
+#include "troff_processor.hpp" // processor state
 
 /* Explicit declaration to avoid implicit function warning */
 void flusho(void);
@@ -104,8 +105,7 @@ void oput(int c);
 
 /* External global variables, defined elsewhere */
 extern int lss; /* Current line spacing */
-extern char obuf[]; /* Output buffer */
-extern char *obufp; /* Pointer to current position in obuf */
+extern TroffProcessor g_processor; /* Shared processor state */
 extern int xfont; /* Current font selection */
 extern int esc; /* Horizontal escapement */
 extern int lead; /* Vertical leading */
@@ -270,7 +270,7 @@ void ptinit(void) {
  * Restores terminal settings and cleans up before exiting.
  */
 void twdone(void) {
-    obufp = obuf; /* Reset output buffer pointer */
+    g_processor.outputPtr = g_processor.outputBuffer.data(); /* Reset buffer pointer */
     oputs(t.twrest); /* Output terminal restoration string */
     flusho(); /* Flush any remaining output */
 
