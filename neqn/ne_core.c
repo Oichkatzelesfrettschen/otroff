@@ -27,6 +27,7 @@
  * PROJECT INCLUDES
  * ================================================================ */
 #include "ne.h"
+#include "os_abstraction.h"
 
 /* ================================================================
  * MODULE CONSTANTS
@@ -41,19 +42,18 @@
 /**
  * @brief Create a new neqn processing context
  */
-neqn_context_t *neqn_context_create(void)
-{
+neqn_context_t *neqn_context_create(void) {
     neqn_context_t *context;
     int i;
-    
+
     context = malloc(sizeof(neqn_context_t));
     if (context == NULL) {
         return NULL;
     }
-    
+
     /* Initialize all fields to safe defaults */
     memset(context, 0, sizeof(neqn_context_t));
-    
+
     context->input = stdin;
     context->output = stdout;
     context->input_filename = NULL;
@@ -64,12 +64,12 @@ neqn_context_t *neqn_context_create(void)
     context->warning_count = 0;
     context->debug_level = 0;
     context->strict_mode = 0;
-    
+
     /* Initialize symbol table */
     for (i = 0; i < NEQN_HASH_SIZE; i++) {
         context->symbols[i] = NULL;
     }
-    
+
     /* Allocate initial line buffer */
     context->line_capacity = NEQN_INITIAL_LINE_SIZE;
     context->current_line = malloc(context->line_capacity);
@@ -77,45 +77,44 @@ neqn_context_t *neqn_context_create(void)
         free(context);
         return NULL;
     }
-    
+
     return context;
 }
 
 /**
  * @brief Destroy a neqn processing context
  */
-void neqn_context_destroy(neqn_context_t *context)
-{
+void neqn_context_destroy(neqn_context_t *context) {
     int i;
     neqn_symbol_t *sym, *next;
-    
+
     if (context == NULL) {
         return;
     }
-    
+
     /* Close files if they're not standard streams */
     if (context->input != NULL && context->input != stdin) {
-        fclose(context->input);
+        os_fclose(context->input);
     }
-    
+
     if (context->output != NULL && context->output != stdout) {
-        fclose(context->output);
+        os_fclose(context->output);
     }
-    
+
     /* Free filename strings */
     if (context->input_filename != NULL) {
         free(context->input_filename);
     }
-    
+
     if (context->output_filename != NULL) {
         free(context->output_filename);
     }
-    
+
     /* Free line buffer */
     if (context->current_line != NULL) {
         free(context->current_line);
     }
-    
+
     /* Free symbol table */
     for (i = 0; i < NEQN_HASH_SIZE; i++) {
         sym = context->symbols[i];
@@ -134,101 +133,99 @@ void neqn_context_destroy(neqn_context_t *context)
             sym = next;
         }
     }
-    
+
     free(context);
 }
 
 /**
  * @brief Set input file for context
  */
-int neqn_context_set_input(neqn_context_t *context, const char *filename)
-{
+int neqn_context_set_input(neqn_context_t *context, const char *filename) {
     FILE *new_input;
-    
+
     if (context == NULL) {
         return NEQN_ERROR_INVALID;
     }
-    
+
     /* Handle stdin case */
     if (filename == NULL) {
         new_input = stdin;
     } else {
-        new_input = fopen(filename, "r");
+        new_input = os_fopen(filename, "r");
         if (new_input == NULL) {
             return NEQN_ERROR_IO;
         }
     }
-    
+
     /* Close previous input if not stdin */
     if (context->input != NULL && context->input != stdin) {
-        fclose(context->input);
+        os_fclose(context->input);
     }
-    
+
     /* Update context */
     context->input = new_input;
-    
+
     /* Update filename */
     if (context->input_filename != NULL) {
         free(context->input_filename);
         context->input_filename = NULL;
     }
-    
+
     if (filename != NULL) {
         context->input_filename = neqn_strdup(filename);
         if (context->input_filename == NULL) {
             return NEQN_ERROR_MEMORY;
         }
     }
-    
+
     /* Reset line tracking */
     context->line_number = 0;
     context->column_number = 0;
-    
+
     return NEQN_SUCCESS;
 }
 
 /**
  * @brief Set output file for context
  */
-int neqn_context_set_output(neqn_context_t *context, const char *filename)
-{
+int neqn_context_set_output(neqn_context_t *context, const char *filename) {
     FILE *new_output;
-    
+
     if (context == NULL) {
         return NEQN_ERROR_INVALID;
     }
-    
+
     /* Handle stdout case */
     if (filename == NULL) {
         new_output = stdout;
     } else {
-        new_output = fopen(filename, "w");
+        new_output = os_fopen(filename, "w");
         if (new_output == NULL) {
             return NEQN_ERROR_IO;
         }
     }
-    
+
     /* Close previous output if not stdout */
     if (context->output != NULL && context->output != stdout) {
-        fclose(context->output);
+        os_fclose(context->output);
     }
-    
+
     /* Update context */
     context->output = new_output;
-    
+
     /* Update filename */
     if (context->output_filename != NULL) {
         free(context->output_filename);
         context->output_filename = NULL;
     }
-    
+
     if (filename != NULL) {
         context->output_filename = neqn_strdup(filename);
         if (context->output_filename == NULL) {
             return NEQN_ERROR_MEMORY;
         }
     }
-    
+
     return NEQN_SUCCESS;
 }
 
@@ -239,26 +236,25 @@ int neqn_context_set_output(neqn_context_t *context, const char *filename)
 /**
  * @brief Read next line from input (replaces getline)
  */
-int neqn_read_line(neqn_context_t *context, char **buffer, size_t *capacity)
-{
+int neqn_read_line(neqn_context_t *context, char **buffer, size_t *capacity) {
     char *line_buffer;
     size_t buffer_size;
     size_t pos = 0;
     int ch;
-    
+
     if (context == NULL || buffer == NULL || capacity == NULL) {
         return -1;
     }
-    
+
     /* Use context buffer if none provided */
     if (*buffer == NULL || *capacity == 0) {
         *buffer = context->current_line;
         *capacity = context->line_capacity;
     }
-    
+
     line_buffer = *buffer;
     buffer_size = *capacity;
-    
+
     /* Read characters until newline or EOF */
     while ((ch = fgetc(context->input)) != EOF) {
         /* Expand buffer if needed */
@@ -268,66 +264,64 @@ int neqn_read_line(neqn_context_t *context, char **buffer, size_t *capacity)
             if (new_buffer == NULL) {
                 return -1;
             }
-            
+
             line_buffer = new_buffer;
             buffer_size = new_size;
-            
+
             /* Update context if using context buffer */
             if (*buffer == context->current_line) {
                 context->current_line = line_buffer;
                 context->line_capacity = buffer_size;
             }
-            
+
             *buffer = line_buffer;
             *capacity = buffer_size;
         }
-        
+
         /* Store character */
         line_buffer[pos++] = (char)ch;
-        
+
         /* Check for end of line */
         if (ch == '\n') {
             break;
         }
     }
-    
+
     /* Null-terminate */
     if (pos < buffer_size) {
         line_buffer[pos] = '\0';
     }
-    
+
     /* Return number of characters read, or -1 on EOF with no characters */
     if (pos == 0 && ch == EOF) {
         return -1;
     }
-    
+
     return (int)pos;
 }
 
 /**
  * @brief Write formatted output
  */
-int neqn_write_output(neqn_context_t *context, const char *format, ...)
-{
+int neqn_write_output(neqn_context_t *context, const char *format, ...) {
     va_list args;
     int result;
-    
+
     if (context == NULL || format == NULL) {
         return -1;
     }
-    
+
     va_start(args, format);
     result = vfprintf(context->output, format, args);
     va_end(args);
-    
+
     return result;
 }
 
 /**
  * @brief Process a single line of input
  */
-int neqn_process_line(neqn_context_t *context, const char *line)
-{
+int neqn_process_line(neqn_context_t *context, const char *line) {
     size_t pos = 0;
     neqn_token_t *token;
     neqn_token_t *tokens[NEQN_MAX_ARGS];
@@ -335,32 +329,32 @@ int neqn_process_line(neqn_context_t *context, const char *line)
     neqn_node_t *tree;
     int result = NEQN_SUCCESS;
     size_t i;
-    
+
     if (context == NULL || line == NULL) {
         return NEQN_ERROR_INVALID;
     }
-    
+
     /* Skip empty lines */
     if (strlen(line) == 0 || (strlen(line) == 1 && line[0] == '\n')) {
         neqn_write_output(context, "\n");
         return NEQN_SUCCESS;
     }
-    
+
     /* Tokenize the line */
     while (pos < strlen(line) && token_count < NEQN_MAX_ARGS) {
         token = neqn_get_next_token(context, line, &pos);
         if (token == NULL) {
             break;
         }
-        
+
         if (token->type == NEQN_TOKEN_EOF) {
             neqn_token_destroy(token);
             break;
         }
-        
+
         tokens[token_count++] = token;
     }
-    
+
     /* Parse tokens into expression tree */
     if (token_count > 0) {
         tree = neqn_parse_expression(context, tokens, token_count);
@@ -373,12 +367,12 @@ int neqn_process_line(neqn_context_t *context, const char *line)
             result = NEQN_ERROR_SYNTAX;
         }
     }
-    
+
     /* Clean up tokens */
     for (i = 0; i < token_count; i++) {
         neqn_token_destroy(tokens[i]);
     }
-    
+
     return result;
 }
 
@@ -389,22 +383,21 @@ int neqn_process_line(neqn_context_t *context, const char *line)
 /**
  * @brief Create a new token
  */
-neqn_token_t *neqn_token_create(neqn_token_type_t type, 
-                                const char *text, 
-                                size_t length)
-{
+neqn_token_t *neqn_token_create(neqn_token_type_t type,
+                                const char *text,
+                                size_t length) {
     neqn_token_t *token;
-    
+
     token = malloc(sizeof(neqn_token_t));
     if (token == NULL) {
         return NULL;
     }
-    
+
     token->type = type;
     token->length = length;
     token->line_number = 0;
     token->column_number = 0;
-    
+
     if (text != NULL && length > 0) {
         token->text = malloc(length + 1);
         if (token->text == NULL) {
@@ -416,23 +409,22 @@ neqn_token_t *neqn_token_create(neqn_token_type_t type,
     } else {
         token->text = NULL;
     }
-    
+
     return token;
 }
 
 /**
  * @brief Destroy a token
  */
-void neqn_token_destroy(neqn_token_t *token)
-{
+void neqn_token_destroy(neqn_token_t *token) {
     if (token == NULL) {
         return;
     }
-    
+
     if (token->text != NULL) {
         free(token->text);
     }
-    
+
     free(token);
 }
 
@@ -441,31 +433,30 @@ void neqn_token_destroy(neqn_token_t *token)
  */
 neqn_token_t *neqn_get_next_token(neqn_context_t *context,
                                   const char *line,
-                                  size_t *position)
-{
+                                  size_t *position) {
     size_t pos;
     size_t start;
     neqn_token_type_t type;
-    
+
     if (context == NULL || line == NULL || position == NULL) {
         return NULL;
     }
-    
+
     pos = *position;
-    
+
     /* Skip whitespace */
     while (pos < strlen(line) && isspace(line[pos]) && line[pos] != '\n') {
         pos++;
     }
-    
+
     /* Check for end of line */
     if (pos >= strlen(line) || line[pos] == '\n') {
         *position = pos;
         return neqn_token_create(NEQN_TOKEN_EOF, NULL, 0);
     }
-    
+
     start = pos;
-    
+
     /* Classify token */
     if (isalpha(line[pos])) {
         /* Identifier or keyword */
@@ -498,7 +489,7 @@ neqn_token_t *neqn_get_next_token(neqn_context_t *context,
         pos++;
         type = NEQN_TOKEN_OPERATOR;
     }
-    
+
     *position = pos;
     return neqn_token_create(type, line + start, pos - start);
 }
@@ -510,22 +501,21 @@ neqn_token_t *neqn_get_next_token(neqn_context_t *context,
 /**
  * @brief Create a new expression tree node
  */
-neqn_node_t *neqn_node_create(neqn_node_type_t type, const char *content)
-{
+neqn_node_t *neqn_node_create(neqn_node_type_t type, const char *content) {
     neqn_node_t *node;
-    
+
     node = malloc(sizeof(neqn_node_t));
     if (node == NULL) {
         return NULL;
     }
-    
+
     node->type = type;
     node->left = NULL;
     node->right = NULL;
     node->next = NULL;
     node->precedence = 0;
     node->line_number = 0;
-    
+
     if (content != NULL) {
         node->content = neqn_strdup(content);
         if (node->content == NULL) {
@@ -535,29 +525,28 @@ neqn_node_t *neqn_node_create(neqn_node_type_t type, const char *content)
     } else {
         node->content = NULL;
     }
-    
+
     return node;
 }
 
 /**
  * @brief Destroy an expression tree
  */
-void neqn_node_destroy(neqn_node_t *node)
-{
+void neqn_node_destroy(neqn_node_t *node) {
     if (node == NULL) {
         return;
     }
-    
+
     /* Recursively destroy children */
     neqn_node_destroy(node->left);
     neqn_node_destroy(node->right);
     neqn_node_destroy(node->next);
-    
+
     /* Free content */
     if (node->content != NULL) {
         free(node->content);
     }
-    
+
     free(node);
 }
 
@@ -566,46 +555,45 @@ void neqn_node_destroy(neqn_node_t *node)
  */
 neqn_node_t *neqn_parse_expression(neqn_context_t *context,
                                    neqn_token_t **tokens,
-                                   size_t count)
-{
+                                   size_t count) {
     neqn_node_t *root;
     size_t i;
-    
+
     if (context == NULL || tokens == NULL || count == 0) {
         return NULL;
     }
-    
+
     /* Simple implementation: create a sequence of nodes */
     root = NULL;
-    
+
     for (i = 0; i < count; i++) {
         neqn_node_t *node;
         neqn_node_type_t node_type;
-        
+
         /* Map token type to node type */
         switch (tokens[i]->type) {
-            case NEQN_TOKEN_NUMBER:
-                node_type = NEQN_NODE_NUMBER;
-                break;
-            case NEQN_TOKEN_IDENTIFIER:
-                node_type = NEQN_NODE_IDENTIFIER;
-                break;
-            case NEQN_TOKEN_OPERATOR:
-                node_type = NEQN_NODE_OPERATOR;
-                break;
-            default:
-                node_type = NEQN_NODE_IDENTIFIER;
-                break;
+        case NEQN_TOKEN_NUMBER:
+            node_type = NEQN_NODE_NUMBER;
+            break;
+        case NEQN_TOKEN_IDENTIFIER:
+            node_type = NEQN_NODE_IDENTIFIER;
+            break;
+        case NEQN_TOKEN_OPERATOR:
+            node_type = NEQN_NODE_OPERATOR;
+            break;
+        default:
+            node_type = NEQN_NODE_IDENTIFIER;
+            break;
         }
-        
+
         node = neqn_node_create(node_type, tokens[i]->text);
         if (node == NULL) {
             neqn_node_destroy(root);
             return NULL;
         }
-        
+
         node->line_number = tokens[i]->line_number;
-        
+
         /* Link nodes in sequence */
         if (root == NULL) {
             root = node;
@@ -617,7 +605,7 @@ neqn_node_t *neqn_parse_expression(neqn_context_t *context,
             current->next = node;
         }
     }
-    
+
     return root;
 }
 
@@ -628,14 +616,13 @@ neqn_node_t *neqn_parse_expression(neqn_context_t *context,
 /**
  * @brief Generate output from expression tree
  */
-int neqn_generate_output(neqn_context_t *context, neqn_node_t *tree)
-{
+int neqn_generate_output(neqn_context_t *context, neqn_node_t *tree) {
     neqn_node_t *current;
-    
+
     if (context == NULL || tree == NULL) {
         return NEQN_ERROR_INVALID;
     }
-    
+
     /* Simple implementation: output nodes in sequence */
     current = tree;
     while (current != NULL) {
@@ -647,9 +634,9 @@ int neqn_generate_output(neqn_context_t *context, neqn_node_t *tree)
         }
         current = current->next;
     }
-    
+
     neqn_write_output(context, "\n");
-    
+
     return NEQN_SUCCESS;
 }
 
@@ -662,13 +649,12 @@ int neqn_generate_output(neqn_context_t *context, neqn_node_t *tree)
  */
 void neqn_error(neqn_context_t *context,
                 neqn_error_t error_code,
-                const char *format, ...)
-{
+                const char *format, ...) {
     va_list args;
-    
+
     if (context != NULL) {
         context->error_count++;
-        
+
         fprintf(stderr, "neqn: ");
         if (context->input_filename != NULL) {
             fprintf(stderr, "%s:", context->input_filename);
@@ -677,13 +663,13 @@ void neqn_error(neqn_context_t *context,
             fprintf(stderr, "%d:", context->line_number);
         }
         fprintf(stderr, " error: ");
-        
+
         if (format != NULL) {
             va_start(args, format);
             vfprintf(stderr, format, args);
             va_end(args);
         }
-        
+
         fprintf(stderr, "\n");
     }
 }
@@ -691,13 +677,12 @@ void neqn_error(neqn_context_t *context,
 /**
  * @brief Report warning with context information
  */
-void neqn_warning(neqn_context_t *context, const char *format, ...)
-{
+void neqn_warning(neqn_context_t *context, const char *format, ...) {
     va_list args;
-    
+
     if (context != NULL) {
         context->warning_count++;
-        
+
         fprintf(stderr, "neqn: ");
         if (context->input_filename != NULL) {
             fprintf(stderr, "%s:", context->input_filename);
@@ -706,13 +691,13 @@ void neqn_warning(neqn_context_t *context, const char *format, ...)
             fprintf(stderr, "%d:", context->line_number);
         }
         fprintf(stderr, " warning: ");
-        
+
         if (format != NULL) {
             va_start(args, format);
             vfprintf(stderr, format, args);
             va_end(args);
         }
-        
+
         fprintf(stderr, "\n");
     }
 }
@@ -720,31 +705,30 @@ void neqn_warning(neqn_context_t *context, const char *format, ...)
 /**
  * @brief Get error message for error code
  */
-const char *neqn_error_message(neqn_error_t error_code)
-{
+const char *neqn_error_message(neqn_error_t error_code) {
     switch (error_code) {
-        case NEQN_SUCCESS:
-            return "No error";
-        case NEQN_ERROR_MEMORY:
-            return "Memory allocation failure";
-        case NEQN_ERROR_SYNTAX:
-            return "Syntax error";
-        case NEQN_ERROR_IO:
-            return "Input/output error";
-        case NEQN_ERROR_OVERFLOW:
-            return "Buffer overflow";
-        case NEQN_ERROR_UNDERFLOW:
-            return "Stack underflow";
-        case NEQN_ERROR_INVALID:
-            return "Invalid argument";
-        case NEQN_ERROR_NOT_FOUND:
-            return "Not found";
-        case NEQN_ERROR_RANGE:
-            return "Out of range";
-        case NEQN_ERROR_FORMAT:
-            return "Invalid format";
-        default:
-            return "Unknown error";
+    case NEQN_SUCCESS:
+        return "No error";
+    case NEQN_ERROR_MEMORY:
+        return "Memory allocation failure";
+    case NEQN_ERROR_SYNTAX:
+        return "Syntax error";
+    case NEQN_ERROR_IO:
+        return "Input/output error";
+    case NEQN_ERROR_OVERFLOW:
+        return "Buffer overflow";
+    case NEQN_ERROR_UNDERFLOW:
+        return "Stack underflow";
+    case NEQN_ERROR_INVALID:
+        return "Invalid argument";
+    case NEQN_ERROR_NOT_FOUND:
+        return "Not found";
+    case NEQN_ERROR_RANGE:
+        return "Out of range";
+    case NEQN_ERROR_FORMAT:
+        return "Invalid format";
+    default:
+        return "Unknown error";
     }
 }
 
@@ -755,21 +739,20 @@ const char *neqn_error_message(neqn_error_t error_code)
 /**
  * @brief Safe string duplication with error checking
  */
-char *neqn_strdup(const char *str)
-{
+char *neqn_strdup(const char *str) {
     char *copy;
     size_t len;
-    
+
     if (str == NULL) {
         return NULL;
     }
-    
+
     len = strlen(str);
     copy = malloc(len + 1);
     if (copy == NULL) {
         return NULL;
     }
-    
+
     memcpy(copy, str, len + 1);
     return copy;
 }
@@ -777,22 +760,21 @@ char *neqn_strdup(const char *str)
 /**
  * @brief Safe string concatenation with bounds checking
  */
-int neqn_strcat_safe(char *dest, const char *src, size_t dest_size)
-{
+int neqn_strcat_safe(char *dest, const char *src, size_t dest_size) {
     size_t dest_len;
     size_t src_len;
-    
+
     if (dest == NULL || src == NULL || dest_size == 0) {
         return NEQN_ERROR_INVALID;
     }
-    
+
     dest_len = strlen(dest);
     src_len = strlen(src);
-    
+
     if (dest_len + src_len >= dest_size) {
         return NEQN_ERROR_OVERFLOW;
     }
-    
+
     strcat(dest, src);
     return NEQN_SUCCESS;
 }
@@ -800,19 +782,18 @@ int neqn_strcat_safe(char *dest, const char *src, size_t dest_size)
 /**
  * @brief Calculate hash value for string
  */
-unsigned int neqn_hash_string(const char *str)
-{
+unsigned int neqn_hash_string(const char *str) {
     unsigned int hash = 0;
-    
+
     if (str == NULL) {
         return 0;
     }
-    
+
     while (*str != '\0') {
         hash = hash * 31 + (unsigned char)*str;
         str++;
     }
-    
+
     return hash % NEQN_HASH_SIZE;
 }
 
@@ -825,39 +806,36 @@ unsigned int neqn_hash_string(const char *str)
  */
 int neqn_symbol_define(neqn_context_t *context,
                        const char *name,
-                       const char *value)
-{
+                       const char *value) {
     /* Stub implementation */
     if (context == NULL || name == NULL) {
         return NEQN_ERROR_INVALID;
     }
-    
+
     return NEQN_SUCCESS;
 }
 
 /**
  * @brief Look up symbol in symbol table
  */
-neqn_symbol_t *neqn_symbol_lookup(neqn_context_t *context, const char *name)
-{
+neqn_symbol_t *neqn_symbol_lookup(neqn_context_t *context, const char *name) {
     /* Stub implementation */
     if (context == NULL || name == NULL) {
         return NULL;
     }
-    
+
     return NULL;
 }
 
 /**
  * @brief Remove symbol from symbol table
  */
-int neqn_symbol_undefine(neqn_context_t *context, const char *name)
-{
+int neqn_symbol_undefine(neqn_context_t *context, const char *name) {
     /* Stub implementation */
     if (context == NULL || name == NULL) {
         return NEQN_ERROR_INVALID;
     }
-    
+
     return NEQN_SUCCESS;
 }
 
@@ -868,8 +846,7 @@ int neqn_symbol_undefine(neqn_context_t *context, const char *name)
 /**
  * @brief Enable or disable strict parsing mode
  */
-void neqn_set_strict_mode(neqn_context_t *context, int strict_mode)
-{
+void neqn_set_strict_mode(neqn_context_t *context, int strict_mode) {
     if (context != NULL) {
         context->strict_mode = strict_mode;
     }
@@ -878,12 +855,11 @@ void neqn_set_strict_mode(neqn_context_t *context, int strict_mode)
 /**
  * @brief Check if strict mode is enabled
  */
-int neqn_is_strict_mode(neqn_context_t *context)
-{
+int neqn_is_strict_mode(neqn_context_t *context) {
     if (context == NULL) {
         return 0;
     }
-    
+
     return context->strict_mode;
 }
 
