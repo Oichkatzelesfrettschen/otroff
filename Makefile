@@ -1,4 +1,7 @@
-CC ?= clang
+# Use clang as the compiler. The built-in 'cc' is typically GCC which
+# yields slightly different diagnostics. Force clang unless the user
+# explicitly overrides it on the command line.
+CC := clang
 CPU ?= native
 
 # Map CPU values to 64-bit -march options
