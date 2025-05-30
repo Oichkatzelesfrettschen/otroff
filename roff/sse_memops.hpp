@@ -5,8 +5,15 @@
 
 #include <cstddef>
 
-/* Prototypes for portable memory operations. */
-[[nodiscard]] void *fast_memcpy(void *dst, const void *src, size_t n);
-[[nodiscard]] int fast_memcmp(const void *s1, const void *s2, size_t n);
+#include <span>
 
-#endif /* SSE_MEMOPS_H */
+namespace roff::util {
+
+// Portable memory operations using modern C++ spans.
+[[nodiscard]] void *fast_memcpy(void *dst, const void *src, std::size_t n);
+
+[[nodiscard]] int fast_memcmp(const void *s1, const void *s2, std::size_t n);
+
+} // namespace roff::util
+
+#endif // SSE_MEMOPS_H
