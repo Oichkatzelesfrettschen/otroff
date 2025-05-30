@@ -3,6 +3,8 @@
 ## Overview
 
 The `n8.c` module implements a sophisticated hyphenation engine for the `troff` typesetting system. It provides multiple algorithms for determining appropriate word break points for line justification and formatting.
+This repository is a work in progress to reproduce the original MINIX simplicity on modern 32-bit and 64-bit ARM and x86/x86_64 hardware using C++23.
+
 
 ## Features
 

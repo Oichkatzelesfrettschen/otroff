@@ -11,6 +11,7 @@ The files in this repository's root directory are garnish added for VCS
 or GitHub-specific purposes. Everything in the immediate subdirectories
 has been left untouched from their extraction. The file timestamps date
 are back to October 25th, 1978.
+This repository is a work in progress to reproduce the original MINIX simplicity on modern 32-bit and 64-bit ARM and x86/x86_64 hardware using C++23.
 
 Building
 --------

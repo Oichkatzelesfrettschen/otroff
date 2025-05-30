@@ -3,6 +3,8 @@
 This directory contains the original PDP-11 assembly sources for the
 `troff` text formatter.  Each file implements a portion of the historic
 formatter.
+This repository is a work in progress to reproduce the original MINIX simplicity on modern 32-bit and 64-bit ARM and x86/x86_64 hardware using C++23.
+
 
 | File | Purpose |
 |------|---------|
