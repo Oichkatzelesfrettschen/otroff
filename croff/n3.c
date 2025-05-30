@@ -7,7 +7,6 @@
 #include "tdef.h"
 #include "env.h"
 #include "t.h"
-#include "tw.h"
 #include "proto.h"
 
 #include <stdio.h>
@@ -631,9 +630,8 @@ int pushi(int newip)
 char *setbrk(int x)
 {
     register char *i;
-    extern void *sbrk(intptr_t increment);  /* Local declaration */
 
-    if ((i = (char*)sbrk((intptr_t)x)) == (char *)-1) {
+    if ((i = (char*)malloc((size_t)x)) == NULL) {
         prstrfl("Core limit reached.\n");
         edone(0100);
     } else {
@@ -642,7 +640,6 @@ char *setbrk(int x)
     
     return i;
 }
-
 /* String handling */
 int getsn(void)
 {

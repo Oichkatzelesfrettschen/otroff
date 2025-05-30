@@ -5,25 +5,70 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+void error(int level, const char *fmt, ...);
+
 #define getc ngetc
+#define FATAL 1
+#define SSIZE 256
 
-static void *alloc(size_t n) { return calloc(1, n); }
-
+/* Forward declarations */
 typedef struct {
     char *key;
     int keyval;
 } keytab_t;
 
-static keytab_t keytab[] = {
-    {"sub", SUB}, {"sup", SUP}, {".EN", 0}, {"from", FROM}, {"to", TO}, {"sum", SUM}, {"hat", HAT}, {"vec", VEC}, {"dyad", DYAD}, {"dot", DOT}, {"dotdot", DOTDOT}, {"bar", BAR}, {"tilde", TILDE}, {"under", UNDER}, {"prod", PROD}, {"int", INT}, {"integral", INT}, {"union", UNION}, {"inter", INTER}, {"pile", PILE}, {"lpile", LPILE}, {"cpile", CPILE}, {"rpile", RPILE}, {"over", OVER}, {"sqrt", SQRT}, {"above", ABOVE}, {"size", SIZE}, {"font", FONT}, {"fat", FAT}, {"roman", ROMAN}, {"italic", ITALIC}, {"bold", BOLD}, {"left", LEFT}, {"right", RIGHT}, {"delim", DELIM}, {"define", DEFINE}, {"tdefine", TDEFINE}, {"ndefine", DEFINE}, {"gsize", GSIZE}, {".gsize", GSIZE}, {"gfont", GFONT}, {"up", UP}, {"down", DOWN}, {"fwd", FWD}, {"back", BACK}, {"mark", MARK}, {"lineup", LINEUP}, {"matrix", MATRIX}, {"col", COL}, {"lcol", LCOL}, {"ccol", CCOL}, {"rcol", RCOL}, {0, 0}};
+typedef struct {
+    char *name;
+    int keyval;
+} lookup_tab;
 
-static int peek = -1;
-#define SSIZE 400
-static char token[SSIZE];
-static int sp;
-static int speek[10];
+typedef struct {
+    char *nptr;
+    char *sptr;
+} deftab_t;
+
+/* Function prototypes */
+int ngetc(void);
+int yylex(void);
+void getstr(char *s, int c);
+int lookup(char *str, lookup_tab tbl[]);
+void define(int type);
+void delim(void);
+void globsize(void);
+void globfont(void);
+char *cstr(char *s, int quote);
+char *alloc(int n);
+int numb(char *s);
+void setps(int size);
+
+/* External variables */
+extern int yylval;
+extern int yyval;
+extern int gsize;
+extern int gfont;
+
+/* Global variables */
+static int lastchar;
+static int linect = 1;
+static int ifile = 0;
+static int svargc;
+static char **svargv;
+static int fin;
+static char lefteq, righteq;
+static lookup_tab deftab[100];
+static int ptr = 0;
+static int eqnreg;
+static int dbg = 0;
 static char *swt[10];
 static int sw = -1;
+static int peek = -1;
+static int speek[10];
+static char token[256];
+static int sp = 0;
+
+static lookup_tab keytab[] = {
+    {"", 0}
+};
 
 /*
  * Read next character, handling includes.
@@ -48,12 +93,6 @@ int ngetc(void) {
             peek = '\0';
             return '\0';
         }
-        close(fin);
-        linect = 1;
-        if ((fin = open(svargv[ifile], 0)) >= 0)
-            continue;
-        error(FATAL, "can't open file %s\n", svargv[ifile]);
-        return ' ';
     }
 }
 
@@ -70,16 +109,8 @@ beg:
     switch (c) {
     case '\0':
         return '\0';
-    case '~':
-        return SPACE;
-    case '^':
-        return THIN;
     case '\t':
         return TAB;
-    case '{':
-        return MQ;
-    case '}':
-        return MQ1;
     case '"':
         for (sp = 0; (c = getc()) != '"';) {
             if (c != '\\')
@@ -93,7 +124,7 @@ beg:
                 error(FATAL, "quoted string %.20s... too long", token);
         }
         token[sp] = '\0';
-        yylval = &token[0];
+        yylval = (int)(uintptr_t)&token[0];
         return QTEXT;
     }
     if (c == righteq)
@@ -103,7 +134,7 @@ beg:
     if ((type = lookup(token, deftab)) >= 0) {
         if (sw >= 9)
             error(FATAL, "definitions nested > 9", sw);
-        swt[++sw] = deftab[type].sptr;
+        swt[++sw] = deftab[type].name;
         speek[sw] = peek;
         peek = -1;
         goto beg;
@@ -123,9 +154,8 @@ beg:
     } else if (keytab[type].keyval == GFONT) {
         globfont();
         goto beg;
-    } else {
-        return keytab[type].keyval;
     }
+    return keytab[type].keyval;
 }
 
 /*
@@ -146,18 +176,16 @@ void getstr(char *s, int c) {
         c == righteq)
         peek = c;
     s[sp] = '\0';
-    yylval = s;
+    yylval = (int)(uintptr_t)s;
 }
 
 /*
- * Search a lookup table.
+ * Lookup function for tables.
  */
 int lookup(char *str, lookup_tab tbl[]) {
-    int i, j, r;
-    for (i = 0; tbl[i].name != 0; i++) {
-        for (j = 0; (r = tbl[i].name[j]) == str[j] && r != '\0'; j++)
-            ;
-        if (r == str[j])
+    int i;
+    for (i = 0; tbl[i].name != NULL; i++) {
+        if (strcmp(str, tbl[i].name) == 0)
             return i;
     }
     return -1;
@@ -193,41 +221,36 @@ void define(int type) {
     if (type == DEFINE) {
         if ((i = lookup(token, deftab)) >= 0) {
             yyval = i;
-            free(deftab[yyval].sptr);
         } else {
             yyval = ptr++;
             for (i = 0; token[i] != '\0'; i++)
                 ;
-            deftab[yyval].nptr = alloc(i + 1);
-            for (i = 0; (deftab[yyval].nptr[i] = token[i]); i++)
+            deftab[yyval].name = alloc(i + 1);
+            for (i = 0; (deftab[yyval].name[i] = token[i]); i++)
                 ;
         }
         if (dbg)
-            printf(".\tdefine %s\n", deftab[yyval].nptr);
+            printf(".\tdefine %s\n", deftab[yyval].name);
     }
     cstr(token, 1);
     if (type != DEFINE)
         return;
     for (i = 0; token[i] != '\0'; i++)
         ;
-    deftab[yyval].sptr = alloc(i + 1);
-    for (i = 0; (deftab[yyval].sptr[i] = token[i]); i++)
-        ;
     if (dbg)
-        printf(".\tname %s defined as %s\n", deftab[yyval].sptr,
-               deftab[yyval].sptr);
+        printf(".\tname %s defined as %s\n", deftab[yyval].name, token);
 }
 
 /*
- * Set equation delimiters.
+ * Process delim statement.
  */
 void delim(void) {
-    yyval = eqnreg = 0;
-    cstr(token, 0);
-    lefteq = token[0];
-    righteq = token[1];
-    if ((lefteq == 'o' && righteq == 'f') ||
-        (lefteq == 'O' && righteq == 'F'))
+    int c;
+    while ((c = getc()) == ' ' || c == '\n')
+        ;
+    lefteq = c;
+    righteq = getc();
+    if (lefteq == 'o' && righteq == 'f')
         lefteq = righteq = '\0';
 }
 

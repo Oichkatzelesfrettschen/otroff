@@ -40,7 +40,6 @@
 #include "tdef.h"
 #include "env.h"
 #include "t.h"
-#include "proto.h"
 
 #include <stdlib.h>  /* C90: exit, malloc, free */
 #include <unistd.h>  /* POSIX: write, close, open, sleep */

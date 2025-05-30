@@ -1,0 +1,106 @@
+# Makefile for n8.c hyphenation module
+# Enhanced C90 compliant build system
+
+# Compiler configuration
+CC = gcc
+CFLAGS = -std=c90 -Wall -Wextra -Werror -pedantic -g -O2
+CFLAGS += -Wcast-align -Wcast-qual -Wconversion -Wformat=2
+CFLAGS += -Wmissing-prototypes -Wpointer-arith -Wshadow
+CFLAGS += -Wstrict-prototypes -Wwrite-strings -Wunused
+
+# Include directories
+INCLUDES = -I.
+
+# Source files
+SOURCES = n8.c
+TEST_SOURCES = test_n8.c
+HEADERS = tdef.h
+
+# Object files
+OBJECTS = $(SOURCES:.c=.o)
+TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
+
+# Binary targets
+TEST_BINARY = test_n8
+MAIN_BINARY = troff
+
+# Default target
+all: $(MAIN_BINARY)
+
+# Build main program (placeholder - would link with rest of troff)
+$(MAIN_BINARY): $(OBJECTS)
+	@echo "Note: n8.c is part of troff - linking would require full troff build"
+	@echo "Object files built successfully: $(OBJECTS)"
+
+# Build test program
+test: $(TEST_BINARY)
+	@echo "Running hyphenation tests..."
+	./$(TEST_BINARY)
+
+$(TEST_BINARY): $(TEST_OBJECTS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
+
+# Object file rules
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Static analysis
+analyze: $(SOURCES) $(TEST_SOURCES)
+	@echo "Running static analysis..."
+	cppcheck --enable=all --std=c90 --suppress=missingIncludeSystem $(SOURCES) $(TEST_SOURCES)
+	@echo "Static analysis complete."
+
+# Code formatting
+format: $(SOURCES) $(TEST_SOURCES) $(HEADERS)
+	@echo "Formatting code..."
+	clang-format -i -style="{BasedOnStyle: LLVM, IndentWidth: 4, TabWidth: 4, UseTab: Never}" $^
+	@echo "Code formatting complete."
+
+# Memory leak check
+memcheck: $(TEST_BINARY)
+	@echo "Running memory leak check..."
+	valgrind --leak-check=full --error-exitcode=1 ./$(TEST_BINARY)
+
+# Performance test
+perf: $(TEST_BINARY)
+	@echo "Running performance tests..."
+	time ./$(TEST_BINARY)
+
+# Documentation generation
+docs:
+	@echo "Generating documentation..."
+	doxygen Doxyfile 2>/dev/null || echo "Doxygen not configured"
+
+# Clean build artifacts
+clean:
+	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TEST_BINARY)
+	rm -rf docs/
+
+# Install (would copy to system directories)
+install: $(MAIN_BINARY)
+	@echo "Install target would copy n8.o to troff build directory"
+
+# Comprehensive check
+check: clean all test analyze
+	@echo "All checks completed successfully!"
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all      - Build main program (object files)"
+	@echo "  test     - Build and run unit tests"
+	@echo "  analyze  - Run static analysis with cppcheck"
+	@echo "  format   - Format source code with clang-format"
+	@echo "  memcheck - Run memory leak detection"
+	@echo "  perf     - Run performance tests"
+	@echo "  docs     - Generate documentation"
+	@echo "  clean    - Remove build artifacts"
+	@echo "  check    - Run all validation steps"
+	@echo "  help     - Show this help message"
+
+# Phony targets
+.PHONY: all test analyze format memcheck perf docs clean install check help
+
+# Dependencies
+n8.o: n8.c tdef.h
+test_n8.o: test_n8.c tdef.h n8.c

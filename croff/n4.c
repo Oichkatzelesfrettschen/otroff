@@ -51,7 +51,6 @@
 #include "tdef.h"
 #include "env.h"
 #include "t.h"
-#include "tw.h"
 
 #include <stdio.h>      /* C90: standard I/O functions */
 #include <stdlib.h>     /* C90: exit, abs, etc. */

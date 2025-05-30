@@ -1,0 +1,31 @@
+Basic algebraic equations
+x + y = z
+a - b = c
+p * q = r
+m / n = o
+
+Quadratic formula
+x = {-b +- sqrt{b sup 2 - 4ac}} over {2a}
+
+Pythagorean theorem
+a sup 2 + b sup 2 = c sup 2
+
+Physics equations
+E = mc sup 2
+F = ma
+v = u + at
+
+Mathematical constants
+pi ~= 3.14159
+e ~= 2.71828
+
+Fractions and roots
+{a + b} over {c + d}
+sqrt{x sup 2 + y sup 2}
+
+Complex expressions
+sum from {i=1} to n {x sub i}
+int from a to b {f(x) dx}
+
+Matrix notation
+A sub {i,j} = a sub i sup j

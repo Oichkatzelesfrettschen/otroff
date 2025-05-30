@@ -1,0 +1,34 @@
+Advanced mathematical expressions for neqn testing
+
+Taylor series expansion
+f(x) = f(a) + f'(a)(x-a) + {f''(a)} over {2!} (x-a) sup 2 + ...
+
+Binomial theorem
+(x+y) sup n = sum from {k=0} to n { left ( pile { n above k } right ) x sup {n-k} y sup k }
+
+Fourier series
+f(x) = {a sub 0} over 2 + sum from {n=1} to inf { a sub n cos({nπx} over L) + b sub n sin({nπx} over L) }
+
+Maxwell's equations
+del dot E = {ρ} over {ε sub 0}
+del dot B = 0
+del times E = -{∂B} over {∂t}
+del times B = μ sub 0 J + μ sub 0 ε sub 0 {∂E} over {∂t}
+
+Schrödinger equation
+iℏ {∂ψ} over {∂t} = Ĥψ
+
+Einstein field equations
+G sub {μν} + Λg sub {μν} = {8πG} over {c sup 4} T sub {μν}
+
+Riemann zeta function
+ζ(s) = sum from {n=1} to inf {1} over {n sup s}
+
+Gamma function
+Γ(z) = int from 0 to inf {t sup {z-1} e sup {-t} dt}
+
+Logarithmic derivatives
+{d} over {dx} ln(x) = {1} over x
+
+Partial derivatives
+{∂f} over {∂x} = lim from {h -> 0} {f(x+h,y) - f(x,y)} over h

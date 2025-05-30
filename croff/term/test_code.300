@@ -1,0 +1,110 @@
+/*
+ * test_code.300 - Test file for DASI300/DASI300S character code table
+ *
+ * This file tests the code.300 include file by creating a complete
+ * struct termtab instance and verifying key properties.
+ */
+
+#include <stdio.h>
+#include <string.h>
+
+/* Mock termtab structure for testing */
+struct termtab {
+    char *codetab[256];  /* Character code table */
+    int zzz;            /* Terminal-specific value */
+};
+
+/* Test function to verify the code table */
+int test_code_table(void) {
+    /* Create termtab instance using code.300 */
+    struct termtab test_term = {
+        {
+#include "code.300"
+        }
+    };
+    
+    int errors = 0;
+    
+    /* Test basic ASCII characters */
+    if (strcmp(test_term.codetab[32], "\001") != 0) {  /* space */
+        printf("ERROR: Space character mismatch\n");
+        errors++;
+    }
+    
+    if (strcmp(test_term.codetab[33], "\001!") != 0) {  /* ! */
+        printf("ERROR: Exclamation mark mismatch\n");
+        errors++;
+    }
+    
+    if (strcmp(test_term.codetab[48], "\2010") != 0) {  /* 0 */
+        printf("ERROR: Digit 0 mismatch\n");
+        errors++;
+    }
+    
+    if (strcmp(test_term.codetab[57], "\2019") != 0) {  /* 9 */
+        printf("ERROR: Digit 9 mismatch\n");
+        errors++;
+    }
+    
+    if (strcmp(test_term.codetab[65], "\201A") != 0) {  /* A */
+        printf("ERROR: Letter A mismatch\n");
+        errors++;
+    }
+    
+    if (strcmp(test_term.codetab[90], "\201Z") != 0) {  /* Z */
+        printf("ERROR: Letter Z mismatch\n");
+        errors++;
+    }
+    
+    if (strcmp(test_term.codetab[97], "\201a") != 0) {  /* a */
+        printf("ERROR: Letter a mismatch\n");
+        errors++;
+    }
+    
+    if (strcmp(test_term.codetab[122], "\201z") != 0) {  /* z */
+        printf("ERROR: Letter z mismatch\n");
+        errors++;
+    }
+    
+    /* Test special characters */
+    if (strcmp(test_term.codetab[92], "\001\\") != 0) {  /* backslash */
+        printf("ERROR: Backslash mismatch\n");
+        errors++;
+    }
+    
+    /* Test some extended characters */
+    if (strcmp(test_term.codetab[128], "\000\0") != 0) {  /* narrow sp */
+        printf("ERROR: Narrow space mismatch\n");
+        errors++;
+    }
+    
+    /* Test zzz value */
+    if (test_term.zzz != 0) {
+        printf("ERROR: zzz value should be 0, got %d\n", test_term.zzz);
+        errors++;
+    }
+    
+    /* Test that no entry is NULL */
+    for (int i = 0; i < 256; i++) {
+        if (test_term.codetab[i] == NULL) {
+            printf("ERROR: Entry %d is NULL\n", i);
+            errors++;
+        }
+    }
+    
+    return errors;
+}
+
+int main(void) {
+    printf("Testing DASI300/DASI300S character code table...\n");
+    
+    int errors = test_code_table();
+    
+    if (errors == 0) {
+        printf("All tests passed!\n");
+        return 0;
+    } else {
+        printf("Tests failed with %d errors\n", errors);
+        return 1;
+    }
+}
