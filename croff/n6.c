@@ -279,7 +279,15 @@ void setps(void)
         second_digit = (ch = getch() & CMASK) - '0';
         if ((second_digit >= 0) && (second_digit <= 9)) {
             ch = 0;
-            /* TODO: Apply relative change to current point size */
+            /* Adjust current point size by the relative amount */
+            point_size = pts;
+            if (first_char == '+') {
+                point_size += second_digit;
+            } else {
+                point_size -= second_digit;
+            }
+            pts = point_size;
+            mchbits();
             return;
         }
     }
