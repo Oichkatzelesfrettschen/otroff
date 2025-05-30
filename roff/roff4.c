@@ -1040,7 +1040,7 @@ static void headseg(void (*output_func)(int))
     int c;
     int buffer_pos;
     int total_width;
-    int number_width;
+    int number_width = 0;
     
     total_width = 0;
     buffer_pos = nextb;  /* Starting position */
@@ -1072,7 +1072,7 @@ static void headseg(void (*output_func)(int))
         } else {
             /* Regular character */
             output_func(c);
-            if (output_func == width) {
+            if (output_func == width_wrapper || output_func == width_accumulator) {
                 total_width += 1;  /* Assume width 1 for simplicity */
             }
         }

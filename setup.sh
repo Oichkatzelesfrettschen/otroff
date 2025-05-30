@@ -20,6 +20,12 @@ if ! command -v ack >/dev/null 2>&1; then
     ACK_NEEDED=true
 fi
 
+# Determine if the ACK-compatible clang front-end is installed
+ACK_CLANG_NEEDED=false
+if ! command -v ack-clang >/dev/null 2>&1; then
+    ACK_CLANG_NEEDED=true
+fi
+
 # Base packages required for building and analysis
 PKGS="build-essential git clang gdb valgrind afl++ \
     strace ltrace binutils autoconf automake libtool \
@@ -27,8 +33,8 @@ PKGS="build-essential git clang gdb valgrind afl++ \
     bcpl bcpl-dev"
 
 # Install ACK packages only when missing
-if [ "$ACK_NEEDED" = true ]; then
-    PKGS="$PKGS ack ack-dev"
+if [ "$ACK_NEEDED" = true ] || [ "$ACK_CLANG_NEEDED" = true ]; then
+    PKGS="$PKGS ack ack-dev ack-clang"
 fi
 
 
