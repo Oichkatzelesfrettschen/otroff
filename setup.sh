@@ -20,6 +20,12 @@ if ! command -v ack >/dev/null 2>&1; then
     ACK_NEEDED=true
 fi
 
+# Determine if the ACK-compatible clang front-end is installed
+ACK_CLANG_NEEDED=false
+if ! command -v ack-clang >/dev/null 2>&1; then
+    ACK_CLANG_NEEDED=true
+fi
+
 # Base packages required for building and analysis
 PKGS="build-essential git clang clang-format clang-tidy cmake ninja-build \
     gdb valgrind afl++ strace ltrace binutils autoconf automake libtool \
@@ -33,8 +39,6 @@ if [ "$ACK_NEEDED" = true ]; then
     if apt-cache show ack-clang >/dev/null 2>&1; then
         PKGS="$PKGS ack-clang"
     fi
-fi
-
 
 # Install all required packages in one transaction
 apt-get install -y --no-install-recommends $PKGS

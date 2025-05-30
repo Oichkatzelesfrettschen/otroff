@@ -18,14 +18,16 @@
  */
 void mesg(int enable) {
     char *tty = ttyname(STDOUT_FILENO);
+    struct stat st;
+    mode_t mode;
+
     if (!tty)
         return;
 
-    struct stat st;
     if (stat(tty, &st) == -1)
         return;
 
-    mode_t mode = st.st_mode;
+    mode = st.st_mode;
     if (!enable)
         mode &= ~(S_IWGRP | S_IWOTH);
     /* else leave mode unchanged */
