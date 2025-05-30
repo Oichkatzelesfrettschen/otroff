@@ -2,6 +2,8 @@
 /* tv.c: draw vertical lines */
 #include "tbl.hpp"
 
+namespace tbl {
+
 /* Draw vertical lines between table rows. */
 void drawvert(int start, int end, int c, int lwid) {
     char *exb1, *exb2, *ext1, *ext2;
@@ -151,3 +153,4 @@ static int barent(char *s) {
     }
     return 0;
 }
+} // namespace tbl

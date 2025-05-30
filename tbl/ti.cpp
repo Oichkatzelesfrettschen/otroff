@@ -1,6 +1,8 @@
 #include "cxx23_scaffold.hpp"
 /* ti.c: classify line intersections */
 #include "tbl.hpp"
+
+namespace tbl {
 /* determine local environment for intersections */
 /* Determine vertical intersection type. */
 int interv(int i, int c) {
@@ -61,3 +63,4 @@ int up1(int i) {
         i--;
     return (i);
 }
+} // namespace tbl

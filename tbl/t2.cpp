@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+namespace tbl {
 // Execute all stages needed for a single table.
 void tableput() {
     saveline();
@@ -23,3 +24,4 @@ void tableput() {
     endoff();
     restline();
 }
+} // namespace tbl

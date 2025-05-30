@@ -1,7 +1,9 @@
 #include "cxx23_scaffold.hpp"
 /* tt.c: subroutines for drawing horizontal lines */
 #include "tbl.hpp" /* table internals */
-ctype(il, ic) {
+
+namespace tbl {
+int ctype(int il, int ic) {
     if (instead[il])
         return (0);
     if (fullbot[il])
@@ -9,14 +11,14 @@ ctype(il, ic) {
     il = stynum[il];
     return (style[il][ic]);
 }
-min(a, b) {
+int min(int a, int b) {
     return (a < b ? a : b);
 }
-fspan(i, c) {
+int fspan(int i, int c) {
     c++;
     return (c < ncol && ctype(i, c) == 's');
 }
-lspan(i, c) {
+int lspan(int i, int c) {
     int k;
     if (ctype(i, c) != 's')
         return (0);
@@ -27,20 +29,20 @@ lspan(i, c) {
         ;
     return (k);
 }
-ctspan(i, c) {
+int ctspan(int i, int c) {
     int k;
     c++;
     for (k = 1; c < ncol && ctype(i, c) == 's'; k++)
         c++;
     return (k);
 }
-tohcol(ic) {
+void tohcol(int ic) {
     if (ic == 0)
         fprintf(tabout, "\\h'|0'");
     else
         fprintf(tabout, "\\h'(|\\n(%du+|\\n(%du)/2u'", ic + CLEFT, ic + CRIGHT - 1);
 }
-allh(i) {
+int allh(int i) {
     /* return true if every element in line i is horizontal */
     /* also at least one must be horizontl */
     int c, one, k;
@@ -56,7 +58,7 @@ allh(i) {
     }
     return (one);
 }
-thish(i, c) {
+int thish(int i, int c) {
     int t;
     char *s;
     if (c < 0)
@@ -85,3 +87,4 @@ thish(i, c) {
         return (t);
     return (0);
 }
+} // namespace tbl

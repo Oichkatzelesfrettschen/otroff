@@ -1,7 +1,9 @@
 #include "cxx23_scaffold.hpp"
 /* tu.c: draws horizontal lines */
 #include "tbl.hpp" /* table internals */
-makeline(i, c, lintype) {
+
+namespace tbl {
+void makeline(int i, int c, int lintype) {
     int cr, type;
     type = thish(i, c);
     if (type == 0)
@@ -12,7 +14,7 @@ makeline(i, c, lintype) {
         ;
     drawline(i, c, cr - 1, lintype, 0);
 }
-fullwide(i, lintype) {
+void fullwide(int i, int lintype) {
     int cr, cl;
     fprintf(tabout, ".vs 2p\n");
     cr = 0;
@@ -29,7 +31,7 @@ fullwide(i, lintype) {
     fprintf(tabout, "\n.vs\n");
 }
 
-drawline(i, cl, cr, lintype, noheight) {
+void drawline(int i, int cl, int cr, int lintype, int noheight) {
     char *exhr, *exhl;
     int lcount, ln, linpos, oldpos, nodata;
     lcount = 0;
@@ -115,7 +117,7 @@ drawline(i, cl, cr, lintype, noheight) {
     if (!nodata)
         fprintf(tabout, "\\v'+.5m'");
 }
-getstop() {
+void getstop() {
     int i, c, k, junk, stopp;
     stopp = 1;
     for (i = 0; i < MAXLIN; i++)
@@ -129,58 +131,59 @@ getstop() {
     if (boxflg || allflg || dboxflg)
         linestop[0] = 1;
 }
-left(i, c, lwidp) int *lwidp;
-{
-    int kind, li;
-    /* returns -1 if no line to left */
-    /* returns number of line where it starts */
-    /* stores into lwid the kind of line */
-    *lwidp = 0;
-    kind = lefdata(i, c);
-    if (kind == 0)
-        return (-1);
-    if (i + 1 < nlin)
-        if (lefdata(next(i), c) == kind)
+int left(int i, int c, int *lwidp) {
+    {
+        int kind, li;
+        /* returns -1 if no line to left */
+        /* returns number of line where it starts */
+        /* stores into lwid the kind of line */
+        *lwidp = 0;
+        kind = lefdata(i, c);
+        if (kind == 0)
             return (-1);
-    while (i >= 0 && lefdata(i, c) == kind)
-        i = prev(li = i);
-    if (prev(li) == -1)
-        li = 0;
-    *lwidp = kind;
-    return (li);
-}
-lefdata(i, c) {
-    int ck;
-    if (i >= nlin)
-        i = nlin - 1;
-    if (ctype(i, c) == 's') {
-        for (ck = c; ctype(i, ck) == 's'; ck--)
-            ;
-        if (thish(i, ck) == 0)
-            return (0);
+        if (i + 1 < nlin)
+            if (lefdata(next(i), c) == kind)
+                return (-1);
+        while (i >= 0 && lefdata(i, c) == kind)
+            i = prev(li = i);
+        if (prev(li) == -1)
+            li = 0;
+        *lwidp = kind;
+        return (li);
     }
-    i = stynum[i];
-    i = lefline[i][c];
-    if (i > 0)
+    int lefdata(int i, int c) {
+        int ck;
+        if (i >= nlin)
+            i = nlin - 1;
+        if (ctype(i, c) == 's') {
+            for (ck = c; ctype(i, ck) == 's'; ck--)
+                ;
+            if (thish(i, ck) == 0)
+                return (0);
+        }
+        i = stynum[i];
+        i = lefline[i][c];
+        if (i > 0)
+            return (i);
+        if (dboxflg && c == 0)
+            return (2);
+        if (allflg)
+            return (1);
+        if (boxflg && c == 0)
+            return (1);
+        return (0);
+    }
+    int next(int i) {
+        while (i + 1 < nlin) {
+            i++;
+            if (!fullbot[i] && !instead[i])
+                break;
+        }
         return (i);
-    if (dboxflg && c == 0)
-        return (2);
-    if (allflg)
-        return (1);
-    if (boxflg && c == 0)
-        return (1);
-    return (0);
-}
-next(i) {
-    while (i + 1 < nlin) {
-        i++;
-        if (!fullbot[i] && !instead[i])
-            break;
     }
-    return (i);
-}
-prev(i) {
-    while (--i >= 0 && (fullbot[i] || instead[i]))
-        ;
-    return (i);
-}
+    int prev(int i) {
+        while (--i >= 0 && (fullbot[i] || instead[i]))
+            ;
+        return (i);
+    }
+} // namespace tbl

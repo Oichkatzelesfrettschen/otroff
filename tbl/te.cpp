@@ -3,6 +3,8 @@
 #include "tbl.hpp"
 #include <stdlib.h> /* exit */
 #include <stdio.h> /* fprintf */
+
+namespace tbl {
 /* Report an error and exit. */
 void error(char *s) {
     fprintf(stderr, "\n%s: line %d: %s\n", ifile, iline, s);
@@ -61,3 +63,4 @@ int get1char(void) {
         iline++;
     return (c);
 }
+} // namespace tbl

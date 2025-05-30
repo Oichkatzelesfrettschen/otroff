@@ -3,6 +3,8 @@
 #include "tbl.hpp"
 #include <stdio.h> /* fprintf */
 #include <stdlib.h>
+
+namespace tbl {
 int oncol;
 static void readspec(void);
 /* Read the table specification header. */
@@ -239,3 +241,4 @@ static void readspec(void) {
     }
     error("EOF reading table specification");
 }
+} // namespace tbl

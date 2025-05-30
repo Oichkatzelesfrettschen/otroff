@@ -3,52 +3,75 @@
 #pragma once
 #include "cxx23_scaffold.hpp" // utilities
 
-#include <stdio.h>
+#include <array>
+#include <cstdio>
+#include <string>
 
-#define MAXLIN 200
-#define MAXHEAD 30
-#define MAXCOL 20
-#define MAXCHS 2000
-#define CLLEN 10
-extern int nlin, ncol, iline, nclin, nslin;
-extern int style[MAXHEAD][MAXCOL];
-extern int ctop[MAXHEAD][MAXCOL];
-extern char font[MAXHEAD][MAXCOL][2];
-extern char csize[MAXHEAD][MAXCOL][4];
-extern char cll[MAXCOL][CLLEN];
-extern int stynum[];
-extern int F1, F2;
-extern int lefline[MAXHEAD][MAXCOL];
-extern int fullbot[];
-extern int instead[];
-extern int expflg;
-extern int ctrflg;
-extern int evenflg;
-extern int evenup[];
-extern int boxflg;
-extern int dboxflg;
-extern int tab;
-extern int allflg;
-extern int textflg;
-extern int left1flg;
-extern int rightl;
+namespace tbl {
+
+constexpr int MAXLIN = 200;
+constexpr int MAXHEAD = 30;
+constexpr int MAXCOL = 20;
+constexpr int MAXCHS = 2000;
+constexpr int CLLEN = 10;
+
 struct colstr {
-    char *col, *rcol;
+    char *col{}; /* left column text */
+    char *rcol{}; /* right column text */
 };
-extern struct colstr *table[];
-extern char *cspace, *cstore;
-extern char *exstore, *exlim;
-extern int sep[];
-extern int used[], lused[], rused[];
-extern int linestop[];
-extern int leftover;
-extern char *last, *ifile;
-extern int texname;
-extern int texct, texmax;
-extern char texstr[];
-extern int linstart;
 
-extern FILE *tabin, *tabout;
+class Parser {
+  public:
+    int nlin = 0, ncol = 0, iline = 1, nclin = 0, nslin = 0;
+    std::array<std::array<int, MAXCOL>, MAXHEAD> style{};
+    std::array<std::array<int, MAXCOL>, MAXHEAD> ctop{};
+    std::array<std::array<std::array<char, 2>, MAXCOL>, MAXHEAD> font{};
+    std::array<std::array<std::array<char, 4>, MAXCOL>, MAXHEAD> csize{};
+    std::array<std::array<int, MAXCOL>, MAXHEAD> lefline{};
+    std::array<std::array<char, CLLEN>, MAXCOL> cll{};
+    std::array<int, MAXLIN + 1> stynum{};
+    int F1 = 0;
+    int F2 = 0;
+    std::array<colstr *, MAXLIN> table{};
+    std::array<int, MAXCOL> evenup{};
+    int evenflg = 0;
+    int expflg = 0;
+    int ctrflg = 0;
+    int boxflg = 0;
+    int dboxflg = 0;
+    int tab = '\t';
+    int allflg = 0;
+    int leftover = 0;
+    int textflg = 0;
+    int left1flg = 0;
+    int rightl = 0;
+    char *cstore = nullptr;
+    char *cspace = nullptr;
+    char *last = nullptr;
+    std::array<int, MAXCOL> sep{};
+    std::array<int, MAXLIN> fullbot{};
+    std::array<int, MAXLIN> instead{};
+    std::array<int, MAXCOL> used{};
+    std::array<int, MAXCOL> lused{};
+    std::array<int, MAXCOL> rused{};
+    std::array<int, MAXLIN> linestop{};
+    char *ifile = (char *)"Input";
+    int texname = 'a';
+    int texct = 0;
+    std::string texstr =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789";
+    int texmax = 0;
+    int linstart = 0;
+    char *exstore = nullptr;
+    char *exlim = nullptr;
+    FILE *tabin = nullptr;
+    FILE *tabout = nullptr;
+
+    Parser();
+};
+
+inline Parser parser;
+
 #define CRIGHT 80
 #define CLEFT 40
 #define CMID 60
@@ -66,7 +89,57 @@ extern FILE *tabin, *tabout;
 #define TOP 1
 #define BOT 2
 
+/* Compatibility macros mapping old globals to parser members */
+#define nlin parser.nlin
+#define ncol parser.ncol
+#define iline parser.iline
+#define nclin parser.nclin
+#define nslin parser.nslin
+#define style parser.style
+#define ctop parser.ctop
+#define font parser.font
+#define csize parser.csize
+#define cll parser.cll
+#define stynum parser.stynum
+#define F1 parser.F1
+#define F2 parser.F2
+#define lefline parser.lefline
+#define fullbot parser.fullbot
+#define instead parser.instead
+#define expflg parser.expflg
+#define ctrflg parser.ctrflg
+#define evenflg parser.evenflg
+#define evenup parser.evenup
+#define boxflg parser.boxflg
+#define dboxflg parser.dboxflg
+#define tab parser.tab
+#define allflg parser.allflg
+#define textflg parser.textflg
+#define left1flg parser.left1flg
+#define rightl parser.rightl
+#define table parser.table
+#define cspace parser.cspace
+#define cstore parser.cstore
+#define exstore parser.exstore
+#define exlim parser.exlim
+#define sep parser.sep
+#define used parser.used
+#define lused parser.lused
+#define rused parser.rused
+#define linestop parser.linestop
+#define leftover parser.leftover
+#define last parser.last
+#define ifile parser.ifile
+#define texname parser.texname
+#define texct parser.texct
+#define texstr parser.texstr
+#define texmax parser.texmax
+#define linstart parser.linstart
+#define tabin parser.tabin
+#define tabout parser.tabout
+
 /* Function prototypes */
+void tableput();
 void gettbl(void);
 void drawvert(int start, int end, int c, int lwid);
 int nodata(int il);
@@ -137,3 +210,4 @@ int left(int i, int c, int *lwidp);
 int lefdata(int i, int c);
 int next(int i);
 int prev(int i);
+} // namespace tbl

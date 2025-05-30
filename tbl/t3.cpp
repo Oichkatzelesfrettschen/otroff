@@ -3,6 +3,8 @@
 #include "tbl.hpp"
 #include <stdio.h>
 #include <stdlib.h>
+
+namespace tbl {
 int linsize;
 static void backrest(char *cp);
 struct optstr {
@@ -72,3 +74,4 @@ void backrest(char *cp) {
         un1getc(*--s);
     return;
 }
+} // namespace tbl
