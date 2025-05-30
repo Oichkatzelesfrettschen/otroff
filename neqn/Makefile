@@ -23,6 +23,7 @@ VERSION = 2.0
 CC = clang
 CFLAGS = -std=c90 -Wall -Wextra -Wpedantic -O2
 CPPFLAGS = -DNEQN_VERSION=\"$(VERSION)\"
+INCLUDES = -I../src/os
 LDFLAGS = 
 LIBS = 
 
@@ -83,7 +84,7 @@ test_$(PROGRAM): $(TEST_OBJECTS)
 # Object files with dependency generation
 $(OBJDIR)/%.o: %.c | $(OBJDIR) $(DEPDIR)
 	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) $(CPPFLAGS) -MMD -MP -MF $(DEPDIR)/$*.d -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $(CPPFLAGS) -MMD -MP -MF $(DEPDIR)/$*.d -c $< -o $@
 
 # Create build directories
 $(OBJDIR):
