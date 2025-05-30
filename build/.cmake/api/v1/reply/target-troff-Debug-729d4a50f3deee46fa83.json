@@ -25,13 +25,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 49,
+				"line" : 50,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 51,
+				"line" : 53,
 				"parent" : 0
 			}
 		]
@@ -42,7 +42,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-std=c23 -g -std=gnu90 -arch arm64"
+					"fragment" : "-std=c23 -g -std=gnu2x -arch arm64"
 				},
 				{
 					"backtrace" : 2,
@@ -60,13 +60,11 @@
 				[
 					1
 				],
-				"standard" : "90"
+				"standard" : "23"
 			},
 			"sourceIndexes" : 
 			[
 				0,
-				1,
-				2,
 				3,
 				4,
 				5,
@@ -76,6 +74,36 @@
 				9,
 				10
 			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-std=c++23 -g -std=gnu++2b -arch arm64"
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-O2"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "23"
+			},
+			"sourceIndexes" : 
+			[
+				1,
+				2
+			]
 		}
 	],
 	"id" : "troff::@6890427a1f51a3e7e1df",
@@ -84,11 +112,11 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-std=c23 -g",
+				"fragment" : "-std=c++23 -g",
 				"role" : "flags"
 			}
 		],
-		"language" : "C"
+		"language" : "CXX"
 	},
 	"name" : "troff",
 	"nameOnDisk" : "troff",
@@ -127,14 +155,14 @@
 		},
 		{
 			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "roff/roff1.c",
+			"compileGroupIndex" : 1,
+			"path" : "roff/roff1.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "roff/roff2.c",
+			"compileGroupIndex" : 1,
+			"path" : "roff/roff2.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
