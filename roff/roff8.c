@@ -39,10 +39,10 @@
 #include "roff.h"
 
 /* Copyright notice from original Bell Labs code */
-static const char copyright[] = "Copyright 1972 Bell Telephone Laboratories Inc.";
+static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
 
 /* SCCS version identifier */
-static const char sccs_id[] = "@(#)roff8.c 1.3 25/05/29 (global data - converted from PDP-11 assembly)";
+static const char sccs_id[] ROFF_UNUSED = "@(#)roff8.c 1.3 25/05/29 (global data - converted from PDP-11 assembly)";
 
 /* Buffer size constants */
 #define LINE_SIZE 500           /**< Maximum line buffer size */

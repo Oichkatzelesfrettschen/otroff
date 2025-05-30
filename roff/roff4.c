@@ -65,7 +65,7 @@
 #include "roff.h"       /* ROFF system definitions and globals */
 
 /* SCCS version identifier */
-static const char sccs_id[] = "@(#)roff4.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+static const char sccs_id[] ROFF_UNUSED = "@(#)roff4.c 1.3 25/05/29 (converted from PDP-11 assembly)";
 
 /* Constants for text processing */
 #define DEFAULT_PAGE_LENGTH 66  /**< Default page length in lines */
@@ -139,10 +139,10 @@ extern void hyphen(void);
 /* Local function prototypes */
 static void adjust(void);
 static int movword(void);
-static void topbot(void);
-static void headin(void);
-static void headout(void);
-static void headseg(void (*output_func)(int));
+static void topbot(void) ROFF_UNUSED;
+static void headin(void) ROFF_UNUSED;
+static void headout(void) ROFF_UNUSED;
+static void headseg(void (*output_func)(int)) ROFF_UNUSED;
 static void decml(void);
 static void decml1(void);
 static void roman(void);
@@ -935,7 +935,7 @@ static void headin(void)
 static void headout(void)
 {
     int segment_widths[3];
-    int buffer_pos;
+    int buffer_pos ROFF_UNUSED;
     int i;
     int numbering_space;
     int total_width;
@@ -1039,7 +1039,7 @@ static void headseg(void (*output_func)(int))
 {
     int c;
     int buffer_pos;
-    int total_width;
+    int total_width ROFF_UNUSED;
     int number_width = 0;
     
     total_width = 0;

@@ -61,7 +61,7 @@
 #include "roff.h"       /* ROFF system definitions and globals */
 
 /* SCCS version identifier */
-static const char sccs_id[] = "@(#)roff2.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+static const char sccs_id[] ROFF_UNUSED = "@(#)roff2.c 1.3 25/05/29 (converted from PDP-11 assembly)";
 
 /* External variables from roff1.c and other modules */
 extern int ad;              /* Adjust mode flag */
@@ -130,7 +130,7 @@ extern int nextfile(void);
 static void validate_line_count(int count);
 static void validate_indent_value(int value);
 static void validate_page_value(int value);
-static void process_translation_pair(void);
+static void process_translation_pair(void) ROFF_UNUSED;
 static void process_tab_stops(void);
 static void setup_line_numbering(int mode, int start_value);
 static void handle_header_footer(char **target_ptr);

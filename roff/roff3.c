@@ -71,7 +71,7 @@
 #include "roff.h"       /* ROFF system definitions and globals */
 
 /* SCCS version identifier */
-static const char sccs_id[] = "@(#)roff3.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+static const char sccs_id[] ROFF_UNUSED = "@(#)roff3.c 1.3 25/05/29 (converted from PDP-11 assembly)";
 
 /* Constants for buffer sizes and limits */
 #define WORD_SIZE 64        /**< Maximum word length */
@@ -149,12 +149,12 @@ extern void flushi(void);
 void eject(void);
 
 /* Local function prototypes for C90 compliance */
-static int alph(const char *str);
+static int alph(const char *str) ROFF_UNUSED;
 static int alph2(int ch);
 static void nlines(int count, void (*line_func)(void));
 static int rdsufb(int offset, int file_desc);
 static void wbf(int character, int position);
-static void rbf(void);
+static void rbf(void) ROFF_UNUSED;
 static void popi(void);
 void setnel(void);
 void nline(void);
