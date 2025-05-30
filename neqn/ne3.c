@@ -531,21 +531,22 @@ void trans(int c, char *p1)
  * - Relies on troff's default spacing rules
  * - Maintains compatibility with existing expressions
  */
-void shim(void) 
-{
-    /* 
-     * Placeholder for mathematical spacing logic.
-     * Current implementation relies on troff's built-in spacing.
-     * Future enhancements could add context-sensitive spacing:
-     * 
-     * Examples of possible enhancements:
-     * - safe_append_string("\\|");     // thin space
-     * - safe_append_string("\\^");     // medium space  
-     * - safe_append_string("\\&");     // thick space
-     * - safe_append_string("\\!");     // negative space
-     */
-     
-    /* Intentionally empty - preserves original behavior */
+void shim(void) {
+    char prev;
+
+    if (csp > 0)
+        prev = cs[csp - 1];
+    else
+        prev = '\0';
+
+    if (prev == '|')
+        safe_append_string("\\^");
+    else if (prev == '^')
+        safe_append_string("\\&");
+    else if (prev == '&')
+        safe_append_string("\\!");
+    else
+        safe_append_string("\\|");
 }
 
 /**
