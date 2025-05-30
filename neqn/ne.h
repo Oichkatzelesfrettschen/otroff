@@ -16,7 +16,8 @@ int setps(int p);
 int nrwid(int n1, int p, int n2);
 int setfile(int argc, char *argv[]);
 int yyparse(void);
-int yyerror(void);
+/* Parser error handler defined in y.tab.c */
+void yyerror(const char *s);
 int init(void);
 int error(int fatal, char *s1, char *s2);
 int flush(int fd);
@@ -53,6 +54,7 @@ void mark(int n);
 void lineup(int n);
 void column(int type, int p1, int p2);
 void matrix(int p1, int p2);
+void neqn_module_init(void);
 typedef struct lookup_tab {
     char *name;
     char *val;

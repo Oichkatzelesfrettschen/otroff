@@ -23,6 +23,8 @@ int main(int argc, char *argv[]) {
     first = 0;
     lefteq = righteq = '\0';
     signal(SIGPIPE, exit);
+    /* Initialize optional modules. */
+    neqn_module_init();
     setfile(argc, argv);
 
     while ((type = getline(in)) != '\0') {
@@ -207,9 +209,9 @@ int setfile(int argc, char *argv[]) {
 }
 
 /*
- * yacc error handler.
+ * yacc error handler is provided by the generated parser
+ * implementation found in y.tab.c.
  */
-int yyerror(void) { return 0; }
 
 /*
  * Initialize global state.
