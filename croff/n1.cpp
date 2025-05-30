@@ -61,8 +61,9 @@
  */
 
 #include "tdef.hpp" // troff definitions
-#include "t.hpp"    // common troff header
-#include "tw.hpp"   // typewriter table
+#include "t.hpp" // common troff header
+#include "tw.hpp" // typewriter table
+#include "troff_processor.hpp" // processor state
 
 #include <stdio.h> /* C90: standard I/O functions */
 #include <stdlib.h> /* C90: exit, malloc, etc. */
@@ -167,12 +168,7 @@ extern int ascii; /* ASCII mode flag */
 extern int npn; /* Page number */
 extern int xflg; /* X flag */
 extern int stop; /* Stop flag */
-extern char ibuf[IBUFSZ]; /* Input buffer */
-extern char xbuf[IBUFSZ]; /* Extra buffer */
-extern char *ibufp; /* Input buffer pointer */
-extern char *xbufp; /* Extra buffer pointer */
-extern char *eibuf; /* End of input buffer */
-extern char *xeibuf; /* End of extra buffer */
+extern TroffProcessor g_processor; /* Shared processor state */
 extern int cbuf[NC]; /* Character buffer */
 extern int *cp; /* Character pointer */
 extern int *vlist; /* Variable list */
@@ -620,7 +616,8 @@ void init2(void) {
 
     /* Set up initial buffer pointers */
     olinep = oline;
-    ibufp = eibuf = ibuf;
+    g_processor.inputPtr = g_processor.inputBuffer.data();
+    g_processor.endInput = g_processor.inputBuffer.data();
 
     /* Initialize position and state variables */
     v.hp = ioff = init = 0;
@@ -679,8 +676,8 @@ void cvtime(void) {
 int cnum(char *a) {
     register int i;
 
-    ibufp = a;
-    eibuf = (char *)-1;
+    g_processor.inputPtr = a;
+    g_processor.endInput = reinterpret_cast<char *>(-1);
     i = tatoi();
     ch = 0;
     return (i);
@@ -1053,27 +1050,28 @@ again:
     } else {
         if (donef)
             done(0);
-        if (nx || ((ibufp >= eibuf) && (eibuf != NULL))) {
+        if (nx || ((g_processor.inputPtr >= g_processor.endInput) &&
+                   (g_processor.endInput != nullptr))) {
             if (nfo)
                 goto g1;
         g0:
             if (nextfile()) {
                 if (ip)
                     goto again;
-                if (ibufp < eibuf)
+                if (g_processor.inputPtr < g_processor.endInput)
                     goto g2;
             }
         g1:
             nx = 0;
-            if ((j = read(ifile, ibuf, IBUFSZ)) <= 0)
+            if ((j = read(ifile, g_processor.inputBuffer.data(), IBUFSZ)) <= 0)
                 goto g0;
-            ibufp = ibuf;
-            eibuf = ibuf + j;
+            g_processor.inputPtr = g_processor.inputBuffer.data();
+            g_processor.endInput = g_processor.inputBuffer.data() + j;
             if (ip)
                 goto again;
         }
     g2:
-        i = *ibufp++ & 0177;
+        i = *g_processor.inputPtr++ & 0177;
         ioff++;
         if (i >= 040)
             goto g4;
@@ -1161,21 +1159,23 @@ int popf(void) {
     ioff = offl[--ifi];
     ip = ipl[ifi];
     if ((ifile = ifl[ifi]) == 0) {
-        p = xbuf;
-        q = ibuf;
-        ibufp = xbufp;
-        eibuf = xeibuf;
-        while (q < eibuf)
+        p = g_processor.extraBuffer.data();
+        q = g_processor.inputBuffer.data();
+        g_processor.inputPtr = g_processor.extraPtr;
+        g_processor.endInput = g_processor.endExtra;
+        while (q < g_processor.endInput)
             *q++ = *p++;
         return (0);
     }
     if ((seek(ifile, ioff & ~(IBUFSZ - 1), 0) < 0) ||
-        ((i = read(ifile, ibuf, IBUFSZ)) < 0))
+        ((i = read(ifile, g_processor.inputBuffer.data(), IBUFSZ)) < 0))
         return (1);
-    eibuf = ibuf + i;
-    ibufp = ibuf;
+    g_processor.endInput = g_processor.inputBuffer.data() + i;
+    g_processor.inputPtr = g_processor.inputBuffer.data();
     if (ttyn(ifile) == 'x')
-        if ((ibufp = ibuf + (ioff & (IBUFSZ - 1))) >= eibuf)
+        if ((g_processor.inputPtr = g_processor.inputBuffer.data() +
+                                    (ioff & (IBUFSZ - 1))) >=
+            g_processor.endInput)
             return (1);
     return (0);
 }
@@ -1330,11 +1330,11 @@ void caseso(void) {
     nx++;
     nflush++;
     if (!ifl[ifi++]) {
-        p = ibuf;
-        q = xbuf;
-        xbufp = ibufp;
-        xeibuf = eibuf;
-        while (p < eibuf)
+        p = g_processor.inputBuffer.data();
+        q = g_processor.extraBuffer.data();
+        g_processor.extraPtr = g_processor.inputPtr;
+        g_processor.endExtra = g_processor.endInput;
+        while (p < g_processor.endInput)
             *q++ = *p++;
     }
 }
@@ -1361,8 +1361,8 @@ void getpn(char *a) {
     if ((*a & 0177) == 0)
         return;
     neg = 0;
-    ibufp = a;
-    eibuf = (char *)-1;
+    g_processor.inputPtr = a;
+    g_processor.endInput = reinterpret_cast<char *>(-1);
     noscale++;
     while ((i = getch() & CMASK) != 0)
         switch (i) {

@@ -39,8 +39,9 @@
  */
 
 #include "tdef.hpp" // troff definitions
-#include "env.hpp"  // environment data
-#include "t.hpp"    // troff common header
+#include "env.hpp" // environment data
+#include "t.hpp" // troff common header
+#include "troff_processor.hpp" // processor state
 
 #include <stdlib.h> /* C90: exit, malloc, free */
 #include <unistd.h> /* POSIX: write, close, open, sleep */
@@ -51,8 +52,7 @@
 #include <sys/wait.h> /* POSIX: wait functions */
 
 /* External variables from other modules */
-extern char obuf[OBUFSZ]; /* Output buffer */
-extern char *obufp; /* Output buffer pointer */
+extern TroffProcessor g_processor; /* Shared processor state */
 extern int dilev; /* Diversion level */
 extern struct env *dip; /* Current diversion pointer */
 extern int eschar; /* Escape character */
@@ -315,10 +315,11 @@ void pchar1(int c) {
  */
 static void
 oput(int i) {
-    *obufp++ = (char)i;
+    *g_processor.outputPtr++ = static_cast<char>(i);
 
     /* Flush buffer when full (accounting for ASCII mode differences) */
-    if (obufp == (obuf + OBUFSZ + ascii - 1))
+    if (g_processor.outputPtr ==
+        (g_processor.outputBuffer.data() + OBUFSZ + ascii - 1))
         flusho();
 }
 
@@ -349,7 +350,7 @@ flusho(void) {
 
     /* Add terminator for non-ASCII output */
     if (!ascii)
-        *obufp++ = '\0';
+        *g_processor.outputPtr++ = '\0';
 
     /* Open output device if not already open */
     if (!ptid) {
@@ -362,7 +363,9 @@ flusho(void) {
 
     /* Write buffer to device unless output is disabled */
     if (no_out == 0) {
-        bytes_written = write(ptid, obuf, (size_t)(obufp - obuf));
+        bytes_written = write(ptid, g_processor.outputBuffer.data(),
+                              (size_t)(g_processor.outputPtr -
+                                       g_processor.outputBuffer.data()));
         if (bytes_written < 0) {
             toolate = -1; /* Mark write error */
         } else {
@@ -371,7 +374,7 @@ flusho(void) {
     }
 
     /* Reset buffer pointer */
-    obufp = obuf;
+    g_processor.outputPtr = g_processor.outputBuffer.data();
 }
 
 /*
