@@ -7,7 +7,7 @@ jobs:
       CC: clang
       CXX: clang++
       CFLAGS: -std=c23
-      CXXFLAGS: -std=c++23
+      CXXFLAGS: -std=c++17
     steps:
     - uses: actions/checkout@v3
     - name: Install
@@ -17,6 +17,6 @@ jobs:
     - name: Test
       run: make test
     - name: clang-tidy
-      run: clang-tidy $(git ls-files '*.cpp' '*.c') -- -std=c++23
+      run: clang-tidy $(git ls-files '*.cpp' '*.c') -- -std=c++17
     - name: format-check
       run: clang-format -n $(git ls-files '*.c' '*.cpp' '*.h' '*.hpp')

@@ -2,4 +2,4 @@ Checks: '-*,clang-analyzer-*'
 WarningsAsErrors: ''
 FormatStyle: file
 HeaderFilterRegex: '.*'
-ExtraArgs: ['--std=c++23']
+ExtraArgs: ['--std=c++17']

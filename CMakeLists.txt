@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.5)
 project(otroff C CXX)
 
 # Enforce ANSI C standard
-set(CMAKE_C_STANDARD 23)
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Detect the operating system
