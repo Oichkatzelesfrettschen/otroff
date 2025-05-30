@@ -1,11 +1,11 @@
-/*
- * Runtime helper prototypes used across the roff utilities.
- */
-#ifndef RUNTIME_H
-#define RUNTIME_H
-#include "cxx23_scaffold.hpp"
+/// \file runtime.hpp
+/// \brief Helper routines used by roff utilities at runtime.
 
-#include <stddef.h>
+#pragma once
+
+#include "cxx17_scaffold.hpp"
+
+#include <cstddef>
 
 /* Enable or disable write permission on the controlling terminal. */
 void mesg(int enable);
@@ -15,5 +15,3 @@ void mesg(int enable);
 
 /* Write buffer contents to stdout and reset the index pointer. */
 void flush_output(char *buf, size_t *p) noexcept;
-
-#endif /* RUNTIME_H */
