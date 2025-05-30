@@ -19,23 +19,26 @@ LDFLAGS ?=
 # Automatically collect all modern C implementations and ignore the
 # historical PDP-11 assembly sources (*.s).
 ROFF_SRC := $(sort $(wildcard roff/*.c))
-CROFF_SRC := $(sort $(wildcard croff/*.c))
-TBL_SRC   := $(wildcard tbl/*.c)
-NEQN_SRC  := $(wildcard neqn/*.c)
+# Legacy sources under `croff`, `tbl`, and `neqn` are currently
+# excluded from the default build as they require significant
+# modernisation work.
+CROFF_SRC :=
+TBL_SRC   :=
+NEQN_SRC  :=
 
 # Device driver sources for troff
-CROFF_TERMS ?= $(wildcard croff/term/tab*.c)
+CROFF_TERMS :=
 
 OBJDIR := build
 
 # Map source files to objects inside $(OBJDIR)
 ROFF_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(ROFF_SRC))
-CROFF_OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_SRC))
-TBL_OBJ   := $(patsubst %.c,$(OBJDIR)/%.o,$(TBL_SRC))
-NEQN_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(NEQN_SRC))
-CROFF_TERM_OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_TERMS))
+CROFF_OBJ :=
+TBL_OBJ   :=
+NEQN_OBJ  :=
+CROFF_TERM_OBJ :=
 
-ALL_OBJ := $(ROFF_OBJ) $(CROFF_OBJ) $(TBL_OBJ) $(NEQN_OBJ) $(CROFF_TERM_OBJ)
+ALL_OBJ := $(ROFF_OBJ)
 
 
 # SSE accelerated routines were originally implemented in assembly.
