@@ -4,6 +4,7 @@
 #include <sys/types.h> /* defines mode_t */
 #include <sys/stat.h>
 #include <string.h>
+#include "runtime.h"
 
 /*
  * Replacement implementations for small helper routines found in the

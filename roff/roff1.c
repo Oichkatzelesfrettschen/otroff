@@ -4,11 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-/* Helpers translated from runtime.c */
-void mesg(int enable);
-int dsp(int column);
-void flush_output(char *buf, size_t *p);
+#include "runtime.h"
 
 /*
  * roff1.c - Partial translation of the PDP-11 module "roff1.s".
