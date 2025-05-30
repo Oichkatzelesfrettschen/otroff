@@ -21,14 +21,14 @@ VERSION = 2.0
 
 # Compiler settings
 CC = clang
-CFLAGS = -std=c90 -Wall -Wextra -Wpedantic -O2
+CFLAGS = -std=c23 -Wall -Wextra -Wpedantic -O2
 CPPFLAGS = -DNEQN_VERSION=\"$(VERSION)\"
 INCLUDES = -I../src/os
 LDFLAGS = 
 LIBS = 
 
 # Debug build settings
-DEBUG_CFLAGS = -std=c90 -Wall -Wextra -Wpedantic -g -O0 -DDEBUG
+DEBUG_CFLAGS = -std=c23 -Wall -Wextra -Wpedantic -g -O0 -DDEBUG
 DEBUG_CPPFLAGS = -DNEQN_VERSION=\"$(VERSION)-debug\"
 
 # Installation directories

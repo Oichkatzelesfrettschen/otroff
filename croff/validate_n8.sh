@@ -52,17 +52,17 @@ validate_c90() {
     print_header "Validating C90 Compliance"
     
     print_status "$BLUE" "Checking n8.c..."
-    if gcc -std=c90 -Wall -Wextra -Werror -pedantic -c n8.c -o /dev/null 2>/dev/null; then
-        print_status "$GREEN" "✓ n8.c is C90 compliant"
+    if clang -std=c23 -Wall -Wextra -Werror -pedantic -c n8.c -o /dev/null 2>/dev/null; then
+        print_status "$GREEN" "✓ n8.c is C23 compliant"
     else
-        print_status "$RED" "✗ n8.c has C90 compliance issues"
-        gcc -std=c90 -Wall -Wextra -Werror -pedantic -c n8.c -o /dev/null
+        print_status "$RED" "✗ n8.c has C23 compliance issues"
+        clang -std=c23 -Wall -Wextra -Werror -pedantic -c n8.c -o /dev/null
         return 1
     fi
     
     print_status "$BLUE" "Checking test_n8.c..."
-    if gcc -std=c90 -Wall -Wextra -Werror -pedantic -c test_n8.c -o /dev/null 2>/dev/null; then
-        print_status "$GREEN" "✓ test_n8.c is C90 compliant"
+    if clang -std=c23 -Wall -Wextra -Werror -pedantic -c test_n8.c -o /dev/null 2>/dev/null; then
+        print_status "$GREEN" "✓ test_n8.c is C23 compliant"
     else
         print_status "$RED" "✗ test_n8.c has C90 compliance issues"
         return 1
@@ -78,7 +78,7 @@ run_static_analysis() {
     
     if command -v cppcheck >/dev/null 2>&1; then
         print_status "$BLUE" "Running cppcheck..."
-        if cppcheck --enable=all --std=c90 --suppress=missingIncludeSystem \
+        if cppcheck --enable=all --std=c23 --suppress=missingIncludeSystem \
            --suppress=unusedFunction --suppress=unmatchedSuppression \
            n8.c test_n8.c 2>&1 | grep -v "^Checking\|^$"; then
             print_status "$YELLOW" "cppcheck found some issues (see above)"

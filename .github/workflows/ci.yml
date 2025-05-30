@@ -1,0 +1,22 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CC: clang
+      CXX: clang++
+      CFLAGS: -std=c23
+      CXXFLAGS: -std=c++23
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install
+      run: sudo ./setup.sh
+    - name: Build
+      run: make
+    - name: Test
+      run: make test
+    - name: clang-tidy
+      run: clang-tidy $(git ls-files '*.cpp' '*.c') -- -std=c++23
+    - name: format-check
+      run: clang-format -n $(git ls-files '*.c' '*.cpp' '*.h' '*.hpp')

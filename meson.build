@@ -1,4 +1,4 @@
-project('otroff', 'c', default_options : ['c_std=c90'])
+project('otroff', 'c', default_options : ['c_std=c23', 'cpp_std=c++23'])
 
     roff_src = files(
         'roff/roff1.c',
