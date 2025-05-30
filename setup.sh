@@ -27,16 +27,18 @@ if ! command -v ack-clang >/dev/null 2>&1; then
 fi
 
 # Base packages required for building and analysis
-PKGS="build-essential git clang gdb valgrind afl++ \
-    strace ltrace binutils autoconf automake libtool \
-    pkg-config groff groff-base mandoc radare2 \
+PKGS="build-essential git clang clang-format clang-tidy cmake ninja-build \
+    gdb valgrind afl++ strace ltrace binutils autoconf automake libtool \
+    pkg-config meson flex bison groff groff-base mandoc radare2 \
     bcpl bcpl-dev"
 
 # Install ACK packages only when missing
-if [ "$ACK_NEEDED" = true ] || [ "$ACK_CLANG_NEEDED" = true ]; then
-    PKGS="$PKGS ack ack-dev ack-clang"
-fi
-
+if [ "$ACK_NEEDED" = true ]; then
+    PKGS="$PKGS ack ack-dev"
+    # Optionally install ack-clang if available
+    if apt-cache show ack-clang >/dev/null 2>&1; then
+        PKGS="$PKGS ack-clang"
+    fi
 
 # Install all required packages in one transaction
 apt-get install -y --no-install-recommends $PKGS
@@ -58,5 +60,9 @@ fi
 
 # Build the repository using the installed toolchain
 make
+
+# Run tests and static analysis
+make test
+clang-tidy --version || true
 
 
