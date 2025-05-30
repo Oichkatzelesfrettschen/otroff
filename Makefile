@@ -96,4 +96,15 @@ meson:
 
 # Run the test-suite using pytest
 test:
-	pytest -q
+        pytest -q
+
+# Format all C and header files using clang-format
+.PHONY: format
+format:
+        @echo "Running clang-format..."
+        @if command -v clang-format >/dev/null 2>&1; then \
+                find roff croff neqn tbl src -name '*.c' -o -name '*.h' | \
+                xargs clang-format -i; \
+        else \
+                echo "clang-format not available"; \
+        fi
