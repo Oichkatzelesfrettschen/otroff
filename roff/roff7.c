@@ -46,10 +46,10 @@
 #include "roff.h"
 
 /* Copyright notice from original Bell Labs code */
-static const char copyright[] = "Copyright 1972 Bell Telephone Laboratories Inc.";
+static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
 
 /* SCCS version identifier */
-static const char sccs_id[] = "@(#)roff7.c 1.3 25/05/29 (digram tables - converted from PDP-11 assembly)";
+static const char sccs_id[] ROFF_UNUSED = "@(#)roff7.c 1.3 25/05/29 (digram tables - converted from PDP-11 assembly)";
 
 /**
  * @brief Beginning + consonant + vowel patterns table.
@@ -218,7 +218,7 @@ const unsigned char xhx[338] = {
     0077, 0213, 0077, 0077, 0177, 0317, 0377, 0114, 0377, 0352, 0077, 0000, 0076,
     0077, 0213, 0077, 0077, 0157, 0177, 0377, 0054, 0377, 0352, 0117, 0000, 0075,
     0125, 0230, 0065, 0216, 0057, 0066, 0063, 0047, 0345, 0126, 0011, 0000, 0033,
-    0057, 0377, 0051, 0360, 0120, 0361, 273, 056, 001, 256, 057, 0000, 0060,
+    0057, 0377, 0051, 0360, 0120, 0361, (unsigned char)273, 056, 001, (unsigned char)256, 057, 0000, 0060,
     0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
     0076, 0310, 0056, 0310, 0137, 0174, 0273, 0055, 0335, 0266, 0033, 0000, 0155,
     0077, 0157, 0057, 0360, 0057, 0063, 0042, 0024, 0077, 0206, 0020, 0000, 0040,

@@ -54,10 +54,10 @@
 #include "roff.h"
 
 /* Copyright notice from original */
-static const char copyright[] = "Copyright 1972 Bell Telephone Laboratories Inc.";
+static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
 
 /* SCCS version identifier */
-static const char sccs_id[] = "@(#)roff5.c 1.3 25/05/29 (hyphenation engine - converted from PDP-11 assembly)";
+static const char sccs_id[] ROFF_UNUSED = "@(#)roff5.c 1.3 25/05/29 (hyphenation engine - converted from PDP-11 assembly)";
 
 /* Constants for hyphenation algorithm */
 #define MAX_WORD_LENGTH 64      /**< Maximum word length for hyphenation */
@@ -412,10 +412,10 @@ static int checkvow(char *pos)
 static void digram(void)
 {
     char *current_pos;
-    char *analysis_start;
+    char *analysis_start ROFF_UNUSED;
     int ch1, ch2;
     int score, max_score;
-    char *max_position;
+    char *max_position ROFF_UNUSED;
     int multiplier;
     
     current_pos = hstart;

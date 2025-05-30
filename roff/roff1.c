@@ -58,7 +58,7 @@
 #include "roff.h" /* Common ROFF macros */
 
 /* SCCS version identifier */
-static const char sccs_id[] = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+static const char sccs_id[] ROFF_UNUSED = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)";
 
 /* Buffer size constants */
 #define IBUF_SIZE 512 /**< Input buffer size */
