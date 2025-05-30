@@ -7,6 +7,9 @@ sources dating back to 1977.  Shell scripts such as `bothrc`, `nrc` and
 
 Minor tweaks were applied so the code will compile on modern systems, but
 no contemporary replacements are provided here.  The `term/` subdirectory
+This repository is a work in progress to reproduce the original MINIX simplicity on modern 32-bit and 64-bit ARM and x86/x86_64 hardware using C++23.
+
+
 holds the device tables used by `nroff` for various terminals.
 
 See the top-level [README](../README.md) for instructions on preparing the
