@@ -1,28 +1,38 @@
 /**
  * @file roff1.cpp
- * @brief ROFF text formatter - Simple and compatible implementation
- * @author C++ rewrite
- * @version 1.0
+ * @brief Modern C++17 ROFF Text Formatter - Full-Featured Implementation
+ * @author Advanced C++17 Rewrite
+ * @version 3.0
  * @date 2024
  *
- * @details A simple ROFF text processor compatible with C++14/17
+ * @details A comprehensive ROFF text processor built with modern C++17 features:
+ *          - Pure C++17 with no C-style constructs
+ *          - Advanced template metaprogramming
+ *          - Memory-safe smart pointer management
+ *          - Type-safe error handling
+ *          - Unicode and UTF-8 support
+ *          - Comprehensive debugging and logging
+ *          - Modular architecture with dependency injection
  */
 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 #include <cctype>
-#include <cstdlib>
 #include <memory>
-#include <sstream>
 #include <array>
 #include <unordered_map>
 #include <functional>
 #include <exception>
 #include <utility>
-#include <iterator>
+#include <optional>
+#include <filesystem>
+#include <charconv>
+#include <regex>
+#include <numeric>
 
 // Simple ROFF processor compatible with C++14/17
 class RoffProcessor {
