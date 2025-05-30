@@ -57,6 +57,11 @@ make tbl                    # build the tbl preprocessor
 make neqn                   # build the neqn equation formatter
 ```
 
+When these targets are invoked the Makefile gathers all `*.c` sources
+from the corresponding directory and builds the matching object files
+under `build/`.  This allows the historical utilities to be compiled
+independently of the modernized `troff` sources.
+
 
 Setup environment
 -----------------
