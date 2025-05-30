@@ -13,8 +13,8 @@ else
     MARCH := $(CPU)
 endif
 
-CFLAGS ?= -std=c90 -Wall -O2 -march=$(MARCH)
-LDFLAGS ?=
+CFLAGS ?= -std=c90 -Wall -O2 -march=$(MARCH) -fopenmp=libgomp -Isrc/os
+LDFLAGS ?= -fopenmp=libgomp
 
 # Collect source files across the project.  Only the modern C
 # replacements located under `roff/` are built.
@@ -22,6 +22,9 @@ LDFLAGS ?=
 # Automatically collect all modern C implementations and ignore the
 # historical PDP-11 assembly sources (*.s).
 ROFF_SRC := $(sort $(wildcard roff/*.c))
+# Operating-system abstraction layer sources
+OS_SRC   := src/os/os_unix.c
+STUBS_SRC := src/stubs.c
 # Legacy sources under `croff`, `tbl`, and `neqn` are currently
 # excluded from the default build as they require significant
 # modernisation work.
@@ -39,9 +42,11 @@ ROFF_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(ROFF_SRC))
 CROFF_OBJ :=
 TBL_OBJ   :=
 NEQN_OBJ  :=
+OS_OBJ    := $(patsubst %.c,$(OBJDIR)/%.o,$(OS_SRC))
+STUBS_OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(STUBS_SRC))
 CROFF_TERM_OBJ :=
 
-ALL_OBJ := $(ROFF_OBJ)
+ALL_OBJ := $(ROFF_OBJ) $(OS_OBJ) $(STUBS_OBJ)
 
 
 # SSE accelerated routines were originally implemented in assembly.
@@ -49,7 +54,10 @@ ALL_OBJ := $(ROFF_OBJ)
 # automatically as part of $(ROFF_SRC).
 
 # Default target builds everything
-all: $(ALL_OBJ)
+all: $(OBJDIR)/troff
+
+$(OBJDIR)/troff: $(ALL_OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 # Build individual components
 croff: $(CROFF_OBJ) $(CROFF_TERM_OBJ)
