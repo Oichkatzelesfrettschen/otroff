@@ -49,6 +49,7 @@ Code Formatting
 Run `make format` to apply `clang-format` across all C and header files. This
 ensures a consistent style throughout the project.
 
+
 Building individual components
 ------------------------------
 Subprojects can be compiled separately by invoking dedicated make
