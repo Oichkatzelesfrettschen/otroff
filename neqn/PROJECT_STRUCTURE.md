@@ -1,6 +1,8 @@
 # NEQN PROJECT STRUCTURE
 
 This document provides a comprehensive overview of the neqn mathematical equation preprocessor project structure, implementation details, and usage guidelines.
+This repository is a work in progress to reproduce the original MINIX simplicity on modern 32-bit and 64-bit ARM and x86/x86_64 hardware using C++23.
+
 
 ## Project Overview
 

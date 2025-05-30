@@ -4,6 +4,8 @@
 
 `neqn` is a mathematical equation preprocessor designed for terminal output. It's a simplified version of the classic `eqn` preprocessor, originally developed at AT&T Bell Labs in 1977 as part of the UNIX troff text processing system.
 
+This repository is a work in progress to reproduce the original MINIX simplicity on modern 32-bit and 64-bit ARM and x86/x86_64 hardware using C++23.
+
 This is a modern C90-compliant implementation that maintains backward compatibility while adding enhanced error handling, comprehensive documentation, and improved portability.
 
 ## Features
