@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 
 # Main project
-project(otroff C CXX)
+project(otroff CXX)
 
-# Enforce ANSI C standard
-set(CMAKE_C_STANDARD 17)
+# Require modern C++ for everything built
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Detect the operating system
 if(WIN32)
@@ -20,10 +19,16 @@ endif()
 # Build the OS abstraction library
 add_library(os_abstraction)
 if(OS_WINDOWS)
-    target_sources(os_abstraction PRIVATE src/os/os_windows.c)
+    target_sources(os_abstraction PRIVATE src/os/os_windows.cpp)
 else()
-    target_sources(os_abstraction PRIVATE src/os/os_unix.c)
+    target_sources(os_abstraction PRIVATE src/os/os_unix.cpp)
 endif()
+
+set_source_files_properties(
+    src/os/os_windows.cpp
+    src/os/os_unix.cpp
+    PROPERTIES LANGUAGE CXX
+)
 
 target_include_directories(os_abstraction PUBLIC src/os)
 
@@ -48,6 +53,7 @@ endif()
 # Build troff executable from roff sources
 file(GLOB ROFF_SRC CONFIGURE_DEPENDS "roff/*.c" "roff/*.cpp")
 add_executable(troff ${ROFF_SRC})
+set_source_files_properties(${ROFF_SRC} PROPERTIES LANGUAGE CXX)
 
 # Enable warnings and optimization
 target_compile_options(troff PRIVATE -Wall -O2)
