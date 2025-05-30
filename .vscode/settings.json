@@ -7,5 +7,6 @@
             "includePath": [],
             "defines": []
         }
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "strict"
 }

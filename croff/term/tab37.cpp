@@ -5,11 +5,14 @@
  * Refactored for C++23 compatibility and clarity.
  */
 
-#include <cstddef>
 #include <cstdint>
 #include <array>
+#include <string_view>
 
-#define INCH 240
+namespace {
+    constexpr std::uint16_t INCH = 240;
+    constexpr std::size_t CODETAB_SIZE = 224; // 256 - 32 = 224
+}
 
 /* Terminal table structure for TTY M37 */
 struct termtab {
@@ -22,28 +25,28 @@ struct termtab {
     std::uint16_t Em;
     std::uint16_t Halfline;
     std::uint16_t Adj;
-    const char* twinit;
-    const char* twrest;
-    const char* twnl;
-    const char* hlr;
-    const char* hlf;
-    const char* flr;
-    const char* bdon;
-    const char* bdoff;
-    const char* ploton;
-    const char* plotoff;
-    const char* up;
-    const char* down;
-    const char* right;
-    const char* left;
-    std::array<const char*, 224> codetab; // 256 - 32 = 224
+    std::string_view twinit;
+    std::string_view twrest;
+    std::string_view twnl;
+    std::string_view hlr;
+    std::string_view hlf;
+    std::string_view flr;
+    std::string_view bdon;
+    std::string_view bdoff;
+    std::string_view ploton;
+    std::string_view plotoff;
+    std::string_view up;
+    std::string_view down;
+    std::string_view right;
+    std::string_view left;
+    std::array<std::string_view, CODETAB_SIZE> codetab;
 };
 
 /*
  * Table instance for TTY M37
  * All fields are initialized in C++23-compliant order.
  */
-constexpr termtab t{
+extern "C" const termtab t{
     .bset = 0,
     .breset = 0,
     .Hor = INCH / 10,
@@ -187,7 +190,7 @@ constexpr termtab t{
         "\001_",      /*underrule*/
         "\001/",      /*slash (longer)*/
         "\000",       /*half narrow space*/
-        "\001 ",      /*unpaddable space*/
+        "\001 ",      /*non-paddable space*/
         "\001\016A\017", /*alpha*/
         "\001\016B\017", /*beta*/
         "\001\016\\\017", /*gamma*/
