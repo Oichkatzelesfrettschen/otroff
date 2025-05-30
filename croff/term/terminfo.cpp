@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * terminfo.c - Modern terminal driving tables (C90 portable)
  *
@@ -63,20 +64,20 @@ struct termtab {
     std::uint16_t Em;
     std::uint16_t Halfline;
     std::uint16_t Adj;
-    const char* twinit;
-    const char* twrest;
-    const char* twnl;
-    const char* hlr;
-    const char* hlf;
-    const char* flr;
-    const char* bdon;
-    const char* bdoff;
-    const char* ploton;
-    const char* plotoff;
-    const char* up;
-    const char* down;
-    const char* right;
-    const char* left;
+    const char *twinit;
+    const char *twrest;
+    const char *twnl;
+    const char *hlr;
+    const char *hlf;
+    const char *flr;
+    const char *bdon;
+    const char *bdoff;
+    const char *ploton;
+    const char *plotoff;
+    const char *up;
+    const char *down;
+    const char *right;
+    const char *left;
     const char *codetab[256 - 32];
     [[maybe_unused]] std::uint16_t zzz{};
 };

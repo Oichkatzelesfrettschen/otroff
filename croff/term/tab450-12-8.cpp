@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * tab450-12-8.c - DASI450 nroff driving tables (C90 portable)
  *

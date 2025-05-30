@@ -14,8 +14,7 @@ HyphenWeight HyphenationTables::evaluate_position(
     std::size_t position,
     bool at_beginning,
     bool at_ending,
-    bool has_context
-) const noexcept {
+    bool has_context) const noexcept {
     if (position == 0 || position >= word.length()) {
         return static_cast<HyphenWeight>(0);
     }
@@ -76,7 +75,7 @@ constexpr bool HyphenationTables::validate_tables() const noexcept {
 HyphenationTables::TableStats HyphenationTables::get_statistics() const noexcept {
     TableStats stats{};
 
-    auto analyze_table = [&stats](const auto& table) {
+    auto analyze_table = [&stats](const auto &table) {
         for (const auto weight : table) {
             const auto value = static_cast<std::int8_t>(weight);
             if (value != 0) {
@@ -128,13 +127,12 @@ HyphenationEngine::hyphenate(std::string_view word) const {
                 .position = pos,
                 .confidence = weight,
                 .prefix = word.substr(0, pos),
-                .suffix = word.substr(pos)
-            });
+                .suffix = word.substr(pos)});
         }
     }
 
     // Sort by confidence (highest first)
-    std::ranges::sort(result, [](const auto& a, const auto& b) {
+    std::ranges::sort(result, [](const auto &a, const auto &b) {
         return a.confidence > b.confidence;
     });
 
@@ -144,15 +142,13 @@ HyphenationEngine::hyphenate(std::string_view word) const {
 std::optional<HyphenationEngine::HyphenationPoint>
 HyphenationEngine::best_hyphenation(std::string_view word) const {
     const auto candidates = hyphenate(word);
-    return candidates.empty() ? std::nullopt :
-           std::optional{candidates.front()};
+    return candidates.empty() ? std::nullopt : std::optional{candidates.front()};
 }
 
 bool HyphenationEngine::should_hyphenate_at(
     std::string_view word,
     std::size_t position,
-    HyphenWeight threshold
-) const noexcept {
+    HyphenWeight threshold) const noexcept {
     if (!is_valid_hyphen_position(word, position)) {
         return false;
     }
@@ -163,8 +159,7 @@ bool HyphenationEngine::should_hyphenate_at(
 
 bool HyphenationEngine::is_valid_hyphen_position(
     std::string_view word,
-    std::size_t position
-) const noexcept {
+    std::size_t position) const noexcept {
     // Basic validity checks
     if (position == 0 || position >= word.length()) {
         return false;
@@ -184,35 +179,33 @@ bool HyphenationEngine::is_valid_hyphen_position(
 
 HyphenWeight HyphenationEngine::calculate_position_weight(
     std::string_view word,
-    std::size_t position
-) const noexcept {
+    std::size_t position) const noexcept {
     const bool at_beginning = (position <= 2);
     const bool at_ending = (position >= word.length() - 2);
 
     // Check for existing hyphens nearby (context)
     const bool has_context = std::ranges::any_of(
         word | std::views::take(position),
-        [](char c) { return c == '-'; }
-    );
+        [](char c) { return c == '-'; });
 
     return tables_.evaluate_position(word, position, at_beginning, at_ending, has_context);
 }
 
 // Legacy C interface implementation
 extern "C" {
-    int hytab_get_weight(char first, char second) {
-        const auto weight = default_tables.digram_weight(first, second);
-        return weight ? static_cast<int>(*weight) : 0;
+int hytab_get_weight(char first, char second) {
+    const auto weight = default_tables.digram_weight(first, second);
+    return weight ? static_cast<int>(*weight) : 0;
+}
+
+int hytab_should_hyphenate(const char *word, int position) {
+    if (!word || position < 0) {
+        return 0;
     }
 
-    int hytab_should_hyphenate(const char* word, int position) {
-        if (!word || position < 0) {
-            return 0;
-        }
-
-        HyphenationEngine engine{default_tables};
-        return engine.should_hyphenate_at(word, static_cast<std::size_t>(position)) ? 1 : 0;
-    }
+    HyphenationEngine engine{default_tables};
+    return engine.should_hyphenate_at(word, static_cast<std::size_t>(position)) ? 1 : 0;
+}
 }
 
 } // namespace croff::hyphenation

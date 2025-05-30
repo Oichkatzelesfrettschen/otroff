@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * tab300-12.c - DASI300 nroff driving tables (C90 portable)
  *
@@ -68,7 +69,7 @@ typedef struct termtab {
     const char *codetab[256 - 32];
     [[maybe_unused]] std::uint16_t zzz{};
 } termtab;
-static_assert(sizeof(decltype(*(termtab*)nullptr)) <= 4096, "terminal table must remain small");
+static_assert(sizeof(decltype(*(termtab *)nullptr)) <= 4096, "terminal table must remain small");
 
 /*
  * Table instance for DASI300 terminal.
