@@ -49,9 +49,9 @@ extern void skipcont(void);
 /* Output buffer base lives in roff8.c as a static array */
 /** Return pointer to start of output buffer (defined in roff8.c). */
 static char *obuf_base(void) {
-    static char *base_ptr = NULL;
+    static char *base_ptr = nullptr; // modern sentinel
 
-    if (base_ptr == NULL) {
+    if (base_ptr == nullptr) {
         base_ptr = obufp;
     }
 
@@ -190,7 +190,7 @@ void headin(char **p) {
     char buf[256];
     size_t len = 0;
 
-    if (p == NULL) {
+    if (p == nullptr) {
         return;
     }
 
@@ -208,7 +208,7 @@ void headin(char **p) {
 
     free(*p);
     *p = malloc(len + 1);
-    if (*p != NULL) {
+    if (*p != nullptr) {
         memcpy(*p, buf, len + 1);
     }
 
@@ -223,12 +223,12 @@ void headin(char **p) {
 void headout(char **p) {
     const char *s;
 
-    if (p == NULL || hx == 0) {
+    if (p == nullptr || hx == 0) {
         return;
     }
 
     s = *p;
-    if (s == NULL) {
+    if (s == nullptr) {
         return;
     }
 

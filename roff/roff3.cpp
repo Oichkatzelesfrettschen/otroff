@@ -72,7 +72,8 @@
 #include "roff.h" /* ROFF system definitions and globals */
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff3.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff3.c 1.3 25/05/29 (converted from PDP-11 assembly)"; // ID string
 
 /* Constants for buffer sizes and limits */
 #define WORD_SIZE 64 /**< Maximum word length */
@@ -272,7 +273,7 @@ void rbreak(void) {
     }
 
     /* Terminate the current line with null byte */
-    if (linep != NULL) {
+    if (linep != nullptr) {
         *linep = '\0';
     }
 
@@ -302,12 +303,12 @@ void rbreak(void) {
             /* Output appropriate header based on page number parity */
             if ((pn & 1) == 0) {
                 /* Even page number */
-                if (ehead != NULL) {
+                if (ehead != nullptr) {
                     headout(&ehead);
                 }
             } else {
                 /* Odd page number */
-                if (ohead != NULL) {
+                if (ohead != nullptr) {
                     headout(&ohead);
                 }
             }
@@ -708,12 +709,12 @@ void eject(void) {
     /* Output appropriate footer based on page number parity */
     if ((pn & 1) == 0) {
         /* Even page number */
-        if (efoot != NULL) {
+        if (efoot != nullptr) {
             headout(&efoot);
         }
     } else {
         /* Odd page number */
-        if (ofoot != NULL) {
+        if (ofoot != nullptr) {
             headout(&ofoot);
         }
     }

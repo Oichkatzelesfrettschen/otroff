@@ -50,7 +50,8 @@
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff7.c 1.3 25/05/29 (digram tables - converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff7.c 1.3 25/05/29 (digram tables - converted from PDP-11 assembly)"; // ID string
 
 /**
  * @brief Beginning + consonant + vowel patterns table.

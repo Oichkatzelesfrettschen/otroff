@@ -1,4 +1,4 @@
-
+#include "cxx23_scaffold.hpp" // Modern C++23 enforcement
 #include <array>
 #include <string_view>
 #include <span>

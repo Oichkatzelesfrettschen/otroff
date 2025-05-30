@@ -7,38 +7,38 @@
  * POSIX system calls.
  */
 
-int os_open(const char *path, int flags, int mode) {
-    return open(path, flags, mode);
+[[nodiscard]] int os_open(const char *path, int flags, int mode) {
+    return open(path, flags, mode); // forward to POSIX open
 }
 
-ssize_t os_read(int fd, void *buf, size_t count) {
+[[nodiscard]] ssize_t os_read(int fd, void *buf, size_t count) {
     return read(fd, buf, count);
 }
 
-ssize_t os_write(int fd, const void *buf, size_t count) {
+[[nodiscard]] ssize_t os_write(int fd, const void *buf, size_t count) {
     return write(fd, buf, count);
 }
 
-int os_close(int fd) {
+[[nodiscard]] int os_close(int fd) {
     return close(fd);
 }
 
-off_t os_lseek(int fd, off_t offset, int whence) {
-    return lseek(fd, offset, whence);
+[[nodiscard]] off_t os_lseek(int fd, off_t offset, int whence) {
+    return lseek(fd, offset, whence); // reposition file offset
 }
 
-int os_unlink(const char *path) {
+[[nodiscard]] int os_unlink(const char *path) {
     return unlink(path);
 }
 
-int os_stat(const char *path, struct stat *buf) {
+[[nodiscard]] int os_stat(const char *path, struct stat *buf) {
     return stat(path, buf);
 }
 
-FILE *os_fopen(const char *path, const char *mode) {
+[[nodiscard]] FILE *os_fopen(const char *path, const char *mode) {
     return fopen(path, mode);
 }
 
-int os_fclose(FILE *file) {
+[[nodiscard]] int os_fclose(FILE *file) {
     return fclose(file);
 }

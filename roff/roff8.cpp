@@ -43,7 +43,8 @@
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff8.c 1.3 25/05/29 (global data - converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff8.c 1.3 25/05/29 (global data - converted from PDP-11 assembly)"; // ID string
 
 /* Buffer size constants */
 #define LINE_SIZE 500 /**< Maximum line buffer size */
@@ -265,7 +266,7 @@ int nextb = 4;
  * @brief Include list pointer.
  * Points to current position in include file processing list.
  */
-int *ilistp = NULL; /* Will be set to ilist address during initialization */
+int *ilistp = nullptr; /* Will be set to ilist address during initialization */
 
 /*
  * =============================================================================
@@ -820,17 +821,17 @@ void init_globals(void) {
     nx = 0;
     ip = 0;
 
-    /* Initialize pointers to NULL */
-    argp = NULL;
-    ibufp = NULL;
-    eibuf = NULL;
-    maxloc = NULL;
-    hstart = NULL;
-    nhstart = NULL;
-    ehead = NULL;
-    ohead = NULL;
-    efoot = NULL;
-    ofoot = NULL;
+    /* Initialize pointers to null */
+    argp = nullptr;
+    ibufp = nullptr;
+    eibuf = nullptr;
+    maxloc = nullptr;
+    hstart = nullptr;
+    nhstart = nullptr;
+    ehead = nullptr;
+    ohead = nullptr;
+    efoot = nullptr;
+    ofoot = nullptr;
 }
 
 /**

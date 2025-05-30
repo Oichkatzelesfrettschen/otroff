@@ -40,7 +40,7 @@ void mesg(int enable) {
  * column position.  The PDP-11 code kept this in ``ocol``; here it is
  * provided as an argument.
  */
-int dsp(int column) {
+[[nodiscard]] int dsp(int column) noexcept {
     int r = 0;
     do {
         r += 8;
@@ -55,7 +55,7 @@ int dsp(int column) {
  * Write the buffer contents to stdout and clear the index ``p`` so that
  * new data overwrites the previous output.
  */
-void flush_output(char *buf, size_t *p) {
+void flush_output(char *buf, size_t *p) noexcept {
     if (*p) {
         write(STDOUT_FILENO, buf, *p);
         *p = 0;
