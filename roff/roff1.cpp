@@ -56,6 +56,7 @@
 #include <ctype.h> /* Character classification */
 #include "os_abstraction.h" /* Cross-platform wrappers */
 #include "roff.h" /* Common ROFF macros */
+#include "roff_globals.hpp" /* Shared globals and prototypes */
 
 /* SCCS version identifier */
 static const char sccs_id[] ROFF_UNUSED = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)";
@@ -160,13 +161,7 @@ static void signal_setup(void);
 static void ttyn_setup(void);
 static int parse_number(char **ptr);
 
-/* Control command handlers */
-static void case_ad(void); /* Adjust */
-static void case_bp(void); /* Break page */
-static void case_br(void); /* Break */
-static void case_cc(void); /* Control character */
-static void case_ce(void); /* Center */
-/* ... additional control command prototypes ... */
+/* Control command handlers provided in roff2.cpp */
 
 /* Global state for control commands */
 typedef struct {
@@ -855,10 +850,4 @@ static void cleanup_and_exit(int status) {
     exit(status);
 }
 
-/* Placeholder implementations for control command handlers */
-static void case_ad(void) { /* Adjust command */ }
-static void case_bp(void) { /* Break page command */ }
-static void case_br(void) { /* Break command */ }
-static void case_cc(void) { /* Control character command */ }
-static void case_ce(void) { /* Center command */ }
-/* Additional control command handlers would be implemented here */
+/* Control command handlers are implemented in roff2.cpp */

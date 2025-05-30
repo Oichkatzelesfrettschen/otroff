@@ -1,29 +1,30 @@
-# Use clang as the compiler. The built-in 'cc' is typically GCC which
-# yields slightly different diagnostics. Force clang unless the user
-# explicitly overrides it on the command line.
-CC := clang
-CXX := clang++
-CPU ?= native
+#Use clang as the compiler.The built - in 'cc' is typically GCC which
+#yields slightly different diagnostics.Force clang unless the user
+#explicitly overrides it on the command line.
+CC : = clang
+         CXX : = clang++ CPU ? = native
 
-# Map CPU values to 64-bit -march options
-ifeq ($(CPU),x86-64)
-    MARCH := x86-64
-else ifeq ($(CPU),haswell)
-    MARCH := haswell
-else
-    MARCH := $(CPU)
-endif
+#Map CPU values to 64 - bit - march options
+                               ifeq($(CPU), x86 - 64)
+                                   MARCH
+                             : = x86 - 64 else ifeq($(CPU), haswell)
+                                           MARCH : = haswell else MARCH : = $(CPU)
+                                                                              endif
 
-CFLAGS ?= -std=c23 -Wall -O2 -march=$(MARCH) -fopenmp=libgomp -Isrc/os
-CXXFLAGS ?= -std=c++23 -Wall -O2 -march=$(MARCH)
-LDFLAGS ?= -fopenmp=libgomp
+                                                                                  CFLAGS
+                                                                          ? = -std = c23 - Wall - O2 - march = $(MARCH) - fopenmp = libgomp - Isrc / os
+                                                                                                                                                         CXXFLAGS
+                                                                            ? = -std = c++ 23 - Wall - O2 - march = $(MARCH)
+                                                                                                                            LDFLAGS
+                                                                                                                        ? = -fopenmp = libgomp
 
-# Collect source files across the project.  Only the modern C
-# replacements located under `roff/` are built.
-# Source files for each project directory
-# Automatically collect all modern C implementations and ignore the
-# historical PDP-11 assembly sources (*.s).
-ROFF_SRC := $(sort $(wildcard roff/*.c))
+#Collect source files across the project.Only the modern C
+#replacements located under `roff /` are built.
+#Source files for each project directory
+#Automatically collect all modern C implementations and ignore the
+#historical PDP - 11 assembly sources(*.s).
+                                                                                                                              ROFF_SRC
+                                                                                                                        : = $(sort $(wildcard roff/*.c) $(wildcard roff/*.cpp))
 # Operating-system abstraction layer sources
 OS_SRC   := src/os/os_unix.c
 STUBS_SRC := src/stubs.c

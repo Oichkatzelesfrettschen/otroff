@@ -46,7 +46,8 @@ if(BUILD_NEQN)
 endif()
 
 # Build troff executable from roff sources
-file(GLOB ROFF_SRC CONFIGURE_DEPENDS "roff/*.c")
+file(GLOB ROFF_SRC CONFIGURE_DEPENDS "roff/*.c" "roff/*.cpp")
 add_executable(troff ${ROFF_SRC})
+
 # Enable warnings and optimization
 target_compile_options(troff PRIVATE -Wall -O2)
