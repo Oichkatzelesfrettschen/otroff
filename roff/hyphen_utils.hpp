@@ -1,7 +1,6 @@
-#ifndef HYPHEN_UTILS_H
-#define HYPHEN_UTILS_H
+#pragma once
 
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 
 #include <array>
 #include <cctype>
@@ -20,5 +19,3 @@ inline constinit const std::array<char, 6> vowel_table{
 [[nodiscard]] constexpr bool vowel(int c) noexcept;
 
 } // namespace roff::util
-
-#endif // HYPHEN_UTILS_H

@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 #include "hyphen_utils.hpp"
 
 #include <cctype>

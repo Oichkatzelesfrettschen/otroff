@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 #include "suftab.hpp"
 
 #include <array>
@@ -12,7 +12,7 @@ constexpr std::array<char, SUFTAB_SIZE> suftab = {
     // ...existing code...
 };
 
-// Function to print suffix table information
+// Function to print suffix table information.
 void print_suftab_info() {
     std::print("Suffix table size: {} bytes\n", suftab.size());
     std::print(

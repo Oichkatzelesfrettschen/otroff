@@ -1,12 +1,11 @@
 /*
- * suftab.h - Suffix table interface
- * Header file for suffix table functionality
+ * suftab.hpp - Suffix table interface
+ * Modern header for suffix table functionality.
  */
 
-#ifndef SUFTAB_H
-#define SUFTAB_H
+#pragma once
 
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 
 #include <array>
 #include <span>
@@ -20,5 +19,3 @@ extern const std::array<char, SUFTAB_SIZE> suftab; // suffix data storage
 void print_suftab_info(); // display suffix table stats
 
 } // namespace roff::data
-
-#endif // SUFTAB_H

@@ -1,11 +1,11 @@
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h> /* defines mode_t */
 #include <sys/stat.h>
 #include <string.h>
-#include "runtime.h"
+#include "runtime.hpp"
 
 /*
  * Replacement implementations for small helper routines found in the
@@ -14,8 +14,9 @@
  */
 
 /*
- * Toggle write permission on the controlling terminal.  This mirrors the
- * behaviour of the historic mesg(1) command by adjusting group/world access.
+ * Toggle write permission on the controlling terminal.
+ * Mirrors the behaviour of the historic mesg(1) command by
+ * adjusting group/world access bits.
  */
 void mesg(int enable) {
     char *tty = ttyname(STDOUT_FILENO);
@@ -36,9 +37,9 @@ void mesg(int enable) {
 }
 
 /*
- * Calculate the distance to the next 8-column tab stop from the supplied
- * column position.  The PDP-11 code kept this in ``ocol``; here it is
- * provided as an argument.
+ * Calculate the distance to the next 8-column tab stop from ``column``.
+ * The original PDP-11 implementation stored this value in ``ocol``; here
+ * it is supplied directly as an argument.
  */
 [[nodiscard]] int dsp(int column) noexcept {
     int r = 0;
@@ -52,8 +53,8 @@ void mesg(int enable) {
 }
 
 /*
- * Write the buffer contents to stdout and clear the index ``p`` so that
- * new data overwrites the previous output.
+ * Write the buffer contents to stdout and reset ``p`` so that new data
+ * overwrites the previous output.
  */
 void flush_output(char *buf, size_t *p) noexcept {
     if (*p) {
