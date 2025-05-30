@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /**
  * @file roff1.c
  * @brief ROFF text formatter - Main driver and core functionality.
@@ -92,12 +93,16 @@ enum class RoffError {
     InternalError
 };
 
-template<typename T>
+template <typename T>
 using Result = std::expected<T, RoffError>;
 
 // Strong typing for various ROFF concepts
-enum class ControlChar : char { Dot = '.', Escape = '\\', Prefix = '\033' };
-enum class ProcessingMode { Normal, Stop, HighSpeed };
+enum class ControlChar : char { Dot = '.',
+                                Escape = '\\',
+                                Prefix = '\033' };
+enum class ProcessingMode { Normal,
+                            Stop,
+                            HighSpeed };
 
 // Type-safe configuration
 struct RoffConfig {
@@ -119,10 +124,10 @@ struct RoffConfig {
 
 // Modern character handling with strong typing
 class Character {
-private:
+  private:
     char value_;
 
-public:
+  public:
     constexpr explicit Character(char c) noexcept : value_(c) {}
     constexpr char value() const noexcept { return value_; }
     constexpr bool is_control() const noexcept { return value_ < ' ' || value_ > '~'; }
@@ -131,15 +136,15 @@ public:
     constexpr bool is_space() const noexcept { return value_ == ' '; }
     constexpr int width() const noexcept { return is_control() ? 0 : 1; }
 
-    constexpr auto operator<=>(const Character&) const noexcept = default;
+    constexpr auto operator<=>(const Character &) const noexcept = default;
 };
 class FileHandle {
-private:
+  private:
     std::unique_ptr<std::fstream> file_;
     std::filesystem::path path_;
 
-public:
-    explicit FileHandle(const std::filesystem::path& path, std::ios_base::openmode mode)
+  public:
+    explicit FileHandle(const std::filesystem::path &path, std::ios_base::openmode mode)
         : path_(path) {
         file_ = std::make_unique<std::fstream>(path, mode);
         if (!file_->is_open()) {
@@ -148,24 +153,24 @@ public:
     }
 
     ~FileHandle() = default;
-    FileHandle(const FileHandle&) = delete;
-    FileHandle& operator=(const FileHandle&) = delete;
-    FileHandle(FileHandle&&) = default;
-    FileHandle& operator=(FileHandle&&) = default;
+    FileHandle(const FileHandle &) = delete;
+    FileHandle &operator=(const FileHandle &) = delete;
+    FileHandle(FileHandle &&) = default;
+    FileHandle &operator=(FileHandle &&) = default;
 
-    std::fstream& stream() { return *file_; }
-    const std::filesystem::path& path() const noexcept { return path_; }
+    std::fstream &stream() { return *file_; }
+    const std::filesystem::path &path() const noexcept { return path_; }
     bool is_open() const noexcept { return file_ && file_->is_open(); }
 };
 
 // Type-safe buffer management
-template<std::size_t Size>
+template <std::size_t Size>
 class SafeBuffer {
-private:
+  private:
     std::array<char, Size> data_{};
     std::size_t position_{0};
 
-public:
+  public:
     constexpr SafeBuffer() = default;
 
     constexpr std::span<char> available_space() noexcept {
@@ -177,13 +182,15 @@ public:
     }
 
     constexpr bool append(char c) noexcept {
-        if (position_ >= Size) return false;
+        if (position_ >= Size)
+            return false;
         data_[position_++] = c;
         return true;
     }
 
     constexpr bool append(std::span<const char> data) noexcept {
-        if (position_ + data.size() > Size) return false;
+        if (position_ + data.size() > Size)
+            return false;
         std::ranges::copy(data, data_.begin() + position_);
         position_ += data.size();
         return true;
@@ -207,7 +214,8 @@ public:
 #define os_unlink unlink
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)"; // ID string
 
 /* Buffer size constants */
 #define IBUF_SIZE 512 /**< Input buffer size */
@@ -317,7 +325,7 @@ static const control_entry_t control_table[] = {
     {"cc", case_cc}, /* Control character */
     {"ce", case_ce}, /* Center lines */
     /* Additional entries would go here... */
-    {"", NULL} /* Sentinel entry */
+    {"", nullptr} /* Sentinel entry */
 };
 
 /**
@@ -570,7 +578,7 @@ static void control_handler(void) {
     cmd[2] = '\0';
 
     /* Look up command in table */
-    for (i = 0; control_table[i].handler != NULL; i++) {
+    for (i = 0; control_table[i].handler != nullptr; i++) {
         if (strcmp(cmd, control_table[i].cmd) == 0) {
             control_table[i].handler();
             return;
@@ -667,41 +675,41 @@ static int ngetc(void) {
 
     /* Check if we need to read more input */
     if (ibufp >= eibuf) {
-            if (next_file() < 0) {
-                return '\0'; /* End of input */
-            }
+        if (next_file() < 0) {
+            return '\0'; /* End of input */
         }
+    }
 
-        /* Read into buffer */
+    /* Read into buffer */
+    n = os_read(ifile, ibuf, IBUF_SIZE);
+    if (n <= 0) {
+        if (next_file() < 0) {
+            return '\0';
+        }
         n = os_read(ifile, ibuf, IBUF_SIZE);
         if (n <= 0) {
-            if (next_file() < 0) {
-                return '\0';
-            }
-            n = os_read(ifile, ibuf, IBUF_SIZE);
-            if (n <= 0) {
-                return '\0';
-            }
+            return '\0';
         }
-
-        ibufp = ibuf;
-        eibuf = ibuf + n;
     }
 
-    /* Get character from buffer */
-    c = *ibufp++;
+    ibufp = ibuf;
+    eibuf = ibuf + n;
+}
 
-    /* Handle tab expansion */
-    if (c == '\t') {
-        /* Simple tab handling - expand to spaces */
-        int spaces = 8 - (column % 8);
-        if (spaces > 1) {
-            nspace = spaces - 1;
-        }
-        return ' ';
+/* Get character from buffer */
+c = *ibufp++;
+
+/* Handle tab expansion */
+if (c == '\t') {
+    /* Simple tab handling - expand to spaces */
+    int spaces = 8 - (column % 8);
+    if (spaces > 1) {
+        nspace = spaces - 1;
     }
+    return ' ';
+}
 
-    return c;
+return c;
 }
 
 /**

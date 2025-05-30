@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /*
  * tabvt220.c - VT220 nroff driving tables (C90 portable)
  *

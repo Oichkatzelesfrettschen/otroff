@@ -3,6 +3,7 @@
 #include "roff.h"
 #include "os_abstraction.h"
 #include <cstddef>
+#include "cxx23_scaffold.hpp" // Modern C++23 enforcement
 
 // Global variables defined in roff8.c
 extern int ad; // Adjust mode flag
@@ -60,12 +61,12 @@ void nlines(int count, int spacing);
 void topbot();
 void skipcont();
 void flushi();
-int getchar_roff();
+[[nodiscard]] int getchar_roff(); // return next input character
 void putchar_roff(int c);
 void storeline(int c);
-int min(int value);
-int number(int default_val);
-int number1(int default_val);
+[[nodiscard]] int min(int value); // clamp negative numbers
+[[nodiscard]] int number(int default_val); // parse number with default
+[[nodiscard]] int number1(int default_val); // parse number with spaces allowed
 void text();
 void headin(char **header_ptr);
 void getname(char *name_buffer);

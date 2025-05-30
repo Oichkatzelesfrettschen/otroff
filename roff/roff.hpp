@@ -2,29 +2,30 @@
 
 // Enforce C++23 compilation
 #if __cplusplus < 202302L
-    #error "This code requires C++23 or later. Use -std=c++23 or equivalent."
+#error "This code requires C++23 or later. Use -std=c++23 or equivalent."
 #endif
 
 // Disable C compatibility
 #ifdef __STDC__
-    #error "This is pure C++23 code. Do not compile with a C compiler."
+#error "This is pure C++23 code. Do not compile with a C compiler."
 #endif
 
 // Platform checks for C++23 features
 #ifndef __cpp_concepts
-    #error "C++23 concepts support required"
+#error "C++23 concepts support required"
 #endif
 
 #ifndef __cpp_modules
-    // Modules are optional but preferred
+// Modules are optional but preferred
 #endif
 
 #ifndef __cpp_consteval
-    #error "C++23 consteval support required"
+#error "C++23 consteval support required"
 #endif
 
 // Force strict C++23 mode
 #define PURE_CPP23_ONLY
+#include "cxx23_scaffold.hpp"
 
 // Modern C++23 includes - replace all C headers
 #include <iostream>
@@ -37,6 +38,9 @@
 #include <span>
 #include <optional>
 #include <expected>
+
+// Roff version information for diagnostics
+inline constexpr std::string_view roff_version{"C++23-modern"};
 #include <memory>
 #include <ranges>
 #include <algorithm>
@@ -69,38 +73,38 @@ using string = std::string;
 using string_view = std::string_view;
 using path = std::filesystem::path;
 
-template<typename T>
+template <typename T>
 using optional = std::optional<T>;
 
-template<typename T, typename E = std::error_code>
+template <typename T, typename E = std::error_code>
 using expected = std::expected<T, E>;
 
-template<typename T>
+template <typename T>
 using unique_ptr = std::unique_ptr<T>;
 
-template<typename T>
+template <typename T>
 using shared_ptr = std::shared_ptr<T>;
 
-template<typename T>
+template <typename T>
 using span = std::span<T>;
 
 // Compiler attribute macros (C++23 style)
 #if defined(__clang__) || defined(__GNUC__)
-    #define ROFF_UNUSED [[maybe_unused]]
-    #define ROFF_NODISCARD [[nodiscard]]
-    #define ROFF_NORETURN [[noreturn]]
-    #define ROFF_DEPRECATED [[deprecated]]
-    #define ROFF_FORCE_INLINE [[gnu::always_inline]] inline
-    #define ROFF_COLD [[gnu::cold]]
-    #define ROFF_HOT [[gnu::hot]]
+#define ROFF_UNUSED [[maybe_unused]]
+#define ROFF_NODISCARD [[nodiscard]]
+#define ROFF_NORETURN [[noreturn]]
+#define ROFF_DEPRECATED [[deprecated]]
+#define ROFF_FORCE_INLINE [[gnu::always_inline]] inline
+#define ROFF_COLD [[gnu::cold]]
+#define ROFF_HOT [[gnu::hot]]
 #else
-    #define ROFF_UNUSED [[maybe_unused]]
-    #define ROFF_NODISCARD [[nodiscard]]
-    #define ROFF_NORETURN [[noreturn]]
-    #define ROFF_DEPRECATED [[deprecated]]
-    #define ROFF_FORCE_INLINE inline
-    #define ROFF_COLD
-    #define ROFF_HOT
+#define ROFF_UNUSED [[maybe_unused]]
+#define ROFF_NODISCARD [[nodiscard]]
+#define ROFF_NORETURN [[noreturn]]
+#define ROFF_DEPRECATED [[deprecated]]
+#define ROFF_FORCE_INLINE inline
+#define ROFF_COLD
+#define ROFF_HOT
 #endif
 
 // Error handling framework
@@ -119,65 +123,65 @@ enum class ErrorCode : std::uint32_t {
 };
 
 class RoffException : public std::exception {
-private:
+  private:
     ErrorCode code_;
     string message_;
     std::source_location location_;
 
-public:
+  public:
     RoffException(ErrorCode code, string_view message,
                   std::source_location location = std::source_location::current())
         : code_(code), message_(message), location_(location) {}
 
-    ROFF_NODISCARD const char* what() const noexcept override {
+    ROFF_NODISCARD const char *what() const noexcept override {
         return message_.c_str();
     }
 
     ROFF_NODISCARD ErrorCode code() const noexcept { return code_; }
-    ROFF_NODISCARD const std::source_location& location() const noexcept { return location_; }
+    ROFF_NODISCARD const std::source_location &location() const noexcept { return location_; }
 };
 
-template<typename T>
+template <typename T>
 using Result = expected<T, ErrorCode>;
 
 // Core constants used across ROFF modules
 namespace constants {
-    // Buffer sizes
-    inline constexpr size_type INPUT_BUFFER_SIZE = 512;
-    inline constexpr size_type OUTPUT_BUFFER_SIZE = 128;
-    inline constexpr size_type STRING_BUFFER_SIZE = 400;
-    inline constexpr size_type LINE_BUFFER_SIZE = 256;
-    inline constexpr size_type MACRO_BUFFER_SIZE = 1024;
+// Buffer sizes
+inline constexpr size_type INPUT_BUFFER_SIZE = 512;
+inline constexpr size_type OUTPUT_BUFFER_SIZE = 128;
+inline constexpr size_type STRING_BUFFER_SIZE = 400;
+inline constexpr size_type LINE_BUFFER_SIZE = 256;
+inline constexpr size_type MACRO_BUFFER_SIZE = 1024;
 
-    // Limits
-    inline constexpr size_type MAX_TABS = 20;
-    inline constexpr size_type MAX_FILES = 10;
-    inline constexpr size_type MAX_INCLUDE_DEPTH = 8;
-    inline constexpr size_type MAX_MACRO_DEPTH = 16;
-    inline constexpr size_type MAX_LINE_LENGTH = 1024;
-    inline constexpr size_type MAX_PAGE_LENGTH = 66;
+// Limits
+inline constexpr size_type MAX_TABS = 20;
+inline constexpr size_type MAX_FILES = 10;
+inline constexpr size_type MAX_INCLUDE_DEPTH = 8;
+inline constexpr size_type MAX_MACRO_DEPTH = 16;
+inline constexpr size_type MAX_LINE_LENGTH = 1024;
+inline constexpr size_type MAX_PAGE_LENGTH = 66;
 
-    // Default values
-    inline constexpr int DEFAULT_PAGE_LENGTH = 66;
-    inline constexpr int DEFAULT_LINE_LENGTH = 65;
-    inline constexpr int DEFAULT_INDENT = 0;
-    inline constexpr int DEFAULT_TAB_SIZE = 8;
-    inline constexpr int MAX_PAGE_NUMBER = 32767;
+// Default values
+inline constexpr int DEFAULT_PAGE_LENGTH = 66;
+inline constexpr int DEFAULT_LINE_LENGTH = 65;
+inline constexpr int DEFAULT_INDENT = 0;
+inline constexpr int DEFAULT_TAB_SIZE = 8;
+inline constexpr int MAX_PAGE_NUMBER = 32767;
 
-    // Character constants
-    inline constexpr char CONTROL_CHAR = '.';
-    inline constexpr char ESCAPE_CHAR = '\\';
-    inline constexpr char PREFIX_CHAR = '\033';
-    inline constexpr char COMMENT_CHAR = '\"';
-    inline constexpr char SPACE_CHAR = ' ';
-    inline constexpr char TAB_CHAR = '\t';
-    inline constexpr char NEWLINE_CHAR = '\n';
+// Character constants
+inline constexpr char CONTROL_CHAR = '.';
+inline constexpr char ESCAPE_CHAR = '\\';
+inline constexpr char PREFIX_CHAR = '\033';
+inline constexpr char COMMENT_CHAR = '\"';
+inline constexpr char SPACE_CHAR = ' ';
+inline constexpr char TAB_CHAR = '\t';
+inline constexpr char NEWLINE_CHAR = '\n';
 
-    // File paths
-    inline constexpr string_view TEMP_DIR = "/tmp";
-    inline constexpr string_view SUFFIX_TABLE_PATH = "/usr/lib/suftab";
-    inline constexpr string_view TTY_DEVICE_PREFIX = "/dev/tty";
-}
+// File paths
+inline constexpr string_view TEMP_DIR = "/tmp";
+inline constexpr string_view SUFFIX_TABLE_PATH = "/usr/lib/suftab";
+inline constexpr string_view TTY_DEVICE_PREFIX = "/dev/tty";
+} // namespace constants
 
 // Strong typing for ROFF concepts
 enum class ControlChar : char {
@@ -213,55 +217,55 @@ enum class UnderlineMode : std::uint8_t {
 };
 
 // Character classification concepts
-template<typename T>
+template <typename T>
 concept CharacterType = std::same_as<T, char> || std::same_as<T, unsigned char> || std::same_as<T, signed char>;
 
-template<typename T>
+template <typename T>
 concept StringLike = std::convertible_to<T, string_view>;
 
 // Safe character operations
 namespace char_ops {
-    ROFF_NODISCARD constexpr bool is_control(char c) noexcept {
-        return c < ' ' || c > '~';
-    }
-
-    ROFF_NODISCARD constexpr bool is_printable(char c) noexcept {
-        return c >= ' ' && c <= '~';
-    }
-
-    ROFF_NODISCARD constexpr bool is_whitespace(char c) noexcept {
-        return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-    }
-
-    ROFF_NODISCARD constexpr bool is_newline(char c) noexcept {
-        return c == '\n' || c == '\r';
-    }
-
-    ROFF_NODISCARD constexpr bool is_tab(char c) noexcept {
-        return c == '\t';
-    }
-
-    ROFF_NODISCARD constexpr int display_width(char c) noexcept {
-        return is_control(c) ? 0 : 1;
-    }
-
-    ROFF_NODISCARD constexpr char to_lower(char c) noexcept {
-        return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
-    }
-
-    ROFF_NODISCARD constexpr char to_upper(char c) noexcept {
-        return (c >= 'a' && c <= 'z') ? c - ('a' - 'A') : c;
-    }
+ROFF_NODISCARD constexpr bool is_control(char c) noexcept {
+    return c < ' ' || c > '~';
 }
 
+ROFF_NODISCARD constexpr bool is_printable(char c) noexcept {
+    return c >= ' ' && c <= '~';
+}
+
+ROFF_NODISCARD constexpr bool is_whitespace(char c) noexcept {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+ROFF_NODISCARD constexpr bool is_newline(char c) noexcept {
+    return c == '\n' || c == '\r';
+}
+
+ROFF_NODISCARD constexpr bool is_tab(char c) noexcept {
+    return c == '\t';
+}
+
+ROFF_NODISCARD constexpr int display_width(char c) noexcept {
+    return is_control(c) ? 0 : 1;
+}
+
+ROFF_NODISCARD constexpr char to_lower(char c) noexcept {
+    return (c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c;
+}
+
+ROFF_NODISCARD constexpr char to_upper(char c) noexcept {
+    return (c >= 'a' && c <= 'z') ? c - ('a' - 'A') : c;
+}
+} // namespace char_ops
+
 // Safe buffer management template
-template<size_type Size>
+template <size_type Size>
 class SafeBuffer {
-private:
+  private:
     std::array<char, Size> data_{};
     size_type position_{0};
 
-public:
+  public:
     constexpr SafeBuffer() = default;
 
     ROFF_NODISCARD constexpr span<char> available_space() noexcept {
@@ -277,13 +281,15 @@ public:
     }
 
     constexpr bool append(char c) noexcept {
-        if (position_ >= Size) return false;
+        if (position_ >= Size)
+            return false;
         data_[position_++] = c;
         return true;
     }
 
     constexpr bool append(span<const char> data) noexcept {
-        if (position_ + data.size() > Size) return false;
+        if (position_ + data.size() > Size)
+            return false;
         std::ranges::copy(data, data_.begin() + position_);
         position_ += data.size();
         return true;
@@ -308,172 +314,172 @@ public:
         return data_[index];
     }
 
-    ROFF_NODISCARD constexpr char& operator[](size_type index) noexcept {
+    ROFF_NODISCARD constexpr char &operator[](size_type index) noexcept {
         return data_[index];
     }
 };
 
 // File handling utilities
 namespace file_utils {
-    ROFF_NODISCARD inline bool exists(const path& file_path) noexcept {
-        std::error_code ec;
-        return std::filesystem::exists(file_path, ec);
-    }
-
-    ROFF_NODISCARD inline bool is_readable(const path& file_path) noexcept {
-        std::error_code ec;
-        auto status = std::filesystem::status(file_path, ec);
-        return !ec && (status.permissions() & std::filesystem::perms::owner_read) != std::filesystem::perms::none;
-    }
-
-    ROFF_NODISCARD inline bool is_writable(const path& file_path) noexcept {
-        std::error_code ec;
-        auto status = std::filesystem::status(file_path, ec);
-        return !ec && (status.permissions() & std::filesystem::perms::owner_write) != std::filesystem::perms::none;
-    }
-
-    ROFF_NODISCARD inline size_type file_size(const path& file_path) noexcept {
-        std::error_code ec;
-        auto size = std::filesystem::file_size(file_path, ec);
-        return ec ? 0 : size;
-    }
-
-    inline path create_temp_file(string_view prefix = "roff") {
-        auto temp_dir = std::filesystem::temp_directory_path();
-        auto temp_file = temp_dir / std::format("{}_{:x}", prefix,
-                                               std::chrono::steady_clock::now().time_since_epoch().count());
-        return temp_file;
-    }
+ROFF_NODISCARD inline bool exists(const path &file_path) noexcept {
+    std::error_code ec;
+    return std::filesystem::exists(file_path, ec);
 }
+
+ROFF_NODISCARD inline bool is_readable(const path &file_path) noexcept {
+    std::error_code ec;
+    auto status = std::filesystem::status(file_path, ec);
+    return !ec && (status.permissions() & std::filesystem::perms::owner_read) != std::filesystem::perms::none;
+}
+
+ROFF_NODISCARD inline bool is_writable(const path &file_path) noexcept {
+    std::error_code ec;
+    auto status = std::filesystem::status(file_path, ec);
+    return !ec && (status.permissions() & std::filesystem::perms::owner_write) != std::filesystem::perms::none;
+}
+
+ROFF_NODISCARD inline size_type file_size(const path &file_path) noexcept {
+    std::error_code ec;
+    auto size = std::filesystem::file_size(file_path, ec);
+    return ec ? 0 : size;
+}
+
+inline path create_temp_file(string_view prefix = "roff") {
+    auto temp_dir = std::filesystem::temp_directory_path();
+    auto temp_file = temp_dir / std::format("{}_{:x}", prefix,
+                                            std::chrono::steady_clock::now().time_since_epoch().count());
+    return temp_file;
+}
+} // namespace file_utils
 
 // String utilities
 namespace string_utils {
-    ROFF_NODISCARD inline string trim_left(string_view str) {
-        auto start = str.find_first_not_of(" \t\n\r");
-        return start == string_view::npos ? string{} : string{str.substr(start)};
-    }
-
-    ROFF_NODISCARD inline string trim_right(string_view str) {
-        auto end = str.find_last_not_of(" \t\n\r");
-        return end == string_view::npos ? string{} : string{str.substr(0, end + 1)};
-    }
-
-    ROFF_NODISCARD inline string trim(string_view str) {
-        return trim_left(trim_right(str));
-    }
-
-    ROFF_NODISCARD inline std::vector<string> split(string_view str, char delimiter = ' ') {
-        std::vector<string> result;
-        size_type start = 0;
-        size_type end = str.find(delimiter);
-
-        while (end != string_view::npos) {
-            if (end != start) {
-                result.emplace_back(str.substr(start, end - start));
-            }
-            start = end + 1;
-            end = str.find(delimiter, start);
-        }
-
-        if (start < str.length()) {
-            result.emplace_back(str.substr(start));
-        }
-
-        return result;
-    }
-
-    ROFF_NODISCARD inline bool starts_with(string_view str, string_view prefix) noexcept {
-        return str.starts_with(prefix);
-    }
-
-    ROFF_NODISCARD inline bool ends_with(string_view str, string_view suffix) noexcept {
-        return str.ends_with(suffix);
-    }
-
-    ROFF_NODISCARD inline bool contains(string_view str, string_view substr) noexcept {
-        return str.find(substr) != string_view::npos;
-    }
+ROFF_NODISCARD inline string trim_left(string_view str) {
+    auto start = str.find_first_not_of(" \t\n\r");
+    return start == string_view::npos ? string{} : string{str.substr(start)};
 }
+
+ROFF_NODISCARD inline string trim_right(string_view str) {
+    auto end = str.find_last_not_of(" \t\n\r");
+    return end == string_view::npos ? string{} : string{str.substr(0, end + 1)};
+}
+
+ROFF_NODISCARD inline string trim(string_view str) {
+    return trim_left(trim_right(str));
+}
+
+ROFF_NODISCARD inline std::vector<string> split(string_view str, char delimiter = ' ') {
+    std::vector<string> result;
+    size_type start = 0;
+    size_type end = str.find(delimiter);
+
+    while (end != string_view::npos) {
+        if (end != start) {
+            result.emplace_back(str.substr(start, end - start));
+        }
+        start = end + 1;
+        end = str.find(delimiter, start);
+    }
+
+    if (start < str.length()) {
+        result.emplace_back(str.substr(start));
+    }
+
+    return result;
+}
+
+ROFF_NODISCARD inline bool starts_with(string_view str, string_view prefix) noexcept {
+    return str.starts_with(prefix);
+}
+
+ROFF_NODISCARD inline bool ends_with(string_view str, string_view suffix) noexcept {
+    return str.ends_with(suffix);
+}
+
+ROFF_NODISCARD inline bool contains(string_view str, string_view substr) noexcept {
+    return str.find(substr) != string_view::npos;
+}
+} // namespace string_utils
 
 // Number parsing utilities
 namespace parse_utils {
-    ROFF_NODISCARD inline optional<int> parse_int(string_view str) noexcept {
-        int result;
-        auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), result);
-        return ec == std::errc{} ? optional<int>{result} : std::nullopt;
-    }
+ROFF_NODISCARD inline optional<int> parse_int(string_view str) noexcept {
+    int result;
+    auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), result);
+    return ec == std::errc{} ? optional<int>{result} : std::nullopt;
+}
 
-    ROFF_NODISCARD inline optional<double> parse_double(string_view str) noexcept {
-        try {
-            size_type pos;
-            double result = std::stod(string{str}, &pos);
-            return pos == str.size() ? optional<double>{result} : std::nullopt;
-        } catch (...) {
-            return std::nullopt;
-        }
-    }
-
-    ROFF_NODISCARD inline optional<size_type> parse_size(string_view str) noexcept {
-        size_type result;
-        auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), result);
-        return ec == std::errc{} ? optional<size_type>{result} : std::nullopt;
+ROFF_NODISCARD inline optional<double> parse_double(string_view str) noexcept {
+    try {
+        size_type pos;
+        double result = std::stod(string{str}, &pos);
+        return pos == str.size() ? optional<double>{result} : std::nullopt;
+    } catch (...) {
+        return std::nullopt;
     }
 }
+
+ROFF_NODISCARD inline optional<size_type> parse_size(string_view str) noexcept {
+    size_type result;
+    auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), result);
+    return ec == std::errc{} ? optional<size_type>{result} : std::nullopt;
+}
+} // namespace parse_utils
 
 // Debug and logging utilities
 namespace debug {
-    inline void log_info(string_view message, std::source_location location = std::source_location::current()) {
-        std::cerr << std::format("[INFO] {}:{} {}\n",
-                                location.file_name(), location.line(), message);
-    }
-
-    inline void log_warning(string_view message, std::source_location location = std::source_location::current()) {
-        std::cerr << std::format("[WARN] {}:{} {}\n",
-                                location.file_name(), location.line(), message);
-    }
-
-    inline void log_error(string_view message, std::source_location location = std::source_location::current()) {
-        std::cerr << std::format("[ERROR] {}:{} {}\n",
-                                location.file_name(), location.line(), message);
-    }
-
-    ROFF_NORETURN inline void fatal_error(string_view message,
-                                          std::source_location location = std::source_location::current()) {
-        std::cerr << std::format("[FATAL] {}:{} {}\n",
-                                location.file_name(), location.line(), message);
-        std::abort();
-    }
+inline void log_info(string_view message, std::source_location location = std::source_location::current()) {
+    std::cerr << std::format("[INFO] {}:{} {}\n",
+                             location.file_name(), location.line(), message);
 }
+
+inline void log_warning(string_view message, std::source_location location = std::source_location::current()) {
+    std::cerr << std::format("[WARN] {}:{} {}\n",
+                             location.file_name(), location.line(), message);
+}
+
+inline void log_error(string_view message, std::source_location location = std::source_location::current()) {
+    std::cerr << std::format("[ERROR] {}:{} {}\n",
+                             location.file_name(), location.line(), message);
+}
+
+ROFF_NORETURN inline void fatal_error(string_view message,
+                                      std::source_location location = std::source_location::current()) {
+    std::cerr << std::format("[FATAL] {}:{} {}\n",
+                             location.file_name(), location.line(), message);
+    std::abort();
+}
+} // namespace debug
 
 // Memory management utilities
 namespace memory {
-    template<typename T, typename... Args>
-    ROFF_NODISCARD unique_ptr<T> make_unique(Args&&... args) {
-        return std::make_unique<T>(std::forward<Args>(args)...);
-    }
-
-    template<typename T, typename... Args>
-    ROFF_NODISCARD shared_ptr<T> make_shared(Args&&... args) {
-        return std::make_shared<T>(std::forward<Args>(args)...);
-    }
+template <typename T, typename... Args>
+ROFF_NODISCARD unique_ptr<T> make_unique(Args &&...args) {
+    return std::make_unique<T>(std::forward<Args>(args)...);
 }
+
+template <typename T, typename... Args>
+ROFF_NODISCARD shared_ptr<T> make_shared(Args &&...args) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
+} // namespace memory
 
 // Time utilities
 namespace time_utils {
-    ROFF_NODISCARD inline std::chrono::system_clock::time_point now() noexcept {
-        return std::chrono::system_clock::now();
-    }
-
-    ROFF_NODISCARD inline string format_time(const std::chrono::system_clock::time_point& time_point,
-                                            string_view format = "%Y-%m-%d %H:%M:%S") {
-        auto time_t = std::chrono::system_clock::to_time_t(time_point);
-        auto tm = *std::localtime(&time_t);
-
-        std::ostringstream oss;
-        oss << std::put_time(&tm, format.data());
-        return oss.str();
-    }
+ROFF_NODISCARD inline std::chrono::system_clock::time_point now() noexcept {
+    return std::chrono::system_clock::now();
 }
+
+ROFF_NODISCARD inline string format_time(const std::chrono::system_clock::time_point &time_point,
+                                         string_view format = "%Y-%m-%d %H:%M:%S") {
+    auto time_t = std::chrono::system_clock::to_time_t(time_point);
+    auto tm = *std::localtime(&time_t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, format.data());
+    return oss.str();
+}
+} // namespace time_utils
 
 // Global type aliases for common ROFF data structures
 using InputBuffer = SafeBuffer<constants::INPUT_BUFFER_SIZE>;
@@ -486,43 +492,44 @@ using MacroBuffer = SafeBuffer<constants::MACRO_BUFFER_SIZE>;
 
 // Compatibility layer for legacy code transition
 namespace roff::compat {
-    // Legacy type names for gradual migration
-    using ROFF_UNUSED_TYPE = int ROFF_UNUSED;
+// Legacy type names for gradual migration
+using ROFF_UNUSED_TYPE = int ROFF_UNUSED;
 
-    // Legacy constants
-    inline constexpr int IBUF_SIZE = constants::INPUT_BUFFER_SIZE;
-    inline constexpr int OBUF_SIZE = constants::OUTPUT_BUFFER_SIZE;
-    inline constexpr int SSIZE = constants::STRING_BUFFER_SIZE;
-    inline constexpr int MAXFILES = constants::MAX_FILES;
+// Legacy constants
+inline constexpr int IBUF_SIZE = constants::INPUT_BUFFER_SIZE;
+inline constexpr int OBUF_SIZE = constants::OUTPUT_BUFFER_SIZE;
+inline constexpr int SSIZE = constants::STRING_BUFFER_SIZE;
+inline constexpr int MAXFILES = constants::MAX_FILES;
 
-    // Legacy character constants
-    inline constexpr char CC_CHAR = constants::CONTROL_CHAR;
-    inline constexpr char ESC_CHAR = constants::ESCAPE_CHAR;
-    inline constexpr char PREFIX_CHAR = constants::PREFIX_CHAR;
-}
+// Legacy character constants
+inline constexpr char CC_CHAR = constants::CONTROL_CHAR;
+inline constexpr char ESC_CHAR = constants::ESCAPE_CHAR;
+inline constexpr char PREFIX_CHAR = constants::PREFIX_CHAR;
+} // namespace roff::compat
 
 // Global assertions for development
 #ifdef ROFF_DEBUG
-    #define ROFF_ASSERT(condition, message) \
-        do { \
-            if (!(condition)) { \
-                roff::debug::fatal_error(std::format("Assertion failed: {} - {}", #condition, message)); \
-            } \
-        } while(0)
+#define ROFF_ASSERT(condition, message) \
+    do {
+if (!(condition)) {
+    roff::debug::fatal_error(std::format("Assertion failed: {} - {}", #condition, message));
+}
+}
+while (0)
 #else
-    #define ROFF_ASSERT(condition, message) ((void)0)
+#define ROFF_ASSERT(condition, message) ((void)0)
 #endif
 
 // Performance profiling macros
 #ifdef ROFF_PROFILE
-    #define ROFF_PROFILE_SCOPE(name) \
-        auto _profile_start = std::chrono::high_resolution_clock::now(); \
-        auto _profile_guard = std::unique_ptr<void, std::function<void(void*)>>( \
-            nullptr, [=](void*) { \
-                auto _profile_end = std::chrono::high_resolution_clock::now(); \
-                auto _profile_duration = std::chrono::duration_cast<std::chrono::microseconds>(_profile_end - _profile_start); \
-                roff::debug::log_info(std::format("Profile {}: {}μs", name, _profile_duration.count())); \
-            });
+#define ROFF_PROFILE_SCOPE(name) \
+    auto _profile_start = std::chrono::high_resolution_clock::now();
+    auto _profile_guard = std::unique_ptr<void, std::function<void(void *)>>(
+        nullptr, [=](void *) {
+            auto _profile_end = std::chrono::high_resolution_clock::now();
+            auto _profile_duration = std::chrono::duration_cast<std::chrono::microseconds>(_profile_end - _profile_start);
+            roff::debug::log_info(std::format("Profile {}: {}μs", name, _profile_duration.count()));
+        });
 #else
-    #define ROFF_PROFILE_SCOPE(name) ((void)0)
+#define ROFF_PROFILE_SCOPE(name) ((void)0)
 #endif

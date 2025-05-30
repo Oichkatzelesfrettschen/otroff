@@ -1,3 +1,4 @@
+#include "cxx23_scaffold.hpp"
 /**
  * @file roff2.c
  * @brief ROFF text formatter - Control command handlers and text processing.
@@ -62,7 +63,8 @@
 #include "roff_globals.hpp" /* Shared globals and prototypes */
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff2.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff2.c 1.3 25/05/29 (converted from PDP-11 assembly)"; // ID string
 
 /* External variables from roff1.c and other modules */
 

@@ -9,16 +9,19 @@ neqn/neqnrc         linguist-language=Shell
 croff/sufrc         diff
 
 # Normalize line endings for source files
-*.c text filter=stripnul
-*.h text filter=stripnul
+*.c    text filter=stripnul
+*.h    text filter=stripnul
+*.cpp  text filter=stripnul
+*.hpp  text filter=stripnul
 *.s text diff filter=stripnul
 
 # Do not process generated binary tables
-croff/term/*.c -text -filter
-croff/nii.c -text -filter
-croff/tacct.c -text -filter
+croff/term/*.cpp -text -filter
+croff/nii.cpp text
+croff/tacct.c text
 croff/t.h text diff
 croff/tdef.h text diff
-neqn/*.c -text -filter
-tbl/*.c -text -filter
+neqn/*.cpp text
+tbl/*.cpp text
 *.c text diff
+*.cpp text diff
