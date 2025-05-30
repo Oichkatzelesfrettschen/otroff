@@ -58,7 +58,8 @@
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff5.c 1.3 25/05/29 (hyphenation engine - converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff5.c 1.3 25/05/29 (hyphenation engine - converted from PDP-11 assembly)"; // ID string
 
 /* Constants for hyphenation algorithm */
 #define MAX_WORD_LENGTH 64 /**< Maximum word length for hyphenation */

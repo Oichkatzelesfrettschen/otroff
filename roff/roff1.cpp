@@ -214,7 +214,8 @@ class SafeBuffer {
 #define os_unlink unlink
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)"; // ID string
 
 /* Buffer size constants */
 #define IBUF_SIZE 512 /**< Input buffer size */
@@ -324,7 +325,7 @@ static const control_entry_t control_table[] = {
     {"cc", case_cc}, /* Control character */
     {"ce", case_ce}, /* Center lines */
     /* Additional entries would go here... */
-    {"", NULL} /* Sentinel entry */
+    {"", nullptr} /* Sentinel entry */
 };
 
 /**
@@ -577,7 +578,7 @@ static void control_handler(void) {
     cmd[2] = '\0';
 
     /* Look up command in table */
-    for (i = 0; control_table[i].handler != NULL; i++) {
+    for (i = 0; control_table[i].handler != nullptr; i++) {
         if (strcmp(cmd, control_table[i].cmd) == 0) {
             control_table[i].handler();
             return;

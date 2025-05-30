@@ -38,6 +38,9 @@
 #include <span>
 #include <optional>
 #include <expected>
+
+// Roff version information for diagnostics
+inline constexpr std::string_view roff_version{"C++23-modern"};
 #include <memory>
 #include <ranges>
 #include <algorithm>

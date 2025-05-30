@@ -1,5 +1,5 @@
 #include "cxx23_scaffold.hpp"
-#include <ctype.h>
+#include <cctype> // for std::isalpha and std::tolower
 #include "hyphen_utils.h"
 
 /* Simple helpers used by the old hyphenation code. */
@@ -7,13 +7,13 @@
 /*
  * Determine if character ``c`` is punctuation.
  */
-int punct(int c) {
+[[nodiscard]] constexpr int punct(int c) noexcept {
     if (c == 0)
         return 0;
-    return !isalpha((unsigned char)c);
+    return !std::isalpha(static_cast<unsigned char>(c));
 }
 
-int vowel(int c) {
-    c = tolower((unsigned char)c);
+[[nodiscard]] constexpr int vowel(int c) noexcept {
+    c = std::tolower(static_cast<unsigned char>(c));
     return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || c == 'y';
 }

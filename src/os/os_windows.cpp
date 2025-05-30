@@ -36,12 +36,12 @@ int os_stat(const char *path, struct stat *buf) {
     return _stat(path, buf);
 }
 
-FILE *os_fopen(const char *path, const char *mode) {
-    FILE *f = NULL;
+[[nodiscard]] FILE *os_fopen(const char *path, const char *mode) {
+    FILE *f = nullptr; // std pointer initialization
     fopen_s(&f, path, mode);
     return f;
 }
 
-int os_fclose(FILE *file) {
+[[nodiscard]] int os_fclose(FILE *file) {
     return fclose(file);
 }

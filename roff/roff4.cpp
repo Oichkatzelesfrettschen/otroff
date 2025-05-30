@@ -66,7 +66,8 @@
 #include "roff.h" /* ROFF system definitions and globals */
 
 /* SCCS version identifier */
-static const char sccs_id[] ROFF_UNUSED = "@(#)roff4.c 1.3 25/05/29 (converted from PDP-11 assembly)";
+[[maybe_unused]] static constexpr std::string_view sccs_id =
+    "@(#)roff4.c 1.3 25/05/29 (converted from PDP-11 assembly)"; // ID string
 
 /* Constants for text processing */
 #define DEFAULT_PAGE_LENGTH 66 /**< Default page length in lines */

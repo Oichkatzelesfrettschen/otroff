@@ -4,12 +4,13 @@
  * Modernized to C90 standards
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <array> // std::array for fixed data
+#include <cstdio>
+#include <cstdlib>
 #include "suftab.h"
 
 /* Suffix table data - modernized array declaration */
-const char suftab[4096] = {
+constexpr std::array<char, SUFTAB_SIZE> suftab = {
     // ...existing code...
 };
 

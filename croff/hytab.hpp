@@ -2,6 +2,7 @@
  * hytab.cpp - Hyphenation Tables Implementation
  */
 
+#include "cxx23_scaffold.hpp" // Modern C++23 enforcement
 #include "hytab.hpp"
 #include <algorithm>
 #include <numeric>
