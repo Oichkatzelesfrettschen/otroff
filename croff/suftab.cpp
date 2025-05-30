@@ -36,7 +36,7 @@
  */
 
 #include <stddef.h> /* For size_t type definition */
-#include "suftab.h" /* Module interface */
+#include "suftab.hpp" /* Module interface */
 
 /**
  * @def SUFTAB_INDEX_SIZE

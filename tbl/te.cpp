@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* te.c: error message control, input line count */
-#include "tbl.h"
+#include "tbl.hpp"
 #include <stdlib.h> /* exit */
 #include <stdio.h> /* fprintf */
 /* Report an error and exit. */

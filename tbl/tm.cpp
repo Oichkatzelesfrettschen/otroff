@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* tm.c: split numerical fields */
-#include "tbl.h"
+#include "tbl.hpp"
 /* Split a numeric string into two fields. */
 char *maknew(char *str) {
     /* make two numerical fields */

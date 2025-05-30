@@ -16,7 +16,7 @@
 #include <assert.h>
 
 /* Include header files with declarations */
-#include "t.h"
+#include "t.hpp" // updated header
 
 /* Include the source file to test */
 #include "n2.c"

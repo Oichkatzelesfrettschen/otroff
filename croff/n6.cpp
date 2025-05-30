@@ -6,10 +6,10 @@
  * point size changes, and motion commands in the troff/nroff system.
  */
 
-#include "tdef.h"
-#include "t.h"
+#include "tdef.hpp" // troff definitions
+#include "t.hpp"    // troff header
 #define NROFF 1
-#include "tw.h"
+#include "tw.hpp"   // terminal writer definitions
 
 /* External variables - character and formatting state */
 extern int eschar; /* escape character */

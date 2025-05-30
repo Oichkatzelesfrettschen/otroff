@@ -7,9 +7,8 @@
  * typewriter-style output devices.
  */
 
-#ifndef TW_H
-#define TW_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // utilities
 
 /* Standard C library includes */
 #include <stdio.h>
@@ -99,4 +98,3 @@ void ptlead(void);
  */
 void dostop(void);
 
-#endif /* TW_H */

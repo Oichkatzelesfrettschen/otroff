@@ -13,9 +13,8 @@
  * initialization.
  */
 
-#ifndef SUFTAB_H
-#define SUFTAB_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // common utilities
 
 #include <stddef.h> /* For size_t type */
 
@@ -184,8 +183,6 @@ extern const unsigned short suftab_index[SUFTAB_NUM_LETTERS];
  */
 #define SUFTAB_ESTIMATED_INDEX_SIZE (SUFTAB_NUM_LETTERS * sizeof(unsigned short))
 #define SUFTAB_ESTIMATED_DATA_SIZE 2048 /* Approximate, varies by dataset */
-
-#endif /* SUFTAB_H */
 
 /*
  * EOF - End of suffix table header

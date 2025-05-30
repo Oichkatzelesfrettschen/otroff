@@ -28,7 +28,7 @@
 
 #include <stddef.h> /* For size_t type definition */
 #include <stdio.h> /* For printf function */
-#include "suftab.h" /* Module interface */
+#include "suftab.hpp" /* Module interface */
 
 /*
  * Hyphenation algorithm flags and constants

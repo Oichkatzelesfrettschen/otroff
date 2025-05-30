@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* t4.c: read table specification */
-#include "tbl.h"
+#include "tbl.hpp"
 #include <stdio.h> /* fprintf */
 #include <stdlib.h>
 int oncol;

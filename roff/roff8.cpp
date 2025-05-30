@@ -37,7 +37,7 @@
 #include <stdlib.h>
 
 /* Include ROFF system headers */
-#include "roff.h"
+#include "roff.hpp" // roff definitions
 
 /* Copyright notice from original Bell Labs code */
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";

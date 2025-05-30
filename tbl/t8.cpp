@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* t8.c: write out one line of output table */
-#include "tbl.h"
+#include "tbl.hpp"
 #include <stdio.h> /* fprintf */
 #define realsplit ((ct == 'a' || ct == 'n') && table[nl][c].rcol)
 int watchout;

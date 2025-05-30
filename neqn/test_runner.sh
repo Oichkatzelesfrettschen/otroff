@@ -67,7 +67,7 @@ done
 print_section "NEQN COMPREHENSIVE TEST SUITE"
 
 # Check if we're in the right directory
-if [[ ! -f "Makefile" ]] || [[ ! -f "ne.h" ]]; then
+if [[ ! -f "Makefile" ]] || [[ ! -f "ne.hpp" ]]; then
     print_status "$RED" "Error: Must be run from the neqn source directory"
     exit 1
 fi

@@ -1,8 +1,7 @@
 /* tbl.h: external declarations and prototypes */
 
-#ifndef TBL_TBL_H
-#define TBL_TBL_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // utilities
 
 #include <stdio.h>
 
@@ -138,4 +137,3 @@ int left(int i, int c, int *lwidp);
 int lefdata(int i, int c);
 int next(int i);
 int prev(int i);
-#endif /* TBL_TBL_H */

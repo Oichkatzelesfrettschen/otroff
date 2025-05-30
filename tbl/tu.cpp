@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* tu.c: draws horizontal lines */
-#include "tbl.h" /* table internals */
+#include "tbl.hpp" /* table internals */
 makeline(i, c, lintype) {
     int cr, type;
     type = thish(i, c);

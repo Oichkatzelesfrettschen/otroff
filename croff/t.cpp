@@ -29,7 +29,7 @@
 #define NNAMES 100 /* or appropriate value based on your application */
 #endif
 
-#include "t.h"
+#include "t.hpp" // updated header extension
 
 /*
  * sub1 - Subtract a delta value from a time value

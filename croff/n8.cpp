@@ -18,7 +18,7 @@
  * @version Enhanced C90 compliant version
  */
 
-#include "tdef.h"
+#include "tdef.hpp" // updated header extension
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>

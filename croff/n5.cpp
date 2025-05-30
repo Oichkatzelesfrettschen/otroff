@@ -7,9 +7,9 @@
  * processing, and other text formatting utilities.
  */
 
-#include "tdef.h"
-#include "env.h"
-#include "t.h"
+#include "tdef.hpp" // core definitions
+#include "env.hpp"  // environment structure
+#include "t.hpp"    // troff header
 #include <stdio.h>
 
 /* External variable declarations */

@@ -1,5 +1,5 @@
 #include "cxx23_scaffold.hpp"
-#include "tbl.h"
+#include "tbl.hpp"
 
 #include <cstdlib>
 #include <cstdio>

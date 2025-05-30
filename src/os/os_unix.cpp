@@ -1,5 +1,5 @@
 #include "cxx23_scaffold.hpp"
-#include "os_abstraction.h"
+#include "os_abstraction.hpp" // updated header extension
 
 /*
  * Unix implementation of OS abstraction layer.

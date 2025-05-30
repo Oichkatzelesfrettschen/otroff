@@ -30,10 +30,10 @@
  * - Robust handling of various input conditions and overflow scenarios.
  */
 
-#include "tdef.h"
-#include "env.h"
-#include "t.h"
-#include "tw.h"
+#include "tdef.hpp" // troff definitions
+#include "env.hpp"  // environment data
+#include "t.hpp"    // troff common
+#include "tw.hpp"   // typewriter table
 
 #ifdef NROFF
 #define GETCH gettch

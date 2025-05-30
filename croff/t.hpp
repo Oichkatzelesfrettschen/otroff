@@ -7,9 +7,8 @@
  * Conforms to C90 standard for maximum portability.
  */
 
-#ifndef T_H
-#define T_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // utilities
 
 /* 
  * Standard C90 library includes for troff implementation
@@ -132,4 +131,3 @@ void sub1(int tt[2], int delta);
  * Original: static char Sccsid[] "@(#)t.h 1.3 of 4/26/77";
  */
 
-#endif /* T_H */

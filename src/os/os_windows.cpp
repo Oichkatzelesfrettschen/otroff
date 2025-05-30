@@ -1,5 +1,5 @@
 #include "cxx23_scaffold.hpp"
-#include "os_abstraction.h"
+#include "os_abstraction.hpp" // use C++ header version
 #include <io.h>
 
 /*

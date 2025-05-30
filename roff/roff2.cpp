@@ -43,7 +43,7 @@ import <chrono>;
 import <source_location>;
 import <stacktrace>;
 
-#include "roff.h"
+#include "roff.hpp" // updated header
 #include "roff_globals.hpp"
 
 namespace roff::commands {

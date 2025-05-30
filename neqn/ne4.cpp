@@ -34,7 +34,7 @@
  * - Comprehensive debug and error reporting
  */
 
-#include "ne.h" /* NEQN type definitions and global declarations */
+#include "ne.hpp" /* NEQN type definitions and global declarations */
 #include <stdio.h> /* Standard I/O operations */
 #include <stdlib.h> /* Standard library functions */
 #include <signal.h> /* Signal handling for broken pipes */

@@ -75,15 +75,15 @@
  * static char Sccsid[] = "@(#)n10.c  1.3 of 4/26/77";
  */
 #define NROFF 1
-#include "tdef.h" /* Main definitions, likely includes t.h */
-#include "env.h" /* Environment structure definition */
-/* #include "t.h" -- Likely included by tdef.h */
-#include "tw.h" /* Terminal/writer specific definitions */
+#include "tdef.hpp" /* Main definitions, likely includes t.hpp */
+#include "env.hpp"  /* Environment structure definition */
+/* #include "t.hpp" -- Likely included by tdef.hpp */
+#include "tw.hpp"  /* Terminal/writer specific definitions */
 #include <stdlib.h> /* For exit(), NULL */
 #include <unistd.h> /* For read(), close(), open(), lseek(), sbrk() if setbrk is a wrapper */
 #include <fcntl.h> /* For open() flags */
 #include <sys/wait.h> /* For wait() */
-#include "proto.h" /* Function prototypes for this project */
+#include "proto.hpp" /* Function prototypes for this project */
 
 /* Explicit declaration to avoid implicit function warning */
 void flusho(void);

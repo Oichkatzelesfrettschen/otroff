@@ -38,7 +38,7 @@
  * SUCH DAMAGE.
  */
 
-#include "tdef.h" /* Primary troff definitions, includes t.h indirectly or directly */
+#include "tdef.hpp" /* Primary troff definitions, includes t.hpp indirectly or directly */
 /* #include "t.h"  -- Usually included via tdef.h */
 
 /* External variable declarations from other parts of the troff system */

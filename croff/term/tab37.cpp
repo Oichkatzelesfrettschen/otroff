@@ -47,7 +47,7 @@ struct termtab {
  * Table instance for TTY M37
  * All fields are initialized in C++23-compliant order.
  */
-extern "C" const termtab t{
+const termtab t{
     .bset = 0,
     .breset = 0,
     .Hor = INCH / 10,

@@ -1,5 +1,5 @@
 #include "cxx23_scaffold.hpp"
-#include "ne.h"
+#include "ne.hpp"
 #include "y.tab.c"
 #include <stdio.h>
 #include <stdlib.h>

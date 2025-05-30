@@ -38,9 +38,9 @@
  *   - Maintains historical escape sequence processing
  */
 
-#include "tdef.h"
-#include "env.h"
-#include "t.h"
+#include "tdef.hpp" // troff definitions
+#include "env.hpp"  // environment data
+#include "t.hpp"    // troff common header
 
 #include <stdlib.h> /* C90: exit, malloc, free */
 #include <unistd.h> /* POSIX: write, close, open, sleep */
