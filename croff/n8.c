@@ -176,11 +176,12 @@ int exword(void) {
             } else {
                 e++;
                 continue;
-    if (!(off = (char *)sufind[i]))
-        return (0);
-            while (*e++)
-                ;
+            }
+        }
+        while (*e++)
+            ;
     }
+    return 0;
 }
 int suffix(void) {
     int *w;
@@ -335,4 +336,3 @@ int dilook(int a, int b, char t[26][13]) {
         i = i >> 4;
     return (i & 017);
 }
-    }
