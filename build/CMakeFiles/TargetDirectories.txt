@@ -1,0 +1,4 @@
+/Users/eirikr/Documents/GitHub/otroff/build/CMakeFiles/os_abstraction.dir
+/Users/eirikr/Documents/GitHub/otroff/build/CMakeFiles/troff.dir
+/Users/eirikr/Documents/GitHub/otroff/build/CMakeFiles/edit_cache.dir
+/Users/eirikr/Documents/GitHub/otroff/build/CMakeFiles/rebuild_cache.dir
