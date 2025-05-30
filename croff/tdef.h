@@ -73,12 +73,24 @@
  * Signal definitions (for older systems lacking signal.h)
  * These may be redundant on modern systems but ensure portability
  */
-#define SIGHUP          1               /* Hangup signal */
-#define SIGINT          2               /* Interrupt signal */
-#define SIGQUIT         3               /* Quit signal */
-#define SIGFPE          8               /* Floating point exception */
-#define SIGKILL         15              /* Kill signal */
-#define SIGPIPE         13              /* Broken pipe signal */
+#ifndef SIGHUP
+#define SIGHUP 1 /* Hangup signal */
+#endif
+#ifndef SIGINT
+#define SIGINT 2 /* Interrupt signal */
+#endif
+#ifndef SIGQUIT
+#define SIGQUIT 3 /* Quit signal */
+#endif
+#ifndef SIGFPE
+#define SIGFPE 8 /* Floating point exception */
+#endif
+#ifndef SIGKILL
+#define SIGKILL 15 /* Kill signal */
+#endif
+#ifndef SIGPIPE
+#define SIGPIPE 13 /* Broken pipe signal */
+#endif
 
 /*
  * Terminal and character constants
