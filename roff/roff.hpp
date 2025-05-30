@@ -23,10 +23,6 @@
 #error "C++23 consteval support required"
 #endif
 
-// Force strict C++23 mode
-#define PURE_CPP23_ONLY
-#include "cxx23_scaffold.hpp"
-
 // Modern C++23 includes - replace all C headers
 #include <iostream>
 #include <fstream>
@@ -38,10 +34,14 @@
 #include <span>
 #include <optional>
 #include <expected>
+#include <memory>
+
+// Force strict C++23 mode
+#define PURE_CPP23_ONLY
+#include "cxx23_scaffold.hpp"
 
 // Roff version information for diagnostics
 inline constexpr std::string_view roff_version{"C++23-modern"};
-#include <memory>
 #include <ranges>
 #include <algorithm>
 #include <format>

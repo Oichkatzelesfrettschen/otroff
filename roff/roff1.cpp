@@ -1,285 +1,285 @@
-// Enforce C++23 compilation with comprehensive feature checks
-#if __cplusplus < 202302L
-#error "This code requires C++23 or later. Use -std=c++23 or equivalent."
-#endif
-
-#ifndef __cpp_concepts
-#error "C++23 concepts support required"
-#endif
-
-#ifndef __cpp_consteval
-#error "C++23 consteval support required"
-#endif
-
-#ifndef __cpp_lib_expected
-#error "C++23 std::expected support required"
-#endif
-
-#ifndef __cpp_lib_ranges
-#error "C++23 ranges support required"
+// Enforce C++17 compilation for maximum compatibility
+#if __cplusplus < 201703L
+#error "This code requires C++17 or later. Use -std=c++17 or equivalent."
 #endif
 
 /**
  * @file roff1.cpp
- * @brief ROFF text formatter - Main driver and core functionality (Pure C++23)
- * @author Generated with C++23 best practices
+ * @brief ROFF text formatter - Main driver and core functionality (Modern C++)
+ * @author Generated with modern C++ best practices
  * @version 2.0
  * @date 2024
  *
  * @details This implementation provides a complete ROFF text processor using
- * modern C++23 features including concepts, modules, ranges, and std::expected.
+ * modern C++ features including smart pointers, RAII, and type safety.
  * All C-style code has been eliminated in favor of type-safe, exception-safe
  * modern C++ constructs.
  */
 
-#include "roff.hpp"
 #include <algorithm>
 #include <array>
-#include <concepts>
-#include <expected>
-#include <format>
 #include <fstream>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <optional>
-#include <ranges>
-#include <span>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <utility>
+#include <stdexcept>
+#include <sstream>
 
-/// @brief Primary namespace for ROFF processing engine
-namespace roff::engine {
+// Forward declarations and error handling
+namespace roff {
 
-using namespace roff;
-using namespace std::literals;
+enum class ErrorCode {
+    Success = 0,
+    InvalidArgument = 1,
+    FileNotFound = 2,
+    InternalError = 3,
+    OutputError = 4,
+    BufferOverflow = 5
+};
 
-/// @brief Result type alias for std::expected operations
+enum class TextAlignment {
+    Left = 0,
+    Right = 1,
+    Center = 2,
+    Both = 3
+};
+
+enum class ProcessingMode {
+    Normal = 0,
+    Stop = 1,
+    HighSpeed = 2
+};
+
+struct RoffConfig {
+    bool fill_mode{true};
+    int indent{0};
+    int temp_indent{0};
+    int line_length{65};
+    int page_length{66};
+    int start_page{1};
+    int end_page{0};
+    int centering_lines_count{0};
+    bool apply_temp_indent_once{false};
+    std::optional<int> previous_indent;
+    TextAlignment adjust_mode{TextAlignment::Left};
+    ProcessingMode mode{ProcessingMode::Normal};
+    
+    bool is_valid() const noexcept {
+        return line_length > 0 && page_length >= 0 && start_page > 0;
+    }
+};
+
+class RoffException : public std::exception {
+private:
+    ErrorCode code_;
+    std::string message_;
+
+public:
+    RoffException(ErrorCode code, const std::string& message) 
+        : code_(code), message_(message) {}
+    
+    const char* what() const noexcept override { return message_.c_str(); }
+    ErrorCode code() const noexcept { return code_; }
+    
+    struct source_location {
+        std::string file_name() const { return "roff1.cpp"; }
+        int line() const { return 0; }
+    };
+    
+    source_location location() const { return {}; }
+};
+
+namespace constants {
+    constexpr char CONTROL_CHAR = '.';
+    constexpr char ESCAPE_CHAR = '\\';
+    constexpr char PREFIX_CHAR = '%';
+    constexpr int DEFAULT_LINE_LENGTH = 65;
+    constexpr int DEFAULT_PAGE_LENGTH = 66;
+}
+
+namespace debug {
+    void log_info(const std::string& msg) {
+        std::cerr << "[INFO] " << msg << std::endl;
+    }
+    void log_warning(const std::string& msg) {
+        std::cerr << "[WARN] " << msg << std::endl;
+    }
+    void log_error(const std::string& msg) {
+        std::cerr << "[ERROR] " << msg << std::endl;
+    }
+}
+
+namespace string_utils {
+    std::string_view trim(const std::string& str) {
+        const auto start = str.find_first_not_of(" \t\r\n");
+        if (start == std::string::npos) return {};
+        const auto end = str.find_last_not_of(" \t\r\n");
+        return std::string_view(str).substr(start, end - start + 1);
+    }
+}
+
+namespace parse_utils {
+    std::optional<int> parse_int(std::string_view str) {
+        try {
+            std::string s(str);
+            return std::stoi(s);
+        } catch (...) {
+            return std::nullopt;
+        }
+    }
+}
+
+class OutputBuffer {
+private:
+    std::vector<char> buffer_;
+    std::size_t capacity_;
+    
+public:
+    explicit OutputBuffer(std::size_t capacity = 8192) 
+        : capacity_(capacity) {
+        buffer_.reserve(capacity_);
+    }
+    
+    bool append(char c) {
+        if (buffer_.size() >= capacity_) return false;
+        buffer_.push_back(c);
+        return true;
+    }
+    
+    std::string_view used_space() const {
+        return std::string_view(buffer_.data(), buffer_.size());
+    }
+    
+    void clear() { buffer_.clear(); }
+    bool empty() const { return buffer_.empty(); }
+};
+
+namespace engine {
+
+using std::string;
+using std::string_view;
+
+/// @brief Simple Result type for error handling
 template <typename T>
-using Result = std::expected<T, ErrorCode>;
+class Result {
+private:
+    std::optional<T> value_;
+    std::optional<ErrorCode> error_;
 
-/// @brief Concept defining valid text content
-template <typename T>
-concept TextContent = std::convertible_to<T, std::string_view> &&
-                      requires(T t) {
-                          { t.empty() } -> std::convertible_to<bool>;
-                          { t.size() } -> std::convertible_to<std::size_t>;
-                      };
+public:
+    Result(T&& val) : value_(std::move(val)) {}
+    Result(const T& val) : value_(val) {}
+    Result(ErrorCode err) : error_(err) {}
+    
+    bool has_value() const { return value_.has_value(); }
+    operator bool() const { return has_value(); }
+    
+    T& operator*() { return *value_; }
+    const T& operator*() const { return *value_; }
+    
+    T* operator->() { return &(*value_); }
+    const T* operator->() const { return &(*value_); }
+    
+    ErrorCode error() const { return error_.value_or(ErrorCode::Success); }
+};
 
-/// @brief Concept for numeric arguments
-template <typename T>
-concept NumericArgument = std::integral<T> || std::convertible_to<T, int>;
+template<>
+class Result<void> {
+private:
+    std::optional<ErrorCode> error_;
 
-/**
- * @brief Modern ROFF processor implementation using pure C++23
- *
- * This class provides complete ROFF text processing capabilities with:
- * - Type-safe command processing
- * - Memory-safe file handling
- * - Exception-safe error handling
- * - Modern C++23 patterns throughout
- */
-class RoffProcessor {
-  private:
-    /// @brief Configuration state
-    RoffConfig config_;
+public:
+    Result() = default;
+    Result(ErrorCode err) : error_(err) {}
+    
+    bool has_value() const { return !error_.has_value(); }
+    operator bool() const { return has_value(); }
+    
+    ErrorCode error() const { return error_.value_or(ErrorCode::Success); }
+};
 
-    /// @brief Command registry using modern function objects
-    std::unordered_map<std::string, std::function<Result<void>(std::string_view)>> commands_;
+// Helper function for starts_with (C++20 feature)
+bool starts_with(std::string_view str, char c) {
+    return !str.empty() && str[0] == c;
+}
 
-    /// @brief Output buffer for efficient text accumulation
-    OutputBuffer output_buffer_;
-
-    /// @brief Current line being assembled
-    std::string line_buffer_;
-
-    /// @brief Input file streams with RAII management
-    std::vector<std::unique_ptr<std::ifstream>> input_files_;
-
-    /// @brief Current file processing index
-    std::size_t current_file_index_{0};
-
-    /// @brief Exit request flag for .ex command
-    bool exit_requested_{false};
-
-    /// @brief Page tracking state
-    struct PageState {
-        int current_page{1};
-        int current_line_in_page{0};
-    } page_state_;
-
-    /// @brief Character translation table for escape sequences
-    std::array<char, 128> translation_table_;
-
-    /// @brief Modern escape sequence mappings
-    static constexpr std::array escape_mappings_{
-        std::pair{'d', '\032'}, std::pair{'u', '\035'}, std::pair{'r', '\036'},
-        std::pair{'x', '\016'}, std::pair{'y', '\017'}, std::pair{'l', '\177'},
-        std::pair{'t', '\t'}, std::pair{'a', '@'}, std::pair{'n', '#'},
-        std::pair{'\\', '\\'}};
-
-    /// @brief Prefix sequence mappings
-    static constexpr std::array prefix_mappings_{
-        std::pair{'7', '\036'}, std::pair{'8', '\035'}, std::pair{'9', '\032'},
-        std::pair{'4', '\b'}, std::pair{'3', '\r'}, std::pair{'1', '\026'},
-        std::pair{'2', '\027'}};
-
-  public:
-    /**
-     * @brief Construct a new ROFF processor
-     * @param config Initial configuration (default constructed if not provided)
-     * @throws RoffException if configuration is invalid
-     */
-    explicit RoffProcessor(RoffConfig config = {}) : config_(std::move(config)) {
-        if (!config_.is_valid()) {
-            throw RoffException(ErrorCode::InvalidArgument, "Invalid ROFF configuration");
-        }
-
-        initialize_translation_table();
-        register_commands();
-    }
-
-    /**
-     * @brief Process command line arguments using modern ranges
-     * @param args Span of command line arguments
-     * @return Result indicating success or failure
-     */
-    Result<void> process_arguments(std::span<const std::string_view> args) {
-        for (const auto &arg : args) {
-            if (auto result = process_single_argument(arg); !result) {
-                return result;
-            }
-        }
-        return {};
-    }
-
-    /**
-     * @brief Main processing loop using modern C++23 patterns
-     * @return Result indicating success or completion
-     */
-    Result<void> process() {
-        while (auto char_result = get_next_character()) {
-            if (exit_requested_)
-                break;
-
-            const auto ch = *char_result;
-
-            if (ch == constants::CONTROL_CHAR) {
-                if (auto result = process_control_command(); !result) {
-                    return result;
-                }
-            } else {
-                if (auto result = process_text_character(ch); !result) {
-                    return result;
-                }
-            }
-        }
-
-        return flush_final_content();
-    }
-
-    /**
-     * @brief Flush any remaining content and finalize output
-     * @return Result indicating success or failure
-     */
-    Result<void> flush_final_content() {
-        // Flush any remaining line buffer content
-        if (!line_buffer_.empty()) {
-            if (auto result = format_and_output_line(false); !result) {
-                return result;
-            }
-            line_buffer_.clear();
-        }
-
-        // Flush the main output buffer
-        return flush_output_buffer();
-    }
-
-  private:
-    /**
-     * @brief Initialize character translation table
-     */
-    constexpr void initialize_translation_table() noexcept {
-        std::ranges::iota(translation_table_, char{0});
-    }
-
-    /**
-     * @brief Register all supported ROFF commands
-     */
-    void register_commands() {
-        // Line breaking commands
-        commands_["br"] = [this](std::string_view) -> Result<void> {
+bool starts_with(std::string_view str, std::string_view prefix) {
+    return str.length() >= prefix.length() && 
             return command_break_line();
         };
 
-        commands_["bp"] = [this](std::string_view args) -> Result<void> {
+        commands_["bp"] = [this](string_view args) -> Result<void> {
             return command_break_page(args);
         };
 
-        commands_["sp"] = [this](std::string_view args) -> Result<void> {
+        commands_["sp"] = [this](string_view args) -> Result<void> {
             return command_space_lines(args);
         };
 
         // Text formatting commands
-        commands_["ce"] = [this](std::string_view args) -> Result<void> {
+        commands_["ce"] = [this](string_view args) -> Result<void> {
             return command_center_lines(args);
         };
 
-        commands_["fi"] = [this](std::string_view) -> Result<void> {
+        commands_["fi"] = [this](string_view) -> Result<void> {
             config_.fill_mode = true;
             debug::log_info("Fill mode enabled");
-            return {};
+            return Result<void>{};
         };
 
-        commands_["nf"] = [this](std::string_view) -> Result<void> {
+        commands_["nf"] = [this](string_view) -> Result<void> {
             config_.fill_mode = false;
             debug::log_info("Fill mode disabled");
-            return {};
+            return Result<void>{};
         };
 
         // Indentation and spacing commands
-        commands_["in"] = [this](std::string_view args) -> Result<void> {
+        commands_["in"] = [this](string_view args) -> Result<void> {
             return command_set_indent(args);
         };
 
-        commands_["ll"] = [this](std::string_view args) -> Result<void> {
+        commands_["ll"] = [this](string_view args) -> Result<void> {
             return command_set_line_length(args);
         };
 
-        commands_["ti"] = [this](std::string_view args) -> Result<void> {
+        commands_["ti"] = [this](string_view args) -> Result<void> {
             return command_temporary_indent(args);
         };
 
-        commands_["pl"] = [this](std::string_view args) -> Result<void> {
+        commands_["pl"] = [this](string_view args) -> Result<void> {
             return command_set_page_length(args);
         };
 
         // Text adjustment commands
-        commands_["ad"] = [this](std::string_view args) -> Result<void> {
+        commands_["ad"] = [this](string_view args) -> Result<void> {
             return command_adjust_text(args);
         };
 
-        commands_["na"] = [this](std::string_view) -> Result<void> {
+        commands_["na"] = [this](string_view) -> Result<void> {
             config_.adjust_mode = TextAlignment::Left;
             debug::log_info("Text adjustment disabled");
-            return {};
+            return Result<void>{};
         };
 
         // File processing commands
-        commands_["so"] = [this](std::string_view args) -> Result<void> {
+        commands_["so"] = [this](string_view args) -> Result<void> {
             return command_source_file(args);
         };
 
-        commands_["nx"] = [this](std::string_view args) -> Result<void> {
+        commands_["nx"] = [this](string_view args) -> Result<void> {
             return command_next_file(args);
         };
 
-        commands_["ex"] = [this](std::string_view) -> Result<void> {
+        commands_["ex"] = [this](string_view) -> Result<void> {
             debug::log_info("Exit command received");
             exit_requested_ = true;
-            return {};
+            return Result<void>{};
         };
     }
 
@@ -288,29 +288,29 @@ class RoffProcessor {
      * @param arg The argument to process
      * @return Result indicating success or failure
      */
-    Result<void> process_single_argument(std::string_view arg) {
+    Result<void> process_single_argument(string_view arg) {
         if (arg.starts_with('+')) {
             if (auto page = parse_utils::parse_int(arg.substr(1))) {
                 config_.start_page = *page;
-                return {};
+                return Result<void>{};
             }
-            return std::unexpected{ErrorCode::InvalidArgument};
+            return Result<void>{ErrorCode::InvalidArgument};
         }
 
         if (arg.starts_with('-')) {
             if (arg == "-s") {
                 config_.mode = ProcessingMode::Stop;
-                return {};
+                return Result<void>{};
             }
             if (arg == "-h") {
                 config_.mode = ProcessingMode::HighSpeed;
-                return {};
+                return Result<void>{};
             }
             if (auto page = parse_utils::parse_int(arg.substr(1))) {
                 config_.end_page = *page;
-                return {};
+                return Result<void>{};
             }
-            return std::unexpected{ErrorCode::InvalidArgument};
+            return Result<void>{ErrorCode::InvalidArgument};
         }
 
         // Input file
@@ -323,12 +323,12 @@ class RoffProcessor {
      * @param insert_next Whether to insert after current file or append
      * @return Result indicating success or failure
      */
-    Result<void> add_input_file(std::string_view filename, bool insert_next = false) {
+    Result<void> add_input_file(string_view filename, bool insert_next = false) {
         try {
-            auto file = std::make_unique<std::ifstream>(std::string{filename});
+            auto file = std::make_unique<std::ifstream>(string{filename});
             if (!file || !file->is_open()) {
-                debug::log_warning(std::format("Cannot open input file: {}", filename));
-                return std::unexpected{ErrorCode::FileNotFound};
+                debug::log_warning("Cannot open input file: " + string{filename});
+                return Result<void>{ErrorCode::FileNotFound};
             }
 
             if (insert_next && current_file_index_ + 1 < input_files_.size()) {
@@ -338,11 +338,11 @@ class RoffProcessor {
                 input_files_.push_back(std::move(file));
             }
 
-            debug::log_info(std::format("Added input file: {}", filename));
-            return {};
-        } catch (const std::exception &e) {
-            debug::log_error(std::format("Exception adding input file {}: {}", filename, e.what()));
-            return std::unexpected{ErrorCode::FileNotFound};
+            debug::log_info("Added input file: " + string{filename});
+            return Result<void>{};
+        } catch (const std::exception& e) {
+            debug::log_error("Exception adding input file " + string{filename} + ": " + e.what());
+            return Result<void>{ErrorCode::FileNotFound};
         }
     }
 
@@ -356,7 +356,7 @@ class RoffProcessor {
         }
 
         while (current_file_index_ < input_files_.size()) {
-            auto &current_file = input_files_[current_file_index_];
+            auto& current_file = input_files_[current_file_index_];
 
             if (!current_file || !current_file->is_open()) {
                 ++current_file_index_;
@@ -386,13 +386,13 @@ class RoffProcessor {
         auto cmd2 = get_next_character();
 
         if (!cmd1 || !cmd2) {
-            return std::unexpected{ErrorCode::InternalError};
+            return Result<void>{ErrorCode::InternalError};
         }
 
-        const std::string command{*cmd1, *cmd2};
+        const string command{*cmd1, *cmd2};
 
         // Read arguments until newline
-        std::string args_buffer;
+        string args_buffer;
         while (auto ch_opt = get_next_character()) {
             if (*ch_opt == '\n')
                 break;
@@ -400,16 +400,15 @@ class RoffProcessor {
         }
 
         const auto trimmed_args = string_utils::trim(args_buffer);
-        debug::log_info(std::format("Processing command: '.{}' with args: '{}'",
-                                    command, trimmed_args));
+        debug::log_info("Processing command: '." + command + "' with args: '" + string{trimmed_args} + "'");
 
         // Execute command
         if (auto it = commands_.find(command); it != commands_.end()) {
             return it->second(trimmed_args);
         }
 
-        debug::log_warning(std::format("Unknown command: .{}", command));
-        return {}; // Unknown commands are silently ignored per ROFF behavior
+        debug::log_warning("Unknown command: ." + command);
+        return Result<void>{}; // Unknown commands are silently ignored per ROFF behavior
     }
 
     /**
@@ -428,7 +427,7 @@ class RoffProcessor {
 
         // Check page range constraints
         if (is_outside_page_range()) {
-            return {};
+            return Result<void>{};
         }
 
         // Handle page length constraints
@@ -452,7 +451,7 @@ class RoffProcessor {
     char process_escape_sequences(char ch) {
         if (ch == constants::ESCAPE_CHAR) {
             if (auto next_ch = get_next_character()) {
-                for (const auto &[escape_char, replacement] : escape_mappings_) {
+                for (const auto& [escape_char, replacement] : escape_mappings_) {
                     if (*next_ch == escape_char) {
                         return replacement;
                     }
@@ -460,7 +459,7 @@ class RoffProcessor {
             }
         } else if (ch == constants::PREFIX_CHAR) {
             if (auto next_ch = get_next_character()) {
-                for (const auto &[prefix_char, replacement] : prefix_mappings_) {
+                for (const auto& [prefix_char, replacement] : prefix_mappings_) {
                     if (*next_ch == prefix_char) {
                         return replacement;
                     }
@@ -488,7 +487,7 @@ class RoffProcessor {
             page_state_.current_line_in_page >= config_.page_length) {
             return command_break_page("");
         }
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -514,7 +513,7 @@ class RoffProcessor {
             return handle_line_wrap();
         }
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -546,8 +545,7 @@ class RoffProcessor {
      * @param max_length Maximum line length
      * @return Pair of [line_part, remainder]
      */
-    std::pair<std::string, std::string> find_word_break(const std::string &current_line,
-                                                        int max_length) const {
+    std::pair<string, string> find_word_break(const string& current_line, int max_length) const {
         if (static_cast<int>(current_line.length()) <= max_length) {
             return {current_line, {}};
         }
@@ -555,7 +553,7 @@ class RoffProcessor {
         // Find last space within length limit
         const auto break_pos = current_line.rfind(' ', static_cast<std::size_t>(max_length));
 
-        if (break_pos == std::string::npos || break_pos == 0) {
+        if (break_pos == string::npos || break_pos == 0) {
             // No space found - break mid-word
             return {current_line.substr(0, static_cast<std::size_t>(max_length)),
                     current_line.substr(static_cast<std::size_t>(max_length))};
@@ -572,7 +570,7 @@ class RoffProcessor {
      */
     Result<void> format_and_output_line(bool add_newline) {
         if (line_buffer_.empty() && !add_newline) {
-            return {};
+            return Result<void>{};
         }
 
         auto processed_line = prepare_line_for_formatting();
@@ -585,7 +583,7 @@ class RoffProcessor {
                     return result;
                 }
                 if (!output_buffer_.append(c)) {
-                    return std::unexpected{ErrorCode::BufferOverflow};
+                    return Result<void>{ErrorCode::BufferOverflow};
                 }
             }
         }
@@ -598,8 +596,8 @@ class RoffProcessor {
      * @brief Prepare line content for formatting
      * @return Processed line content
      */
-    std::string prepare_line_for_formatting() {
-        std::string processed_line = line_buffer_;
+    string prepare_line_for_formatting() {
+        string processed_line = line_buffer_;
 
         // Remove trailing newline for formatting
         if (!processed_line.empty() && processed_line.back() == '\n') {
@@ -614,7 +612,7 @@ class RoffProcessor {
      * @param line Line to format
      * @return Formatted line
      */
-    std::string apply_formatting(const std::string &line) {
+    string apply_formatting(const string& line) {
         auto formatted_line = apply_indentation(line);
 
         if (config_.centering_lines_count > 0) {
@@ -631,14 +629,14 @@ class RoffProcessor {
      * @param line Line to indent
      * @return Indented line
      */
-    std::string apply_indentation(const std::string &line) const {
+    string apply_indentation(const string& line) const {
         const int indent_value = config_.apply_temp_indent_once ? config_.temp_indent : config_.indent;
 
         if (indent_value <= 0) {
             return line;
         }
 
-        return std::string(static_cast<std::size_t>(indent_value), ' ') + line;
+        return string(static_cast<std::size_t>(indent_value), ' ') + line;
     }
 
     /**
@@ -647,11 +645,11 @@ class RoffProcessor {
      * @param target_width Target line width
      * @return Centered text
      */
-    std::string apply_centering(const std::string &text, int target_width) const {
+    string apply_centering(const string& text, int target_width) const {
         const int text_width = calculate_display_width(text);
         const int padding = std::max(0, (target_width - text_width) / 2);
 
-        return std::string(static_cast<std::size_t>(padding), ' ') + text;
+        return string(static_cast<std::size_t>(padding), ' ') + text;
     }
 
     /**
@@ -660,7 +658,7 @@ class RoffProcessor {
      * @param target_width Target line width
      * @return Justified text
      */
-    std::string apply_justification(const std::string &text, int target_width) const {
+    string apply_justification(const string& text, int target_width) const {
         // Remove trailing spaces
         auto justified_text = text;
         while (!justified_text.empty() && justified_text.back() == ' ') {
@@ -671,7 +669,7 @@ class RoffProcessor {
         case TextAlignment::Right: {
             const int text_width = calculate_display_width(justified_text);
             const int padding = std::max(0, target_width - text_width);
-            return std::string(static_cast<std::size_t>(padding), ' ') + justified_text;
+            return string(static_cast<std::size_t>(padding), ' ') + justified_text;
         }
         case TextAlignment::Center:
             return apply_centering(justified_text, target_width);
@@ -696,7 +694,7 @@ class RoffProcessor {
                     return result;
                 }
                 if (!output_buffer_.append('\n')) {
-                    return std::unexpected{ErrorCode::BufferOverflow};
+                    return Result<void>{ErrorCode::BufferOverflow};
                 }
             }
 
@@ -711,7 +709,7 @@ class RoffProcessor {
             }
         }
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -719,7 +717,7 @@ class RoffProcessor {
      * @param text Text to measure
      * @return Display width in character positions
      */
-    int calculate_display_width(const std::string &text) const noexcept {
+    int calculate_display_width(const string& text) const noexcept {
         // Simple implementation - could be enhanced for tabs, Unicode, etc.
         return static_cast<int>(text.length());
     }
@@ -743,10 +741,10 @@ class RoffProcessor {
             output_buffer_.clear();
 
             if (std::cout.fail()) {
-                return std::unexpected{ErrorCode::OutputError};
+                return Result<void>{ErrorCode::OutputError};
             }
         }
-        return {};
+        return Result<void>{};
     }
 
     // Command implementation methods
@@ -766,7 +764,7 @@ class RoffProcessor {
      * @param args Optional page number
      * @return Result indicating success or failure
      */
-    Result<void> command_break_page(std::string_view args) {
+    Result<void> command_break_page(string_view args) {
         // Flush current line
         if (!line_buffer_.empty()) {
             if (auto result = format_and_output_line(true); !result) {
@@ -793,10 +791,10 @@ class RoffProcessor {
 
         // Output form feed
         if (!output_buffer_.append('\f')) {
-            return std::unexpected{ErrorCode::BufferOverflow};
+            return Result<void>{ErrorCode::BufferOverflow};
         }
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -804,7 +802,7 @@ class RoffProcessor {
      * @param args Number of lines to space
      * @return Result indicating success or failure
      */
-    Result<void> command_space_lines(std::string_view args) {
+    Result<void> command_space_lines(string_view args) {
         // Flush current line first
         if (!line_buffer_.empty()) {
             if (auto result = format_and_output_line(true); !result) {
@@ -818,7 +816,7 @@ class RoffProcessor {
             if (auto parsed = parse_utils::parse_int(args)) {
                 lines = std::max(0, *parsed);
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         }
 
@@ -829,7 +827,7 @@ class RoffProcessor {
             }
         }
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -837,13 +835,13 @@ class RoffProcessor {
      * @param args Number of lines to center
      * @return Result indicating success or failure
      */
-    Result<void> command_center_lines(std::string_view args) {
+    Result<void> command_center_lines(string_view args) {
         int lines = 1;
         if (!args.empty()) {
             if (auto parsed = parse_utils::parse_int(args)) {
                 lines = std::max(0, *parsed);
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         }
 
@@ -856,9 +854,9 @@ class RoffProcessor {
         }
 
         config_.centering_lines_count = lines;
-        debug::log_info(std::format("Centering {} lines", lines));
+        debug::log_info("Centering " + std::to_string(lines) + " lines");
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -866,7 +864,7 @@ class RoffProcessor {
      * @param args Indentation specification
      * @return Result indicating success or failure
      */
-    Result<void> command_set_indent(std::string_view args) {
+    Result<void> command_set_indent(string_view args) {
         if (args.empty()) {
             config_.indent = config_.previous_indent.value_or(0);
         } else if (args.starts_with('+') || args.starts_with('-')) {
@@ -874,21 +872,21 @@ class RoffProcessor {
                 config_.previous_indent = config_.indent;
                 config_.indent += *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         } else {
             if (auto parsed = parse_utils::parse_int(args)) {
                 config_.previous_indent = config_.indent;
                 config_.indent = *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         }
 
         config_.indent = std::max(0, config_.indent);
-        debug::log_info(std::format("Indent set to {}", config_.indent));
+        debug::log_info("Indent set to " + std::to_string(config_.indent));
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -896,27 +894,27 @@ class RoffProcessor {
      * @param args Line length specification
      * @return Result indicating success or failure
      */
-    Result<void> command_set_line_length(std::string_view args) {
+    Result<void> command_set_line_length(string_view args) {
         if (args.empty()) {
             config_.line_length = constants::DEFAULT_LINE_LENGTH;
         } else if (args.starts_with('+') || args.starts_with('-')) {
             if (auto parsed = parse_utils::parse_int(args)) {
                 config_.line_length += *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         } else {
             if (auto parsed = parse_utils::parse_int(args)) {
                 config_.line_length = *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         }
 
         config_.line_length = std::max(10, config_.line_length);
-        debug::log_info(std::format("Line length set to {}", config_.line_length));
+        debug::log_info("Line length set to " + std::to_string(config_.line_length));
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -924,28 +922,28 @@ class RoffProcessor {
      * @param args Temporary indent specification
      * @return Result indicating success or failure
      */
-    Result<void> command_temporary_indent(std::string_view args) {
+    Result<void> command_temporary_indent(string_view args) {
         if (args.empty()) {
             config_.temp_indent = 0;
         } else if (args.starts_with('+') || args.starts_with('-')) {
             if (auto parsed = parse_utils::parse_int(args)) {
                 config_.temp_indent = config_.indent + *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         } else {
             if (auto parsed = parse_utils::parse_int(args)) {
                 config_.temp_indent = *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         }
 
         config_.temp_indent = std::max(0, config_.temp_indent);
         config_.apply_temp_indent_once = true;
-        debug::log_info(std::format("Temporary indent set to {}", config_.temp_indent));
+        debug::log_info("Temporary indent set to " + std::to_string(config_.temp_indent));
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -953,27 +951,27 @@ class RoffProcessor {
      * @param args Page length specification
      * @return Result indicating success or failure
      */
-    Result<void> command_set_page_length(std::string_view args) {
+    Result<void> command_set_page_length(string_view args) {
         if (args.empty()) {
             config_.page_length = constants::DEFAULT_PAGE_LENGTH;
         } else if (args.starts_with('+') || args.starts_with('-')) {
             if (auto parsed = parse_utils::parse_int(args)) {
                 config_.page_length += *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         } else {
             if (auto parsed = parse_utils::parse_int(args)) {
                 config_.page_length = *parsed;
             } else {
-                return std::unexpected{ErrorCode::InvalidArgument};
+                return Result<void>{ErrorCode::InvalidArgument};
             }
         }
 
         config_.page_length = std::max(0, config_.page_length);
-        debug::log_info(std::format("Page length set to {}", config_.page_length));
+        debug::log_info("Page length set to " + std::to_string(config_.page_length));
 
-        return {};
+        return Result<void>{};
     }
 
     /**
@@ -981,7 +979,7 @@ class RoffProcessor {
      * @param args Adjustment mode specification
      * @return Result indicating success or failure
      */
-    Result<void> command_adjust_text(std::string_view args) {
+    Result<void> command_adjust_text(string_view args) {
         if (args.empty() || args == "b" || args == "B") {
             config_.adjust_mode = TextAlignment::Both;
         } else if (args == "l" || args == "L") {
@@ -991,11 +989,11 @@ class RoffProcessor {
         } else if (args == "c" || args == "C") {
             config_.adjust_mode = TextAlignment::Center;
         } else {
-            return std::unexpected{ErrorCode::InvalidArgument};
+            return Result<void>{ErrorCode::InvalidArgument};
         }
 
-        debug::log_info(std::format("Adjust mode set to {}", static_cast<char>(config_.adjust_mode)));
-        return {};
+        debug::log_info("Adjust mode set to " + std::to_string(static_cast<int>(config_.adjust_mode)));
+        return Result<void>{};
     }
 
     /**
@@ -1003,12 +1001,12 @@ class RoffProcessor {
      * @param args Filename to source
      * @return Result indicating success or failure
      */
-    Result<void> command_source_file(std::string_view args) {
+    Result<void> command_source_file(string_view args) {
         if (args.empty()) {
-            return std::unexpected{ErrorCode::InvalidArgument};
+            return Result<void>{ErrorCode::InvalidArgument};
         }
 
-        debug::log_info(std::format("Sourcing file: {}", args));
+        debug::log_info("Sourcing file: " + string{args});
         return add_input_file(args, true);
     }
 
@@ -1017,12 +1015,12 @@ class RoffProcessor {
      * @param args Filename to switch to
      * @return Result indicating success or failure
      */
-    Result<void> command_next_file(std::string_view args) {
+    Result<void> command_next_file(string_view args) {
         if (args.empty()) {
-            return std::unexpected{ErrorCode::InvalidArgument};
+            return Result<void>{ErrorCode::InvalidArgument};
         }
 
-        debug::log_info(std::format("Switching to file: {}", args));
+        debug::log_info("Switching to file: " + string{args});
 
         // Close current file
         if (current_file_index_ < input_files_.size() &&
@@ -1039,15 +1037,28 @@ class RoffProcessor {
     }
 };
 
-} // namespace roff::engine
+// Static member definitions
+const std::array<std::pair<char, char>, 10> RoffProcessor::escape_mappings_ = {{
+    {'d', '\032'}, {'u', '\035'}, {'r', '\036'},
+    {'x', '\016'}, {'y', '\017'}, {'l', '\177'},
+    {'t', '\t'}, {'a', '@'}, {'n', '#'}, {'\\', '\\'}
+}};
+
+const std::array<std::pair<char, char>, 7> RoffProcessor::prefix_mappings_ = {{
+    {'7', '\036'}, {'8', '\035'}, {'9', '\032'},
+    {'4', '\b'}, {'3', '\r'}, {'1', '\026'}, {'2', '\027'}
+}};
+
+} // namespace engine
+} // namespace roff
 
 /**
- * @brief Modern C++23 main function with comprehensive error handling
+ * @brief Modern C++ main function with comprehensive error handling
  * @param argc Argument count
  * @param argv Argument vector
  * @return Exit code (0 for success, non-zero for failure)
  */
-int main(int argc, char *argv[]) try {
+int main(int argc, char* argv[]) try {
     using namespace roff::engine;
 
     // Convert C-style arguments to modern C++ containers
@@ -1063,8 +1074,7 @@ int main(int argc, char *argv[]) try {
 
     // Process command line arguments
     if (auto result = processor.process_arguments(args); !result) {
-        roff::debug::log_error(std::format("Error processing arguments: {}",
-                                           static_cast<int>(result.error())));
+        roff::debug::log_error("Error processing arguments: " + std::to_string(static_cast<int>(result.error())));
         return 1;
     }
 
@@ -1073,27 +1083,24 @@ int main(int argc, char *argv[]) try {
         // Attempt to flush any remaining content before exiting
         [[maybe_unused]] auto flush_result = processor.flush_final_content();
 
-        roff::debug::log_error(std::format("Error during processing: {}",
-                                           static_cast<int>(result.error())));
+        roff::debug::log_error("Error during processing: " + std::to_string(static_cast<int>(result.error())));
         return 1;
     }
 
     // Ensure all content is properly flushed
     if (auto flush_result = processor.flush_final_content(); !flush_result) {
-        roff::debug::log_error(std::format("Error flushing final content: {}",
-                                           static_cast<int>(flush_result.error())));
+        roff::debug::log_error("Error flushing final content: " + std::to_string(static_cast<int>(flush_result.error())));
         return 1;
     }
 
     return 0;
 
-} catch (const roff::RoffException &e) {
-    roff::debug::log_error(std::format("ROFF error [{}]: {} at {}:{}",
-                                       static_cast<int>(e.code()), e.what(),
-                                       e.location().file_name(), e.location().line()));
+} catch (const roff::RoffException& e) {
+    roff::debug::log_error("ROFF error [" + std::to_string(static_cast<int>(e.code())) + "]: " + e.what() +
+                          " at " + e.location().file_name() + ":" + std::to_string(e.location().line()));
     return 2;
-} catch (const std::exception &e) {
-    roff::debug::log_error(std::format("Fatal error: {}", e.what()));
+} catch (const std::exception& e) {
+    roff::debug::log_error("Fatal error: " + std::string{e.what()});
     return 2;
 } catch (...) {
     roff::debug::log_error("Unknown fatal error occurred");
