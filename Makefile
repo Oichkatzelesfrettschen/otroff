@@ -96,8 +96,7 @@ meson:
 
 # Run the test-suite using pytest
 test:
-	pytest -q
-
+        pytest -q
 # Format all C and header files using clang-format
 format:
 	find . \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
