@@ -14,6 +14,18 @@ fi
 # Update package lists
 apt-get update
 
+# Verify if bison is installed
+BISON_NEEDED=false
+if ! command -v bison >/dev/null 2>&1; then
+    BISON_NEEDED=true
+fi
+
+# Verify if shfmt is installed
+SHFMT_NEEDED=false
+if ! command -v shfmt >/dev/null 2>&1; then
+    SHFMT_NEEDED=true
+fi
+
 # Determine if the ACK compiler is already installed
 ACK_NEEDED=false
 if ! command -v ack >/dev/null 2>&1; then
@@ -39,6 +51,17 @@ if [ "$ACK_NEEDED" = true ]; then
     if apt-cache show ack-clang >/dev/null 2>&1; then
         PKGS="$PKGS ack-clang"
     fi
+fi
+
+# Install bison when missing to generate parsers
+if [ "$BISON_NEEDED" = true ]; then
+    PKGS="$PKGS bison"
+fi
+
+# Install shfmt when missing for shell formatting
+if [ "$SHFMT_NEEDED" = true ]; then
+    PKGS="$PKGS shfmt"
+fi
 
 # Install all required packages in one transaction
 apt-get install -y --no-install-recommends $PKGS
@@ -51,7 +74,7 @@ fi
 
 # Upgrade pip and install Python tooling for analysis
 python3 -m pip install --upgrade pip
-python3 -m pip install capstone lief unicorn pwntools pyelftools r2pipe hexdump rich troff-utils
+python3 -m pip install capstone lief unicorn pwntools pyelftools r2pipe hexdump rich troff-utils pytest
 
 # Install any troff tooling available via npm
 if command -v npm >/dev/null 2>&1; then
@@ -64,5 +87,4 @@ make
 # Run tests and static analysis
 make test
 clang-tidy --version || true
-
 
