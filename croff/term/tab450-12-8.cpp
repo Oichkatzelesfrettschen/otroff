@@ -13,7 +13,10 @@
 
 #define INCH 240
 
-#include <stddef.h> /* standard definitions */
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+using namespace std::string_view_literals;
 
 /*
  * struct termtab - Terminal table structure for DASI450
@@ -46,32 +49,33 @@
  *   zzz       - Reserved/unused
  */
 struct termtab {
-    int bset;
-    int breset;
-    int Hor;
-    int Vert;
-    int Newline;
-    int Char;
-    int Em;
-    int Halfline;
-    int Adj;
-    char *twinit;
-    char *twrest;
-    char *twnl;
-    char *hlr;
-    char *hlf;
-    char *flr;
-    char *bdon;
-    char *bdoff;
-    char *ploton;
-    char *plotoff;
-    char *up;
-    char *down;
-    char *right;
-    char *left;
-    char *codetab[256 - 32];
-    int zzz;
+    std::uint16_t bset;
+    std::uint16_t breset;
+    std::uint16_t Hor;
+    std::uint16_t Vert;
+    std::uint16_t Newline;
+    std::uint16_t Char;
+    std::uint16_t Em;
+    std::uint16_t Halfline;
+    std::uint16_t Adj;
+    std::string_view twinit;
+    std::string_view twrest;
+    std::string_view twnl;
+    std::string_view hlr;
+    std::string_view hlf;
+    std::string_view flr;
+    std::string_view bdon;
+    std::string_view bdoff;
+    std::string_view ploton;
+    std::string_view plotoff;
+    std::string_view up;
+    std::string_view down;
+    std::string_view right;
+    std::string_view left;
+    const char *codetab[256 - 32];
+    [[maybe_unused]] std::uint16_t zzz{};
 };
+static_assert(sizeof(termtab) <= 4096, "terminal table must remain small");
 
 /*
  * Table instance for DASI450 terminal.
@@ -79,30 +83,30 @@ struct termtab {
  * The included file (code.300) must provide the codetab array and the zzz value,
  * and must NOT include its own closing brace or semicolon.
  */
-struct termtab t = {
-    0,              /* bset */
-    0177420,        /* breset */
-    INCH / 60,      /* Hor */
-    INCH / 48,      /* Vert */
-    INCH / 8,       /* Newline */
-    INCH / 12,      /* Char */
-    INCH / 12,      /* Em */
-    INCH / 12,      /* Halfline */
-    INCH / 12,      /* Adj */
-    "\0334\033\037\013\033\036\007", /* twinit */
-    "\0334\033\037\015\033\036\011", /* twrest */
-    "\015\n",       /* twnl */
-    "\033D",        /* hlr */
-    "\033U",        /* hlf */
-    "\033F",        /* flr */
-    "",             /* bdon */
-    "",             /* bdoff */
-    "\0333",        /* ploton */
-    "\0334",        /* plotoff */
-    "\033\n",       /* up */
-    "\n",           /* down */
-    " ",            /* right */
-    "\b",           /* left */
-    /* codetab and zzz are provided by the included file below: */
+inline constexpr termtab t{
+    0, /* bset */
+    0177420, /* breset */
+    INCH / 60, /* Hor */
+    INCH / 48, /* Vert */
+    INCH / 8, /* Newline */
+    INCH / 12, /* Char */
+    INCH / 12, /* Em */
+    INCH / 12, /* Halfline */
+    INCH / 12, /* Adj */
+    "\0334\033\037\013\033\036\007"sv, /* twinit */
+    "\0334\033\037\015\033\036\011"sv, /* twrest */
+    "\015\n"sv, /* twnl */
+    "\033D"sv, /* hlr */
+    "\033U"sv, /* hlf */
+    "\033F"sv, /* flr */
+    ""sv, /* bdon */
+    ""sv, /* bdoff */
+    "\0333"sv, /* ploton */
+    "\0334"sv, /* plotoff */
+    "\033\n"sv, /* up */
+    "\n"sv, /* down */
+    " "sv, /* right */
+    "\b"sv, /* left */
+/* codetab and zzz are provided by the included file below: */
 #include "code.300"
 };

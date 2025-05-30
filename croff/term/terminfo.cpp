@@ -20,7 +20,8 @@
 
 #define INCH 240
 
-#include <stddef.h> /* standard definitions */
+#include <cstddef>
+#include <cstdint>
 
 /*
  * struct termtab - Terminal table structure for modern terminals
@@ -53,183 +54,183 @@
  *   zzz       - Reserved/unused
  */
 struct termtab {
-    int bset;
-    int breset;
-    int Hor;
-    int Vert;
-    int Newline;
-    int Char;
-    int Em;
-    int Halfline;
-    int Adj;
-    char *twinit;
-    char *twrest;
-    char *twnl;
-    char *hlr;
-    char *hlf;
-    char *flr;
-    char *bdon;
-    char *bdoff;
-    char *ploton;
-    char *plotoff;
-    char *up;
-    char *down;
-    char *right;
-    char *left;
-    char *codetab[256 - 32];
-    int zzz;
+    std::uint16_t bset;
+    std::uint16_t breset;
+    std::uint16_t Hor;
+    std::uint16_t Vert;
+    std::uint16_t Newline;
+    std::uint16_t Char;
+    std::uint16_t Em;
+    std::uint16_t Halfline;
+    std::uint16_t Adj;
+    const char* twinit;
+    const char* twrest;
+    const char* twnl;
+    const char* hlr;
+    const char* hlf;
+    const char* flr;
+    const char* bdon;
+    const char* bdoff;
+    const char* ploton;
+    const char* plotoff;
+    const char* up;
+    const char* down;
+    const char* right;
+    const char* left;
+    const char *codetab[256 - 32];
+    [[maybe_unused]] std::uint16_t zzz{};
 };
 
 /*
  * VT220 Terminal Table
  * Digital VT220 with ANSI X3.64 escape sequences
  */
-struct termtab vt220 = {
-    0,              /* bset */
-    0,              /* breset */
-    INCH / 10,      /* Hor - 10 chars per inch */
-    INCH / 6,       /* Vert - 6 lines per inch */
-    INCH / 6,       /* Newline */
-    INCH / 10,      /* Char */
-    INCH / 10,      /* Em */
-    INCH / 12,      /* Halfline */
-    INCH / 10,      /* Adj */
+inline constexpr termtab vt220{
+    0, /* bset */
+    0, /* breset */
+    INCH / 10, /* Hor - 10 chars per inch */
+    INCH / 6, /* Vert - 6 lines per inch */
+    INCH / 6, /* Newline */
+    INCH / 10, /* Char */
+    INCH / 10, /* Em */
+    INCH / 12, /* Halfline */
+    INCH / 10, /* Adj */
     "\033[?7h\033[?1h\033[?3l\033[?4l\033[?5l\033[?6l\033[?8h\033[?25h", /* twinit */
-    "\033c\033[!p",  /* twrest - hard reset */
-    "\r\n",         /* twnl */
-    "\033M",        /* hlr - reverse index */
-    "\033D",        /* hlf - index */
-    "\033M",        /* flr - reverse index */
-    "\033[1m",      /* bdon - bold on */
-    "\033[0m",      /* bdoff - all attributes off */
-    "",             /* ploton - not supported */
-    "",             /* plotoff - not supported */
-    "\033[A",       /* up - cursor up */
-    "\033[B",       /* down - cursor down */
-    "\033[C",       /* right - cursor right */
-    "\033[D",       /* left - cursor left */
+    "\033c\033[!p", /* twrest - hard reset */
+    "\r\n", /* twnl */
+    "\033M", /* hlr - reverse index */
+    "\033D", /* hlf - index */
+    "\033M", /* flr - reverse index */
+    "\033[1m", /* bdon - bold on */
+    "\033[0m", /* bdoff - all attributes off */
+    "", /* ploton - not supported */
+    "", /* plotoff - not supported */
+    "\033[A", /* up - cursor up */
+    "\033[B", /* down - cursor down */
+    "\033[C", /* right - cursor right */
+    "\033[D", /* left - cursor left */
     /* Standard ASCII character table */
     {
-        "\001 ",    /*space*/
-        "\001!",    /*!*/
-        "\001\"",   /*"*/
-        "\001#",    /*#*/
-        "\001$",    /*$*/
-        "\001%",    /*%*/
-        "\001&",    /*&*/
-        "\001'",    /*'*/
-        "\001(",    /*(*/
-        "\001)",    /*)*/
-        "\001*",    /***/
-        "\001+",    /*+*/
-        "\001,",    /*,*/
-        "\001-",    /*-*/
-        "\001.",    /*.*/
-        "\001/",    /*/*/
-        "\0010",    /*0*/
-        "\0011",    /*1*/
-        "\0012",    /*2*/
-        "\0013",    /*3*/
-        "\0014",    /*4*/
-        "\0015",    /*5*/
-        "\0016",    /*6*/
-        "\0017",    /*7*/
-        "\0018",    /*8*/
-        "\0019",    /*9*/
-        "\001:",    /*:*/
-        "\001;",    /*;*/
-        "\001<",    /*<*/
-        "\001=",    /*=*/
-        "\001>",    /*>*/
-        "\001?",    /*?*/
-        "\001@",    /*@*/
-        "\001A",    /*A*/
-        "\001B",    /*B*/
-        "\001C",    /*C*/
-        "\001D",    /*D*/
-        "\001E",    /*E*/
-        "\001F",    /*F*/
-        "\001G",    /*G*/
-        "\001H",    /*H*/
-        "\001I",    /*I*/
-        "\001J",    /*J*/
-        "\001K",    /*K*/
-        "\001L",    /*L*/
-        "\001M",    /*M*/
-        "\001N",    /*N*/
-        "\001O",    /*O*/
-        "\001P",    /*P*/
-        "\001Q",    /*Q*/
-        "\001R",    /*R*/
-        "\001S",    /*S*/
-        "\001T",    /*T*/
-        "\001U",    /*U*/
-        "\001V",    /*V*/
-        "\001W",    /*W*/
-        "\001X",    /*X*/
-        "\001Y",    /*Y*/
-        "\001Z",    /*Z*/
-        "\001[",    /*[*/
-        "\001\\",   /*\*/
-        "\001]",    /*]*/
-        "\001^",    /*^*/
-        "\001_",    /*_*/
-        "\001`",    /*`*/
-        "\001a",    /*a*/
-        "\001b",    /*b*/
-        "\001c",    /*c*/
-        "\001d",    /*d*/
-        "\001e",    /*e*/
-        "\001f",    /*f*/
-        "\001g",    /*g*/
-        "\001h",    /*h*/
-        "\001i",    /*i*/
-        "\001j",    /*j*/
-        "\001k",    /*k*/
-        "\001l",    /*l*/
-        "\001m",    /*m*/
-        "\001n",    /*n*/
-        "\001o",    /*o*/
-        "\001p",    /*p*/
-        "\001q",    /*q*/
-        "\001r",    /*r*/
-        "\001s",    /*s*/
-        "\001t",    /*t*/
-        "\001u",    /*u*/
-        "\001v",    /*v*/
-        "\001w",    /*w*/
-        "\001x",    /*x*/
-        "\001y",    /*y*/
-        "\001z",    /*z*/
-        "\001{",    /*{*/
-        "\001|",    /*|*/
-        "\001}",    /*}*/
-        "\001~",    /*~*/
-        "\000\0",   /*narrow sp*/
-        "\001-",    /*hyphen*/
-        "\001*",    /*bullet*/
-        "\001+",    /*square*/
-        "\001-",    /*3/4 em*/
-        "\001_",    /*rule*/
-        "\0031/4",  /*1/4*/
-        "\0031/2",  /*1/2*/
-        "\0033/4",  /*3/4*/
-        "\001-",    /*minus*/
-        "\002fi",   /*fi*/
-        "\002fl",   /*fl*/
-        "\002ff",   /*ff*/
-        "\003ffi",  /*ffi*/
-        "\003ffl",  /*ffl*/
+        "\001 ", /*space*/
+        "\001!", /*!*/
+        "\001\"", /*"*/
+        "\001#", /*#*/
+        "\001$", /*$*/
+        "\001%", /*%*/
+        "\001&", /*&*/
+        "\001'", /*'*/
+        "\001(", /*(*/
+        "\001)", /*)*/
+        "\001*", /***/
+        "\001+", /*+*/
+        "\001,", /*,*/
+        "\001-", /*-*/
+        "\001.", /*.*/
+        "\001/", /*/*/
+        "\0010", /*0*/
+        "\0011", /*1*/
+        "\0012", /*2*/
+        "\0013", /*3*/
+        "\0014", /*4*/
+        "\0015", /*5*/
+        "\0016", /*6*/
+        "\0017", /*7*/
+        "\0018", /*8*/
+        "\0019", /*9*/
+        "\001:", /*:*/
+        "\001;", /*;*/
+        "\001<", /*<*/
+        "\001=", /*=*/
+        "\001>", /*>*/
+        "\001?", /*?*/
+        "\001@", /*@*/
+        "\001A", /*A*/
+        "\001B", /*B*/
+        "\001C", /*C*/
+        "\001D", /*D*/
+        "\001E", /*E*/
+        "\001F", /*F*/
+        "\001G", /*G*/
+        "\001H", /*H*/
+        "\001I", /*I*/
+        "\001J", /*J*/
+        "\001K", /*K*/
+        "\001L", /*L*/
+        "\001M", /*M*/
+        "\001N", /*N*/
+        "\001O", /*O*/
+        "\001P", /*P*/
+        "\001Q", /*Q*/
+        "\001R", /*R*/
+        "\001S", /*S*/
+        "\001T", /*T*/
+        "\001U", /*U*/
+        "\001V", /*V*/
+        "\001W", /*W*/
+        "\001X", /*X*/
+        "\001Y", /*Y*/
+        "\001Z", /*Z*/
+        "\001[", /*[*/
+        "\001\\", /*\*/
+        "\001]", /*]*/
+        "\001^", /*^*/
+        "\001_", /*_*/
+        "\001`", /*`*/
+        "\001a", /*a*/
+        "\001b", /*b*/
+        "\001c", /*c*/
+        "\001d", /*d*/
+        "\001e", /*e*/
+        "\001f", /*f*/
+        "\001g", /*g*/
+        "\001h", /*h*/
+        "\001i", /*i*/
+        "\001j", /*j*/
+        "\001k", /*k*/
+        "\001l", /*l*/
+        "\001m", /*m*/
+        "\001n", /*n*/
+        "\001o", /*o*/
+        "\001p", /*p*/
+        "\001q", /*q*/
+        "\001r", /*r*/
+        "\001s", /*s*/
+        "\001t", /*t*/
+        "\001u", /*u*/
+        "\001v", /*v*/
+        "\001w", /*w*/
+        "\001x", /*x*/
+        "\001y", /*y*/
+        "\001z", /*z*/
+        "\001{", /*{*/
+        "\001|", /*|*/
+        "\001}", /*}*/
+        "\001~", /*~*/
+        "\000\0", /*narrow sp*/
+        "\001-", /*hyphen*/
+        "\001*", /*bullet*/
+        "\001+", /*square*/
+        "\001-", /*3/4 em*/
+        "\001_", /*rule*/
+        "\0031/4", /*1/4*/
+        "\0031/2", /*1/2*/
+        "\0033/4", /*3/4*/
+        "\001-", /*minus*/
+        "\002fi", /*fi*/
+        "\002fl", /*fl*/
+        "\002ff", /*ff*/
+        "\003ffi", /*ffi*/
+        "\003ffl", /*ffl*/
         "\001\260", /*degree*/
         "\001\261", /*dagger*/
         "\001\247", /*section*/
-        "\001'",    /*foot mark*/
+        "\001'", /*foot mark*/
         "\001\264", /*acute accent*/
         "\001\140", /*grave accent*/
-        "\001_",    /*underrule*/
-        "\001/",    /*slash*/
-        "\000\0",   /*half narrow space*/
-        "\001 ",    /*unpaddable space*/
+        "\001_", /*underrule*/
+        "\001/", /*slash*/
+        "\000\0", /*half narrow space*/
+        "\001 ", /*unpaddable space*/
         "\001\341", /*alpha*/
         "\001\342", /*beta*/
         "\001\343", /*gamma*/
@@ -261,98 +262,98 @@ struct termtab vt220 = {
         "\001\316", /*Xi*/
         "\001\320", /*Pi*/
         "\001\323", /*Sigma*/
-        "\000\0",   /**/
+        "\000\0", /**/
         "\001\325", /*Upsilon*/
         "\001\326", /*Phi*/
         "\001\327", /*Psi*/
         "\001\330", /*Omega*/
         "\001\221", /*square root*/
         "\001\362", /*terminal sigma*/
-        "\000\0",   /*root en*/
-        "\002>=",   /*>=*/
-        "\002<=",   /*<=*/
-        "\002==",   /*identically equal*/
-        "\001-",    /*equation minus*/
-        "\002~=",   /*approx =*/
-        "\002~",    /*approximates*/
-        "\002!=",   /*not equal*/
-        "\002->",   /*right arrow*/
-        "\002<-",   /*left arrow*/
-        "\001^",    /*up arrow*/
-        "\001v",    /*down arrow*/
-        "\001=",    /*equation equal*/
-        "\001x",    /*multiply*/
-        "\001/",    /*divide*/
-        "\002+-",   /*plus-minus*/
-        "\001U",    /*cup*/
-        "\000\0",   /*cap*/
-        "\000\0",   /*subset*/
-        "\000\0",   /*superset*/
-        "\000\0",   /*improper subset*/
-        "\000\0",   /*improper superset*/
-        "\002oo",   /*infinity*/
-        "\001d",    /*partial*/
-        "\001\\/",  /*gradient*/
-        "\001~",    /*not*/
-        "\001S",    /*integral*/
-        "\000\0",   /*proportional*/
-        "\000\0",   /*empty set*/
-        "\000\0",   /*member*/
-        "\001+",    /*plus*/
-        "\002(R)",  /*registered*/
-        "\002(C)",  /*copyright*/
-        "\001|",    /*box rule*/
-        "\002ct",   /*cent*/
-        "\000\0",   /*dbl dagger*/
-        "\000\0",   /*right hand*/
-        "\000\0",   /*left hand*/
-        "\001*",    /*math star*/
-        "\000\0",   /*bell*/
-        "\001|",    /*or*/
-        "\001O",    /*circle*/
-        "\001|",    /*left top*/
-        "\001|",    /*left bottom*/
-        "\001|",    /*right top*/
-        "\001|",    /*right bot*/
-        "\001|",    /*left center*/
-        "\001|",    /*right center*/
-        "\001|",    /*bold vertical*/
-        "\001|",    /*left floor*/
-        "\001|",    /*right floor*/
-        "\001|",    /*left ceiling*/
-        "\001|"     /*right ceiling*/
+        "\000\0", /*root en*/
+        "\002>=", /*>=*/
+        "\002<=", /*<=*/
+        "\002==", /*identically equal*/
+        "\001-", /*equation minus*/
+        "\002~=", /*approx =*/
+        "\002~", /*approximates*/
+        "\002!=", /*not equal*/
+        "\002->", /*right arrow*/
+        "\002<-", /*left arrow*/
+        "\001^", /*up arrow*/
+        "\001v", /*down arrow*/
+        "\001=", /*equation equal*/
+        "\001x", /*multiply*/
+        "\001/", /*divide*/
+        "\002+-", /*plus-minus*/
+        "\001U", /*cup*/
+        "\000\0", /*cap*/
+        "\000\0", /*subset*/
+        "\000\0", /*superset*/
+        "\000\0", /*improper subset*/
+        "\000\0", /*improper superset*/
+        "\002oo", /*infinity*/
+        "\001d", /*partial*/
+        "\001\\/", /*gradient*/
+        "\001~", /*not*/
+        "\001S", /*integral*/
+        "\000\0", /*proportional*/
+        "\000\0", /*empty set*/
+        "\000\0", /*member*/
+        "\001+", /*plus*/
+        "\002(R)", /*registered*/
+        "\002(C)", /*copyright*/
+        "\001|", /*box rule*/
+        "\002ct", /*cent*/
+        "\000\0", /*dbl dagger*/
+        "\000\0", /*right hand*/
+        "\000\0", /*left hand*/
+        "\001*", /*math star*/
+        "\000\0", /*bell*/
+        "\001|", /*or*/
+        "\001O", /*circle*/
+        "\001|", /*left top*/
+        "\001|", /*left bottom*/
+        "\001|", /*right top*/
+        "\001|", /*right bot*/
+        "\001|", /*left center*/
+        "\001|", /*right center*/
+        "\001|", /*bold vertical*/
+        "\001|", /*left floor*/
+        "\001|", /*right floor*/
+        "\001|", /*left ceiling*/
+        "\001|" /*right ceiling*/
     },
-    0               /* zzz */
+    0 /* zzz */
 };
 
 /*
  * VT320 Terminal Table
  * Digital VT320 with extended ANSI features
  */
-struct termtab vt320 = {
-    0,              /* bset */
-    0,              /* breset */
-    INCH / 10,      /* Hor */
-    INCH / 6,       /* Vert */
-    INCH / 6,       /* Newline */
-    INCH / 10,      /* Char */
-    INCH / 10,      /* Em */
-    INCH / 12,      /* Halfline */
-    INCH / 10,      /* Adj */
+inline constexpr termtab vt320{
+    0, /* bset */
+    0, /* breset */
+    INCH / 10, /* Hor */
+    INCH / 6, /* Vert */
+    INCH / 6, /* Newline */
+    INCH / 10, /* Char */
+    INCH / 10, /* Em */
+    INCH / 12, /* Halfline */
+    INCH / 10, /* Adj */
     "\033[?7h\033[?1h\033[?3l\033[?4l\033[?5l\033[?6l\033[?8h\033[?25h\033[62;1;2;6;8;9;15;44c", /* twinit */
-    "\033c\033[!p",  /* twrest */
-    "\r\n",         /* twnl */
-    "\033M",        /* hlr */
-    "\033D",        /* hlf */
-    "\033M",        /* flr */
-    "\033[1m",      /* bdon */
-    "\033[0m",      /* bdoff */
-    "",             /* ploton */
-    "",             /* plotoff */
-    "\033[A",       /* up */
-    "\033[B",       /* down */
-    "\033[C",       /* right */
-    "\033[D",       /* left */
+    "\033c\033[!p", /* twrest */
+    "\r\n", /* twnl */
+    "\033M", /* hlr */
+    "\033D", /* hlf */
+    "\033M", /* flr */
+    "\033[1m", /* bdon */
+    "\033[0m", /* bdoff */
+    "", /* ploton */
+    "", /* plotoff */
+    "\033[A", /* up */
+    "\033[B", /* down */
+    "\033[C", /* right */
+    "\033[D", /* left */
     /* Same character table as VT220 */
     {
         "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
@@ -381,39 +382,38 @@ struct termtab vt320 = {
         "\001S", "\000\0", "\000\0", "\000\0", "\001+", "\002(R)", "\002(C)", "\001|",
         "\002ct", "\000\0", "\000\0", "\000\0", "\001*", "\000\0", "\001|", "\001O",
         "\001|", "\001|", "\001|", "\001|", "\001|", "\001|", "\001|", "\001|",
-        "\001|", "\001|", "\001|"
-    },
-    0               /* zzz */
+        "\001|", "\001|", "\001|"},
+    0 /* zzz */
 };
 
 /*
  * xterm Terminal Table
  * Modern xterm terminal emulator
  */
-struct termtab xterm = {
-    0,              /* bset */
-    0,              /* breset */
-    INCH / 10,      /* Hor */
-    INCH / 6,       /* Vert */
-    INCH / 6,       /* Newline */
-    INCH / 10,      /* Char */
-    INCH / 10,      /* Em */
-    INCH / 12,      /* Halfline */
-    INCH / 10,      /* Adj */
+inline constexpr termtab xterm{
+    0, /* bset */
+    0, /* breset */
+    INCH / 10, /* Hor */
+    INCH / 6, /* Vert */
+    INCH / 6, /* Newline */
+    INCH / 10, /* Char */
+    INCH / 10, /* Em */
+    INCH / 12, /* Halfline */
+    INCH / 10, /* Adj */
     "\033[!p\033[?3;4l\033[4l\033>", /* twinit */
-    "\033c",        /* twrest */
-    "\r\n",         /* twnl */
-    "\033M",        /* hlr */
-    "\033D",        /* hlf */
-    "\033M",        /* flr */
-    "\033[1m",      /* bdon */
-    "\033[m",       /* bdoff */
-    "",             /* ploton */
-    "",             /* plotoff */
-    "\033[A",       /* up */
-    "\033[B",       /* down */
-    "\033[C",       /* right */
-    "\033[D",       /* left */
+    "\033c", /* twrest */
+    "\r\n", /* twnl */
+    "\033M", /* hlr */
+    "\033D", /* hlf */
+    "\033M", /* flr */
+    "\033[1m", /* bdon */
+    "\033[m", /* bdoff */
+    "", /* ploton */
+    "", /* plotoff */
+    "\033[A", /* up */
+    "\033[B", /* down */
+    "\033[C", /* right */
+    "\033[D", /* left */
     /* UTF-8 capable character table */
     {
         "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
@@ -442,39 +442,38 @@ struct termtab xterm = {
         "\342\210\253", "\342\210\235", "\342\210\205", "\342\210\210", "\001+", "\302\256", "\302\251", "\001|",
         "\302\242", "\342\200\241", "\342\230\233", "\342\230\232", "\342\230\205", "\342\230\216", "\342\210\250", "\342\227\213",
         "\342\224\214", "\342\224\224", "\342\224\220", "\342\224\230", "\342\224\234", "\342\224\244", "\342\224\202", "\342\214\212",
-        "\342\214\213", "\342\214\210", "\342\214\211"
-    },
-    0               /* zzz */
+        "\342\214\213", "\342\214\210", "\342\214\211"},
+    0 /* zzz */
 };
 
 /*
  * ANSI Terminal Table
  * Generic ANSI X3.64/ECMA-48/ISO 6429 compliant terminal
  */
-struct termtab ansi = {
-    0,              /* bset */
-    0,              /* breset */
-    INCH / 10,      /* Hor */
-    INCH / 6,       /* Vert */
-    INCH / 6,       /* Newline */
-    INCH / 10,      /* Char */
-    INCH / 10,      /* Em */
-    INCH / 12,      /* Halfline */
-    INCH / 10,      /* Adj */
+inline constexpr termtab ansi{
+    0, /* bset */
+    0, /* breset */
+    INCH / 10, /* Hor */
+    INCH / 6, /* Vert */
+    INCH / 6, /* Newline */
+    INCH / 10, /* Char */
+    INCH / 10, /* Em */
+    INCH / 12, /* Halfline */
+    INCH / 10, /* Adj */
     "\033[0m\033[?25h", /* twinit */
-    "\033c",        /* twrest */
-    "\r\n",         /* twnl */
-    "\033M",        /* hlr */
-    "\033D",        /* hlf */
-    "\033M",        /* flr */
-    "\033[1m",      /* bdon */
-    "\033[22m",     /* bdoff */
-    "",             /* ploton */
-    "",             /* plotoff */
-    "\033[A",       /* up */
-    "\033[B",       /* down */
-    "\033[C",       /* right */
-    "\033[D",       /* left */
+    "\033c", /* twrest */
+    "\r\n", /* twnl */
+    "\033M", /* hlr */
+    "\033D", /* hlf */
+    "\033M", /* flr */
+    "\033[1m", /* bdon */
+    "\033[22m", /* bdoff */
+    "", /* ploton */
+    "", /* plotoff */
+    "\033[A", /* up */
+    "\033[B", /* down */
+    "\033[C", /* right */
+    "\033[D", /* left */
     /* Standard ASCII table for maximum compatibility */
     {
         "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
@@ -503,38 +502,37 @@ struct termtab ansi = {
         "\001S", "\000\0", "\000\0", "\000\0", "\001+", "\002(R)", "\002(C)", "\001|",
         "\002ct", "\000\0", "\000\0", "\000\0", "\001*", "\000\0", "\001|", "\001O",
         "\001+", "\001+", "\001+", "\001+", "\001+", "\001+", "\001|", "\001_",
-        "\001-", "\001|", "\001|"
-    },
-    0               /* zzz */
+        "\001-", "\001|", "\001|"},
+    0 /* zzz */
 };
 
 /*
  * Default terminal - points to ANSI for maximum compatibility
  */
-struct termtab t = {
-    0,              /* bset */
-    0,              /* breset */
-    INCH / 10,      /* Hor */
-    INCH / 6,       /* Vert */
-    INCH / 6,       /* Newline */
-    INCH / 10,      /* Char */
-    INCH / 10,      /* Em */
-    INCH / 12,      /* Halfline */
-    INCH / 10,      /* Adj */
+inline constexpr termtab t{
+    0, /* bset */
+    0, /* breset */
+    INCH / 10, /* Hor */
+    INCH / 6, /* Vert */
+    INCH / 6, /* Newline */
+    INCH / 10, /* Char */
+    INCH / 10, /* Em */
+    INCH / 12, /* Halfline */
+    INCH / 10, /* Adj */
     "\033[0m\033[?25h", /* twinit */
-    "\033c",        /* twrest */
-    "\r\n",         /* twnl */
-    "\033M",        /* hlr */
-    "\033D",        /* hlf */
-    "\033M",        /* flr */
-    "\033[1m",      /* bdon */
-    "\033[22m",     /* bdoff */
-    "",             /* ploton */
-    "",             /* plotoff */
-    "\033[A",       /* up */
-    "\033[B",       /* down */
-    "\033[C",       /* right */
-    "\033[D",       /* left */
+    "\033c", /* twrest */
+    "\r\n", /* twnl */
+    "\033M", /* hlr */
+    "\033D", /* hlf */
+    "\033M", /* flr */
+    "\033[1m", /* bdon */
+    "\033[22m", /* bdoff */
+    "", /* ploton */
+    "", /* plotoff */
+    "\033[A", /* up */
+    "\033[B", /* down */
+    "\033[C", /* right */
+    "\033[D", /* left */
     /* Standard ASCII table for maximum compatibility */
     {
         "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
@@ -563,7 +561,6 @@ struct termtab t = {
         "\001S", "\000\0", "\000\0", "\000\0", "\001+", "\002(R)", "\002(C)", "\001|",
         "\002ct", "\000\0", "\000\0", "\000\0", "\001*", "\000\0", "\001|", "\001O",
         "\001+", "\001+", "\001+", "\001+", "\001+", "\001+", "\001|", "\001_",
-        "\001-", "\001|", "\001|"
-    },
-    0               /* zzz */
+        "\001-", "\001|", "\001|"},
+    0 /* zzz */
 };

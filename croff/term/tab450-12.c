@@ -13,7 +13,7 @@
 
 #define INCH 240
 
-#include <stddef.h> /* standard definitions */
+#include <stdint.h>
 
 /*
  * struct termtab - Terminal table structure for DASI450
@@ -45,64 +45,64 @@
  *   codetab   - Character code table (see code.300)
  *   zzz       - Reserved/unused
  */
-struct termtab {
-    int bset;
-    int breset;
-    int Hor;
-    int Vert;
-    int Newline;
-    int Char;
-    int Em;
-    int Halfline;
-    int Adj;
-    char *twinit;
-    char *twrest;
-    char *twnl;
-    char *hlr;
-    char *hlf;
-    char *flr;
-    char *bdon;
-    char *bdoff;
-    char *ploton;
-    char *plotoff;
-    char *up;
-    char *down;
-    char *right;
-    char *left;
-    char *codetab[256 - 32];
-    int zzz;
+struct TermTab {
+    std::uint32_t  bset{};
+    std::uint32_t  breset{};
+    int            Hor{};
+struct TermTab {
+    uint32_t  bset;
+    uint32_t  breset;
+    int       Hor;
+    int       Vert;
+    int       Newline;
+    int       Char;
+    int       Em;
+    int       Halfline;
+    int       Adj;
+    char     *twinit;
+    char     *twrest;
+    char     *twnl;
+    char     *hlr;
+    char     *hlf;
+    char     *flr;
+    char     *bdon;
+    char     *bdoff;
+    char     *ploton;
+    char     *plotoff;
+    char     *up;
+    char     *down;
+    char     *right;
+    char     *left;
+    char     *codetab[256 - 32];
+    int       zzz;
 };
-
-/*
- * Table instance for DASI450 terminal.
- * All fields are initialized in C90-compliant order.
  * The included file (code.300) must provide the codetab array and the zzz value,
  * and must NOT include its own closing brace or semicolon.
  */
-struct termtab t = {
-    0,              /* bset */
-    0177420,        /* breset */
-    INCH / 60,      /* Hor */
-    INCH / 48,      /* Vert */
-    INCH / 6,       /* Newline */
-    INCH / 12,      /* Char */
-    INCH / 12,      /* Em */
-    INCH / 12,      /* Halfline */
-    INCH / 12,      /* Adj */
+inline constexpr TermTab t = {
+    0, /* bset */
+    0177420, /* breset */
+    INCH / 60, /* Hor */
+struct TermTab t = {
+    INCH / 6, /* Newline */
+    INCH / 12, /* Char */
+    INCH / 12, /* Em */
+    INCH / 12, /* Halfline */
+    INCH / 12, /* Adj */
     "\0334\033\037\013", /* twinit */
     "\0334\033\037\015", /* twrest */
-    "\015\n",       /* twnl */
-    "\033D",        /* hlr */
-    "\033U",        /* hlf */
-    "\033\n",       /* flr */
-    "",             /* bdon */
-    "",             /* bdoff */
-    "\0333",        /* ploton */
-    "\0334",        /* plotoff */
-    "\033\n",       /* up */
-    "\n",           /* down */
-    " ",            /* right */
-    "\b",           /* left */
-    /* codetab and zzz are provided by the included file below: */
+    "\015\n", /* twnl */
+    "\033D", /* hlr */
+    "\033U", /* hlf */
+    "\033\n", /* flr */
+    "", /* bdon */
+    "", /* bdoff */
+    "\0333", /* ploton */
+    "\0334", /* plotoff */
+    "\033\n", /* up */
+    "\n", /* down */
+    " ", /* right */
+    "\b", /* left */
+/* codetab and zzz are provided by the included file below: */
 #include "code.300"
 };

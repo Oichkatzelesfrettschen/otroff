@@ -17,8 +17,11 @@
 #define INCH 240
 
 // DASI300: This comment refers to the DASI 300 terminal, which is the target device for these driving tables.
-// Include <stddef.h> for standard definitions such as NULL and size_t
-#include <stddef.h> /* standard definitions */
+// Replace <stddef.h> with C++ headers and namespace usage
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+using namespace std::string_view_literals;
 
 // Define named constants for repeated strings
 #define BELL_CHARACTER "\007"
@@ -54,31 +57,32 @@
  *   reserved  - Reserved/unused
  */
 struct termtab300 {
-    int bset;
-    int breset;
-    int Hor;
-    int Vert;
-    int Newline;
-    int Char;
-    int Em;
-    int Halfline;
-    int Adj;
-    char *twinit;
-    char *twrest; // Both fields will share the same pointer to reduce memory usage
-    char *twnl;
-    char *hlr;
-    char *hlf;
-    char *flr;
-    char *bdon;
-    char *bdoff;
-    char *ploton;
-    char *plotoff;
-    char *up;
-    char *down;
-    char *right;
-    char *codetab[256 - 32];
-    int reserved;
+    std::uint16_t bset;
+    std::uint16_t breset;
+    std::uint16_t Hor;
+    std::uint16_t Vert;
+    std::uint16_t Newline;
+    std::uint16_t Char;
+    std::uint16_t Em;
+    std::uint16_t Halfline;
+    std::uint16_t Adj;
+    std::string_view twinit;
+    std::string_view twrest; // Both fields will share the same pointer to reduce memory usage
+    std::string_view twnl;
+    std::string_view hlr;
+    std::string_view hlf;
+    std::string_view flr;
+    std::string_view bdon;
+    std::string_view bdoff;
+    std::string_view ploton;
+    std::string_view plotoff;
+    std::string_view up;
+    std::string_view down;
+    std::string_view right;
+    const char *codetab[256 - 32];
+    [[maybe_unused]] std::uint16_t reserved{};
 };
+static_assert(sizeof(termtab300) <= 4096, "terminal table must remain small");
 
 /*
  * Table instance for DASI 300 terminal.
@@ -86,30 +90,30 @@ struct termtab300 {
  * The included file (code.300) must provide the codetab array and must NOT include its own closing brace or semicolon.
  * The reserved field is set to 0.
  */
-struct termtab300 t = {
-    0,              // bset: Bit settings for terminal initialization.
-    0177420,        // breset: Octal value representing terminal reset settings; used to configure the terminal's control bits during initialization.
-    INCH / 60,      // Hor: Horizontal resolution in units per inch
-    INCH / 48,      // Vert: Vertical resolution in units per inch
-    INCH / 6,       // Newline: Newline spacing in units per inch
-    INCH / 10,      // Char: Character width in units per inch
-    INCH / 10,      // Em: Em width in units per inch
-    0,              // Halfline: Not used, set to 0
-    0,              // Adj: Not used, set to 0
-    "\007",         // twinit: Bell character
-    "\007",         // twrest: Bell character
-    "\007",         // twnl: Bell character
-    "\007",         // hlr: Bell character
-    NULL,           // hlf: Halfline forward string (not used)
-    "\013",         // flr: Full-line reverse string
-    "",             // bdon: Bold on string (not used)
-    "",             // bdoff: Bold off string (not used)
-    "\006",         // ploton: Plot mode on string
-    "\033\006",     // plotoff: Plot mode off string
-    "\013",         // up: Cursor up string
-    "\n",           // down: Cursor down string
-    " ",            // right: Cursor right string
-    // codetab is included from external file
+inline constexpr termtab300 t{
+    0, // bset: Bit settings for terminal initialization.
+    0177420, // breset: Octal value representing terminal reset settings; used to configure the terminal's control bits during initialization.
+    INCH / 60, // Hor: Horizontal resolution in units per inch
+    INCH / 48, // Vert: Vertical resolution in units per inch
+    INCH / 6, // Newline: Newline spacing in units per inch
+    INCH / 10, // Char: Character width in units per inch
+    INCH / 10, // Em: Em width in units per inch
+    0, // Halfline: Not used, set to 0
+    0, // Adj: Not used, set to 0
+    "\007"sv, // twinit: Bell character
+    "\007"sv, // twrest: Bell character
+    "\007"sv, // twnl: Bell character
+    "\007"sv, // hlr: Bell character
+    std::string_view{}, // hlf: Halfline forward string (not used)
+    "\013"sv, // flr: Full-line reverse string
+    ""sv, // bdon: Bold on string (not used)
+    ""sv, // bdoff: Bold off string (not used)
+    "\006"sv, // ploton: Plot mode on string
+    "\033\006"sv, // plotoff: Plot mode off string
+    "\013"sv, // up: Cursor up string
+    "\n"sv, // down: Cursor down string
+    " "sv, // right: Cursor right string
+// codetab is included from external file
 #include "code.300"
-    , 0             // reserved: Reserved field
+    , 0 // reserved: Reserved field
 };

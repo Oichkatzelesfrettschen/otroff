@@ -37,35 +37,40 @@
  *   codetab  - Character code table (see code.300)
  *   zzz      - Reserved/unused
  */
-#include <stddef.h> /* standard definitions */
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+using namespace std::string_view_literals;
 
 struct termtab {
-    int bset;
-    int breset;
-    int Hor;
-    int Vert;
-    int Newline;
-    int Char;
-    int Em;
-    int Halfline;
-    int Adj;
-    char *twinit;
-    char *twrest;
-    char *twnl;
-    char *hlr;
-    char *hlf;
-    char *flr;
-    char *bdon;
-    char *bdoff;
-    char *ploton;
-    char *plotoff;
-    char *up;
-    char *down;
-    char *right;
-    char *left;
-    char *codetab[256 - 32];
-    int zzz;
+    std::uint16_t bset;
+    std::uint16_t breset;
+    std::uint16_t Hor;
+    std::uint16_t Vert;
+    std::uint16_t Newline;
+    std::uint16_t Char;
+    std::uint16_t Em;
+    std::uint16_t Halfline;
+    std::uint16_t Adj;
+    std::string_view twinit;
+    std::string_view twrest;
+    std::string_view twnl;
+    std::string_view hlr;
+    std::string_view hlf;
+    std::string_view flr;
+    std::string_view bdon;
+    std::string_view bdoff;
+    std::string_view ploton;
+    std::string_view plotoff;
+    std::string_view up;
+    std::string_view down;
+    std::string_view right;
+    std::string_view left;
+    const char *codetab[256 - 32];
+    [[maybe_unused]] std::uint16_t zzz{};
 };
+
+static_assert(sizeof(struct termtab) <= 4096, "termtab must remain small");
 
 /*
  * Table instance for DASI300S terminal.
@@ -74,31 +79,31 @@ struct termtab {
  * and must NOT include its own closing brace or semicolon.
  * This file must end with a single closing brace and semicolon after the include.
  */
-struct termtab t = {
-    0,          /* bset */
-    0177420,    /* breset */
-    INCH / 60,  /* Hor */
-    INCH / 48,  /* Vert */
-    INCH / 8,   /* Newline */
-    INCH / 12,  /* Char */
-    INCH / 12,  /* Em */
-    INCH / 16,  /* Halfline */
-    INCH / 12,  /* Adj */
+inline const termtab t{
+    0, /* bset */
+    0177420, /* breset */
+    INCH / 60, /* Hor */
+    INCH / 48, /* Vert */
+    INCH / 8, /* Newline */
+    INCH / 12, /* Char */
+    INCH / 12, /* Em */
+    INCH / 16, /* Halfline */
+    INCH / 12, /* Adj */
     "\033\006", /* twinit */
     "\033\006", /* twrest */
-    "\015\n",    /* twnl */
-    "",         /* hlr */
-    "",         /* hlf */
-    "\032",     /* flr */
-    "\033E",    /* bdon */
-    "\033E",    /* bdoff */
-    "\006",     /* ploton */
+    "\015\n", /* twnl */
+    "", /* hlr */
+    "", /* hlf */
+    "\032", /* flr */
+    "\033E", /* bdon */
+    "\033E", /* bdoff */
+    "\006", /* ploton */
     "\033\006", /* plotoff */
-    "\032",     /* up */
-    "\n",       /* down */
-    " ",        /* right */
-    "\b",       /* left */
-    /* codetab and zzz are provided by the included file below. */
-    /* IMPORTANT: code.300 must NOT contain a closing brace or semicolon! */
+    "\032", /* up */
+    "\n", /* down */
+    " ", /* right */
+    "\b", /* left */
+/* codetab and zzz are provided by the included file below. */
+/* IMPORTANT: code.300 must NOT contain a closing brace or semicolon! */
 #include "code.300"
 };
