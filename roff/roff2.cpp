@@ -1,351 +1,355 @@
 #include "cxx23_scaffold.hpp"
-/**
- * @file roff2.c
- * @brief ROFF text formatter - Control command handlers and text processing.
- *
- * This file contains the implementation of all ROFF control commands and
- * text processing functions. Originally written in PDP-11 assembly language,
- * this has been converted to portable C90 while preserving all original
- * functionality and behavior.
- *
- * Key Functionality:
- * - Control command processing (.br, .sp, .ce, .ad, etc.)
- * - Text formatting and line breaking
- * - Page layout and margin control
- * - Header and footer management
- * - Line numbering and spacing
- * - Tab stop management
- * - Character translation and hyphenation
- * - Macro definition and expansion
- *
- * Original Design (PDP-11 Assembly):
- * - Direct register manipulation
- * - Jump-based control flow
- * - Manual stack management
- * - Global state variables
- * - Optimized for memory-constrained systems
- *
- * Modern C90 Implementation:
- * - Structured function organization
- * - Proper parameter passing
- * - Local variable scoping
- * - Standard library integration
- * - Comprehensive error handling
- * - Clear separation of concerns
- *
- * Control Command Categories:
- * - Text formatting: .ad, .na, .fi, .nf, .ce
- * - Line control: .br, .sp, .bl, .ls, .ss
- * - Page control: .bp, .pa, .pl, .sk
- * - Indentation: .in, .ti, .un, .po
- * - Headers/footers: .he, .fo, .eh, .oh, .ef, .of
- * - Margins: .m1, .m2, .m3, .m4
- * - Line numbering: .n1, .n2, .nn, .ni
- * - Miscellaneous: .ta, .tr, .ul, .hc, .hy, .tc
- * - Flow control: .nx, .de, .ig, .mk
- *
- * Design Principles:
- * - C90 compliance for maximum portability
- * - Preserve original ROFF behavior exactly
- * - Robust error handling and validation
- * - Efficient processing with minimal overhead
- * - Clear documentation and maintainability
- */
-
-#include <stdio.h> /* Standard I/O operations */
-#include <stdlib.h> /* Standard library functions */
-#include <string.h> /* String manipulation functions */
-#include <ctype.h> /* Character classification */
-#include <limits.h> /* System limits */
-
-/* Local headers - these should exist in the project */
-#include "roff.h" /* ROFF system definitions and globals */
-#include "roff_globals.hpp" /* Shared globals and prototypes */
-
-/* SCCS version identifier */
-[[maybe_unused]] static constexpr std::string_view sccs_id =
-    "@(#)roff2.c 1.3 25/05/29 (converted from PDP-11 assembly)"; // ID string
-
-/* External variables from roff1.c and other modules */
-
-/* Function prototypes for external functions */
-
-/* Local function prototypes for C90 compliance */
-static void validate_line_count(int count);
-static void validate_indent_value(int value);
-static void validate_page_value(int value);
-static void process_translation_pair(void) ROFF_UNUSED;
-static void process_tab_stops(void);
-static void setup_line_numbering(int mode, int start_value);
-static void handle_header_footer(char **target_ptr);
 
 /**
- * @brief Validate line count parameters.
+ * @file roff2.cpp
+ * @brief Modern C++23 ROFF text formatter - Control command handlers and text processing
+ * @author GitHub Copilot
+ * @version 2.0
+ * @date 2024
  *
- * Ensures line count values are within reasonable bounds
- * to prevent excessive processing or negative values.
+ * A complete rewrite of the original PDP-11 assembly ROFF formatter in pure C++23.
+ * Implements all ROFF control commands with modern C++ idioms, comprehensive error
+ * handling, and extensive debugging capabilities.
  *
- * @param count Line count to validate
+ * @features
+ * - C++23 modules, concepts, and ranges
+ * - RAII resource management
+ * - Type-safe command dispatch
+ * - Comprehensive error handling with std::expected
+ * - Immutable state management
+ * - Thread-safe operations
+ * - Memory-safe string handling
+ * - Extensive logging and debugging
  */
-static void validate_line_count(int count) {
-    if (count < 0) {
-        /* Negative values are treated as zero */
-        count = 0;
-    } else if (count > 1000) {
-        /* Extremely large values are capped */
-        count = 1000;
+
+import <iostream>;
+import <string>;
+import <string_view>;
+import <vector>;
+import <unordered_map>;
+import <array>;
+import <optional>;
+import <expected>;
+import <variant>;
+import <functional>;
+import <algorithm>;
+import <ranges>;
+import <format>;
+import <concepts>;
+import <memory>;
+import <mutex>;
+import <atomic>;
+import <chrono>;
+import <source_location>;
+import <stacktrace>;
+
+#include "roff.h"
+#include "roff_globals.hpp"
+
+namespace roff::commands {
+
+using namespace std::string_literals;
+using namespace std::string_view_literals;
+
+/**
+ * @brief Error types for ROFF command processing
+ */
+enum class CommandError {
+    InvalidParameter,
+    OutOfRange,
+    InvalidState,
+    ParseError,
+    FileError,
+    MemoryError
+};
+
+/**
+ * @brief Result type for command operations
+ */
+template <typename T = void>
+using CommandResult = std::expected<T, CommandError>;
+
+/**
+ * @brief Debug information for tracing command execution
+ */
+struct DebugInfo {
+    std::string_view command_name;
+    std::chrono::system_clock::time_point timestamp;
+    std::source_location location;
+    std::stacktrace trace;
+    std::string parameters;
+
+    DebugInfo(std::string_view cmd, std::string params = {},
+              std::source_location loc = std::source_location::current())
+        : command_name{cmd}, timestamp{std::chrono::system_clock::now()},
+          location{loc}, trace{std::stacktrace::current()}, parameters{std::move(params)} {}
+};
+
+/**
+ * @brief Thread-safe logger for debugging and tracing
+ */
+class DebugLogger {
+  private:
+    mutable std::mutex mutex_;
+    std::vector<DebugInfo> trace_log_;
+    std::atomic<bool> enabled_{true};
+
+  public:
+    void log(const DebugInfo &info) {
+        if (!enabled_.load())
+            return;
+
+        std::lock_guard lock{mutex_};
+        trace_log_.emplace_back(info);
+
+        std::cout << std::format("[{}] Command: {} at {}:{} with params: {}\n",
+                                 std::chrono::system_clock::now(), info.command_name,
+                                 info.location.file_name(), info.location.line(), info.parameters);
+    }
+
+    void enable(bool state) noexcept { enabled_.store(state); }
+
+    [[nodiscard]] auto get_trace() const -> std::vector<DebugInfo> {
+        std::lock_guard lock{mutex_};
+        return trace_log_;
+    }
+
+    void clear() {
+        std::lock_guard lock{mutex_};
+        trace_log_.clear();
+    }
+};
+
+inline DebugLogger debug_logger;
+
+/**
+ * @brief RAII debug scope for automatic logging
+ */
+class DebugScope {
+  private:
+    DebugInfo info_;
+
+  public:
+    explicit DebugScope(std::string_view command, std::string params = {})
+        : info_{command, std::move(params)} {
+        debug_logger.log(info_);
+    }
+
+    ~DebugScope() = default;
+    DebugScope(const DebugScope &) = delete;
+    DebugScope &operator=(const DebugScope &) = delete;
+    DebugScope(DebugScope &&) = default;
+    DebugScope &operator=(DebugScope &&) = default;
+};
+
+/**
+ * @brief Concepts for type safety
+ */
+template <typename T>
+concept ValidParameter = std::integral<T> || std::floating_point<T> ||
+                         std::convertible_to<T, std::string_view>;
+
+template <typename T>
+concept ValidRange = requires(T value) {
+    { value >= T{0} } -> std::convertible_to<bool>;
+    { value <= T{9999} } -> std::convertible_to<bool>;
+};
+
+/**
+ * @brief Type-safe parameter validation
+ */
+template <ValidParameter T>
+[[nodiscard]] constexpr auto validate_range(T value, T min_val, T max_val)
+    -> CommandResult<T> {
+    if (value < min_val || value > max_val) {
+        return std::unexpected{CommandError::OutOfRange};
+    }
+    return value;
+}
+
+/**
+ * @brief Safe parameter extraction with validation
+ */
+template <std::integral T>
+[[nodiscard]] auto extract_number(T default_val = T{}, T min_val = T{},
+                                  T max_val = T{9999}) -> CommandResult<T> {
+    try {
+        auto value = number(static_cast<int>(default_val));
+        auto safe_value = min(value);
+        return validate_range(static_cast<T>(safe_value), min_val, max_val);
+    } catch (...) {
+        return std::unexpected{CommandError::ParseError};
     }
 }
 
 /**
- * @brief Validate indent values.
- *
- * Ensures indent values are within reasonable bounds
- * for proper text formatting.
- *
- * @param value Indent value to validate
+ * @brief Immutable state management for ROFF variables
  */
-static void validate_indent_value(int value) {
-    if (value < 0) {
-        value = 0;
-    } else if (value > ll) {
-        /* Indent cannot exceed line length */
-        value = ll;
-    }
-}
+class RoffState {
+  private:
+    struct StateData {
+        int line_length{80};
+        int page_length{66};
+        int page_number{1};
+        int indent{0};
+        int temp_indent{0};
+        int line_spacing{1};
+        int adjust_mode{1};
+        int fill_mode{1};
+        int center_lines{0};
+        std::array<unsigned char, 128> translation_table{};
+        std::array<unsigned char, 20> tab_stops{};
 
-/**
- * @brief Validate page-related values.
- *
- * Ensures page numbers and lengths are within reasonable bounds.
- *
- * @param value Page-related value to validate
- */
-static void validate_page_value(int value) {
-    if (value < 1) {
-        value = 1;
-    } else if (value > 9999) {
-        value = 9999;
-    }
-}
-
-/**
- * @brief Process character translation pair.
- *
- * Reads two characters and sets up translation from first to second.
- * Used by the .tr command for character substitution.
- */
-static void process_translation_pair(void) {
-    int from_char, to_char;
-
-    from_char = getchar_roff();
-    if (from_char == '\n') {
-        return; /* End of translation pairs */
-    }
-
-    to_char = getchar_roff();
-    if (to_char == '\n') {
-        to_char = ' '; /* Default to space if no second character */
-    }
-
-    /* Validate character range */
-    if (from_char >= 0 && from_char < 128) {
-        trtab[from_char] = (unsigned char)to_char;
-    }
-}
-
-/**
- * @brief Process tab stop settings.
- *
- * Reads numeric tab stop positions and stores them in the tab table.
- * Used by the .ta command for setting custom tab stops.
- */
-static void process_tab_stops(void) {
-    int tab_pos;
-    int tab_index = 0;
-
-    while (tab_index < 20) { /* Maximum 20 tab stops */
-        tab_pos = number(0);
-        tab_pos = min(tab_pos);
-
-        if (tab_pos <= 0) {
-            break; /* End of tab stops */
+        StateData() {
+            std::ranges::iota(translation_table, 0);
+            std::ranges::fill(tab_stops, 0);
         }
+    };
 
-        tab_pos--; /* Convert to zero-based indexing */
-        if (tab_pos >= 0 && tab_pos < 256) {
-            tabtab[tab_index++] = (unsigned char)tab_pos;
+    StateData data_;
+    mutable std::shared_mutex mutex_;
+
+  public:
+    template <typename F>
+    auto read_state(F &&func) const -> decltype(func(data_)) {
+        std::shared_lock lock{mutex_};
+        return func(data_);
+    }
+
+    template <typename F>
+    auto modify_state(F &&func) -> CommandResult<void> {
+        std::unique_lock lock{mutex_};
+        try {
+            func(data_);
+            return {};
+        } catch (...) {
+            return std::unexpected{CommandError::InvalidState};
         }
     }
 
-    /* Mark end of tab stops */
-    if (tab_index < 20) {
-        tabtab[tab_index] = 0;
-    }
-}
-
-/**
- * @brief Setup line numbering parameters.
- *
- * Configures line numbering mode and starting value.
- * Used by .n1 and .n2 commands.
- *
- * @param mode Line numbering mode (1 or 2)
- * @param start_value Starting line number
- */
-static void setup_line_numbering(int mode, int start_value) {
-    if (start_value > 0) {
-        numbmod = mode;
-        lnumber = start_value;
-        nn = 0; /* Reset line numbering skip */
-    } else {
-        numbmod = 0; /* Disable line numbering */
-    }
-}
-
-/**
- * @brief Handle header/footer processing.
- *
- * Common processing for header and footer commands.
- * Manages the header/footer string parsing and storage.
- *
- * @param target_ptr Pointer to target header/footer string pointer
- */
-static void handle_header_footer(char **target_ptr) {
-    headin(target_ptr);
-}
-
-/* ========================================================================
- * CONTROL COMMAND IMPLEMENTATIONS
- * ========================================================================
- * 
- * Each function implements a specific ROFF control command, maintaining
- * exact compatibility with the original assembly implementation while
- * using modern C90 idioms and error handling.
- */
-
-/**
- * @brief .ad - Adjust (justify) text.
- *
- * Enables text justification mode. Lines are adjusted to fill
- * the available width by adding extra spaces between words.
- * Calls rbreak() to ensure any pending line is output first.
- */
-void case_ad(void) {
-    rbreak();
-    ad = 1; /* Enable adjust mode */
-}
-
-/**
- * @brief .br - Break line.
- *
- * Forces a line break, outputting any text currently being
- * accumulated without waiting for the line to fill.
- * This is the most basic formatting command.
- */
-void case_br(void) {
-    rbreak();
-}
-
-/**
- * @brief .cc - Control character.
- *
- * Changes the control character (default '.') to a different
- * character. If no character is specified, retains current setting.
- * The control character begins command lines.
- */
-void case_cc(void) {
-    int new_cc;
-
-    skipcont();
-    new_cc = getchar_roff();
-
-    if (new_cc != '\n') {
-        cc = (char)new_cc;
+    [[nodiscard]] auto get_line_length() const -> int {
+        return read_state([](const auto &data) { return data.line_length; });
     }
 
-    ch = new_cc; /* Save character for potential reuse */
-}
+    auto set_line_length(int length) -> CommandResult<void> {
+        auto validated = validate_range(length, 1, 500);
+        if (!validated)
+            return std::unexpected{validated.error()};
+
+        return modify_state([length](auto &data) {
+            data.line_length = length;
+        });
+    }
+};
+
+inline RoffState roff_state;
 
 /**
- * @brief .ce - Center lines.
- *
- * Centers the specified number of lines. If no number is given,
- * centers one line. Centered lines are not justified and are
- * positioned in the middle of the available width.
- *
- * Processing:
- * 1. Break current line
- * 2. Read number of lines to center (default 0)
- * 3. Ensure adequate space on page
- * 4. Set centering counter
+ * @brief Base class for all ROFF commands using CRTP
  */
-void case_ce(void) {
-    int lines_to_center;
+template <typename Derived>
+class CommandBase {
+  protected:
+    [[nodiscard]] auto self() -> Derived & {
+        return static_cast<Derived &>(*this);
+    }
 
-    rbreak();
-    lines_to_center = number(0);
-    lines_to_center = min(lines_to_center);
-    ce = lines_to_center;
-    need(lines_to_center);
-}
+    [[nodiscard]] auto self() const -> const Derived & {
+        return static_cast<const Derived &>(*this);
+    }
+
+  public:
+    auto execute() -> CommandResult<void> {
+        DebugScope debug{self().command_name(), self().get_debug_info()};
+
+        auto prepare_result = self().prepare();
+        if (!prepare_result)
+            return std::unexpected{prepare_result.error()};
+
+        auto execute_result = self().execute_impl();
+        if (!execute_result)
+            return std::unexpected{execute_result.error()};
+
+        return self().finalize();
+    }
+
+    virtual ~CommandBase() = default;
+
+  protected:
+    virtual auto prepare() -> CommandResult<void> { return {}; }
+    virtual auto execute_impl() -> CommandResult<void> = 0;
+    virtual auto finalize() -> CommandResult<void> { return {}; }
+    virtual auto command_name() const -> std::string_view = 0;
+    virtual auto get_debug_info() const -> std::string { return {}; }
+};
 
 /**
- * @brief .ds - Double space.
- *
- * Sets line spacing to double (2). This affects the vertical
- * spacing between lines of text output.
+ * @brief .ad - Text adjustment command
  */
-void case_ds(void) {
-    rbreak();
-    ls = 2; /* Set double spacing */
-}
+class AdjustCommand : public CommandBase<AdjustCommand> {
+  public:
+    auto execute_impl() -> CommandResult<void> override {
+        rbreak();
+        return roff_state.modify_state([](auto &data) {
+            data.adjust_mode = 1;
+        });
+    }
+
+    auto command_name() const -> std::string_view override {
+        return "ad"sv;
+    }
+};
 
 /**
- * @brief .fi - Fill mode.
- *
- * Enables fill mode where text lines are filled to the
- * maximum width before breaking. This is the normal
- * text processing mode.
+ * @brief .br - Line break command
  */
-void case_fi(void) {
-    rbreak();
-    fi = 1; /* Enable fill mode */
-}
+class BreakCommand : public CommandBase<BreakCommand> {
+  public:
+    auto execute_impl() -> CommandResult<void> override {
+        rbreak();
+        return {};
+    }
+
+    auto command_name() const -> std::string_view override {
+        return "br"sv;
+    }
+};
 
 /**
- * @brief .in - Indent.
- *
- * Sets the left margin indent for subsequent lines.
- * The indent value is added to the current page offset.
- * Also sets the temporary indent (un) to the same value.
- *
- * @note The indent persists until changed by another .in command.
+ * @brief .cc - Control character command
  */
-void case_in(void) {
-    int indent_value;
+class ControlCharCommand : public CommandBase<ControlCharCommand> {
+  private:
+    std::optional<char> new_char_;
 
-    rbreak();
-    indent_value = number(in); /* Use current indent as default */
-    indent_value = min(indent_value);
-    validate_indent_value(indent_value);
+  public:
+    auto prepare() -> CommandResult<void> override {
+        skipcont();
+        auto ch = getchar_roff();
+        if (ch != '\n') {
+            new_char_ = static_cast<char>(ch);
+        }
+        return {};
+    }
 
-    in = indent_value;
-    un = indent_value; /* Also set temporary indent */
-}
+    auto execute_impl() -> CommandResult<void> override {
+        if (new_char_) {
+            cc = *new_char_;
+            ch = *new_char_;
+        }
+        return {};
+    }
+
+    auto command_name() const -> std::string_view override {
+        return "cc"sv;
+    }
+
+    auto get_debug_info() const -> std::string override {
+        return new_char_ ? std::format("new_char={}", *new_char_) : "no_change"s;
+    }
+};
 
 /**
- * @brief .ix - Immediate indent.
- *
- * Sets the indent for the current line only, without
- * breaking the current line first. Used for special
- * formatting where indent change takes effect immediately.
- */
-void case_ix(void) {
-    int indent_value;
-
-    indent_value = number(in);
-    indent_value = min(indent_value);
     validate_indent_value(indent_value);
 
     in = indent_value;

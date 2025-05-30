@@ -481,6 +481,24 @@ ROFF_NODISCARD inline string format_time(const std::chrono::system_clock::time_p
 }
 } // namespace time_utils
 
+// Configuration for ROFF processing
+struct RoffConfig {
+    std::size_t input_buffer_size{constants::INPUT_BUFFER_SIZE};
+    std::size_t output_buffer_size{constants::OUTPUT_BUFFER_SIZE};
+    std::size_t string_buffer_size{constants::STRING_BUFFER_SIZE};
+    std::size_t max_tabs{constants::MAX_TABS};
+    ProcessingMode mode{ProcessingMode::Normal};
+    int start_page{1};
+    int end_page{constants::MAX_PAGE_NUMBER};
+
+    constexpr bool is_valid() const noexcept {
+        return input_buffer_size > 0 &&
+               output_buffer_size > 0 &&
+               start_page > 0 &&
+               end_page >= start_page;
+    }
+};
+
 // Global type aliases for common ROFF data structures
 using InputBuffer = SafeBuffer<constants::INPUT_BUFFER_SIZE>;
 using OutputBuffer = SafeBuffer<constants::OUTPUT_BUFFER_SIZE>;

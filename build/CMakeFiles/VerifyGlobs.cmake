@@ -4,15 +4,6 @@
 # ROFF_SRC at CMakeLists.txt:49 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/eirikr/Documents/GitHub/otroff/roff/*.c")
 set(OLD_GLOB
-  "/Users/eirikr/Documents/GitHub/otroff/roff/hyphen_utils.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/roff3.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/roff4.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/roff5.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/roff7.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/roff8.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/runtime.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/sse_memops.c"
-  "/Users/eirikr/Documents/GitHub/otroff/roff/time_utils.c"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
@@ -22,8 +13,17 @@ endif()
 # ROFF_SRC at CMakeLists.txt:49 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/eirikr/Documents/GitHub/otroff/roff/*.cpp")
 set(OLD_GLOB
+  "/Users/eirikr/Documents/GitHub/otroff/roff/hyphen_utils.cpp"
   "/Users/eirikr/Documents/GitHub/otroff/roff/roff1.cpp"
   "/Users/eirikr/Documents/GitHub/otroff/roff/roff2.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/roff3.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/roff4.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/roff5.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/roff7.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/roff8.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/runtime.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/sse_memops.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/time_utils.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
