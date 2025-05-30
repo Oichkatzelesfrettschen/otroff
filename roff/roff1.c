@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L /* expose mkstemp */
+
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
