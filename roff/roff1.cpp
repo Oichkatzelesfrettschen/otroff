@@ -54,9 +54,157 @@
 #include <signal.h> /* Signal handling */
 #include <sys/stat.h> /* File status operations */
 #include <ctype.h> /* Character classification */
-#include "os_abstraction.h" /* Cross-platform wrappers */
 #include "roff.h" /* Common ROFF macros */
 #include "roff_globals.hpp" /* Shared globals and prototypes */
+#include "cpp23_enforcement.hpp"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <array>
+#include <span>
+#include <optional>
+#include <expected>
+#include <memory>
+#include <ranges>
+#include <algorithm>
+#include <format>
+#include <concepts>
+#include <filesystem>
+#include <unordered_map>
+#include <functional>
+#include <chrono>
+#include <source_location>
+#include <ios>
+#include <stdexcept>
+
+namespace roff::core {
+
+// Modern error handling with std::expected
+enum class RoffError {
+    FileNotFound,
+    InvalidArgument,
+    BufferOverflow,
+    UnknownCommand,
+    PermissionDenied,
+    InternalError
+};
+
+template<typename T>
+using Result = std::expected<T, RoffError>;
+
+// Strong typing for various ROFF concepts
+enum class ControlChar : char { Dot = '.', Escape = '\\', Prefix = '\033' };
+enum class ProcessingMode { Normal, Stop, HighSpeed };
+
+// Type-safe configuration
+struct RoffConfig {
+    std::size_t input_buffer_size{512};
+    std::size_t output_buffer_size{128};
+    std::size_t string_buffer_size{400};
+    std::size_t max_tabs{20};
+    ProcessingMode mode{ProcessingMode::Normal};
+    int start_page{1};
+    int end_page{32767};
+
+    constexpr bool is_valid() const noexcept {
+        return input_buffer_size > 0 &&
+               output_buffer_size > 0 &&
+               start_page > 0 &&
+               end_page >= start_page;
+    }
+};
+
+// Modern character handling with strong typing
+class Character {
+private:
+    char value_;
+
+public:
+    constexpr explicit Character(char c) noexcept : value_(c) {}
+    constexpr char value() const noexcept { return value_; }
+    constexpr bool is_control() const noexcept { return value_ < ' ' || value_ > '~'; }
+    constexpr bool is_newline() const noexcept { return value_ == '\n'; }
+    constexpr bool is_tab() const noexcept { return value_ == '\t'; }
+    constexpr bool is_space() const noexcept { return value_ == ' '; }
+    constexpr int width() const noexcept { return is_control() ? 0 : 1; }
+
+    constexpr auto operator<=>(const Character&) const noexcept = default;
+};
+class FileHandle {
+private:
+    std::unique_ptr<std::fstream> file_;
+    std::filesystem::path path_;
+
+public:
+    explicit FileHandle(const std::filesystem::path& path, std::ios_base::openmode mode)
+        : path_(path) {
+        file_ = std::make_unique<std::fstream>(path, mode);
+        if (!file_->is_open()) {
+            throw std::runtime_error(std::format("Cannot open file: {}", path.string()));
+        }
+    }
+
+    ~FileHandle() = default;
+    FileHandle(const FileHandle&) = delete;
+    FileHandle& operator=(const FileHandle&) = delete;
+    FileHandle(FileHandle&&) = default;
+    FileHandle& operator=(FileHandle&&) = default;
+
+    std::fstream& stream() { return *file_; }
+    const std::filesystem::path& path() const noexcept { return path_; }
+    bool is_open() const noexcept { return file_ && file_->is_open(); }
+};
+
+// Type-safe buffer management
+template<std::size_t Size>
+class SafeBuffer {
+private:
+    std::array<char, Size> data_{};
+    std::size_t position_{0};
+
+public:
+    constexpr SafeBuffer() = default;
+
+    constexpr std::span<char> available_space() noexcept {
+        return std::span{data_.data() + position_, Size - position_};
+    }
+
+    constexpr std::span<const char> used_space() const noexcept {
+        return std::span{data_.data(), position_};
+    }
+
+    constexpr bool append(char c) noexcept {
+        if (position_ >= Size) return false;
+        data_[position_++] = c;
+        return true;
+    }
+
+    constexpr bool append(std::span<const char> data) noexcept {
+        if (position_ + data.size() > Size) return false;
+        std::ranges::copy(data, data_.begin() + position_);
+        position_ += data.size();
+        return true;
+    }
+
+    constexpr void clear() noexcept { position_ = 0; }
+    constexpr std::size_t size() const noexcept { return position_; }
+    constexpr bool empty() const noexcept { return position_ == 0; }
+    constexpr bool full() const noexcept { return position_ == Size; }
+};
+
+} // namespace roff::core
+
+/* OS abstraction functions */
+#define os_open open
+#define os_close close
+#define os_read read
+#define os_write write
+#define os_lseek lseek
+#define os_stat stat
+#define os_unlink unlink
 
 /* SCCS version identifier */
 static const char sccs_id[] ROFF_UNUSED = "@(#)roff1.c 1.3 25/05/29 (converted from PDP-11 assembly)";
@@ -66,9 +214,7 @@ static const char sccs_id[] ROFF_UNUSED = "@(#)roff1.c 1.3 25/05/29 (converted f
 #define OBUF_SIZE 128 /**< Output buffer size */
 #define SSIZE 400 /**< String buffer size */
 #define MAX_TABS 20 /**< Maximum tab stops */
-#define MAX_FILES 64 /**< Maximum input files */
-#define SUFFIX_SIZE 52 /**< Suffix table size (26 * 2) */
-
+/* Character translation and formatting - using globals from header */
 /* Control command constants */
 #define CC_CHAR '.' /**< Control command character */
 #define ESC_CHAR '\\' /**< Escape character */
@@ -79,46 +225,38 @@ static unsigned char trtab[128]; /**< Character translation table */
 static unsigned char tabtab[MAX_TABS] ROFF_UNUSED; /**< Tab stop table */
 
 /* Input/output buffers and state */
-static char ibuf[IBUF_SIZE]; /**< Input buffer */
-static char obuf[OBUF_SIZE]; /**< Output buffer */
-static char *ibufp; /**< Input buffer pointer */
-static char *eibuf; /**< End of input buffer */
-static char *obufp; /**< Output buffer pointer */
-
-/* File handling state */
+/* File handling state - some globals from header, some local */
 static int ifile = 0; /**< Current input file descriptor */
 static int ibf = -1; /**< Temporary file descriptor */
 static int ibf1 ROFF_UNUSED = -1; /**< Secondary temporary file descriptor */
 static int suff = -1; /**< Suffix file descriptor */
 static char **argp; /**< Argument pointer */
 static int argc; /**< Argument count */
-static int nx = 0; /**< Next file flag */
-
-/* Text processing state */
-static int ch = 0; /**< Current character */
+static int ibf = -1; /**< Temporary file descriptor */
+static int ibf1 ROFF_UNUSED = -1; /**< Secondary temporary file descriptor */
+/* Text processing state - some globals from header, some local */
 static int lastchar = 0; /**< Last character read */
-static int nlflg = 0; /**< Newline flag */
 static int column = 0; /**< Current column position */
 static int ocol = 0; /**< Output column position */
 static int nsp = 0; /**< Number of spaces pending */
 static int nspace = 0; /**< Space count for tabs */
-static char tabc = ' '; /**< Tab character */
-
+static int column = 0; /**< Current column position */
+static int ocol = 0; /**< Output column position */
+static int nsp = 0; /**< Number of spaces pending */
+static int nspace = 0; /**< Space count for tabs */
 /* Formatting parameters */
 static int pfrom = 1; /**< Starting page number */
 static int pto = 32767; /**< Ending page number */
-static int pn = 1; /**< Current page number */
 static int stop = 0; /**< Stop after processing flag */
 static int slow = 1; /**< Slow output mode flag */
 
-/* Underline processing state */
-static int ul = 0; /**< Underline mode */
+/* Underline processing state - some globals from header, some local */
 static int ulstate = 0; /**< Underline state machine */
 static int ulc = 0; /**< Underline character count */
 static int bsc = 0; /**< Backspace count */
 
-/* Include stack for nested files */
-static int ip ROFF_UNUSED = 0; /**< Include pointer */
+/* Include stack for nested files - using globals from header */
+static int iliste ROFF_UNUSED = 0; /**< Include list end */
 static int ilistp ROFF_UNUSED = 0; /**< Include list pointer */
 static int iliste ROFF_UNUSED = 0; /**< Include list end */
 
@@ -142,18 +280,15 @@ static void cleanup_and_exit(int status);
 
 /* Character input/output functions */
 static int ngetc(void);
-static int getchar_roff(void);
-static void putchar_roff(int c);
+/* Character input/output functions - some are globals, some local */
+static int ngetc(void);
 static void pchar1(int c);
 static void flush_output(void);
 
-/* Text processing functions */
+/* Text processing functions - some are globals, some local */
 static void text_handler(void);
 static void control_handler(void);
-static void flushi(void);
 static int width(int c);
-
-/* Utility functions */
 static void make_temp_file(void);
 static void error_exit(const char *msg);
 static int next_file(void);
@@ -532,7 +667,6 @@ static int ngetc(void) {
 
     /* Check if we need to read more input */
     if (ibufp >= eibuf) {
-        if (ifile == 0) {
             if (next_file() < 0) {
                 return '\0'; /* End of input */
             }
@@ -845,7 +979,7 @@ static void cleanup_and_exit(int status) {
     }
 
     /* Restore TTY permissions */
-    /* TTY restoration code would go here */
+    /* No TTY state to restore in this implementation */
 
     exit(status);
 }
