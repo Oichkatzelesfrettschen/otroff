@@ -25,6 +25,20 @@ make CPU=x86-64   # build using generic x86‑64 settings
 make CPU=haswell  # build for newer Intel chips
 ```
 
+### Building with CMake
+
+The project also supports a CMake workflow. Create a build
+directory and invoke CMake followed by `make`:
+
+```
+mkdir build && cd build
+cmake ..
+make
+```
+
+This will produce the `roff`, `croff`, and `neqn` binaries under the
+`build` directory.
+
 Running Tests
 -------------
 Tests can be executed using `make test` (to be added) or by running `pytest`
