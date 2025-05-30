@@ -63,6 +63,18 @@ clean:
 
 .PHONY: all clean croff tbl neqn roff test
 
+# Build using CMake in a separate directory
+.PHONY: cmake
+cmake:
+	cmake -S . -B build-cmake
+	cmake --build build-cmake
+
+# Build using Meson in a separate directory
+.PHONY: meson
+meson:
+	meson setup build-meson --reconfigure || meson setup build-meson
+	ninja -C build-meson
+
 # Run the test-suite using pytest
 test:
 	pytest -q
