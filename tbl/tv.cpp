@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* tv.c: draw vertical lines */
-#include "tbl.h"
+#include "tbl.hpp"
 
 /* Draw vertical lines between table rows. */
 void drawvert(int start, int end, int c, int lwid) {

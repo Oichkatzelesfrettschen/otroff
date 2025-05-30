@@ -7,9 +7,8 @@
  * for TROFF (high-resolution typesetter) vs NROFF (line printer) modes.
  */
 
-#ifndef TDEF_H
-#define TDEF_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // utilities
 
 /* Standard C library includes */
 #include <stdio.h>
@@ -212,4 +211,3 @@
 #define RTAB 0100000 /* Right-aligned tab bit */
 #define CTAB 0040000 /* Centered tab bit */
 
-#endif /* TDEF_H */

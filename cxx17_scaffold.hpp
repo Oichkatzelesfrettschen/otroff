@@ -3,8 +3,7 @@
 // === REMOVE OR INLINE ONCE STABILIZED! ===
 // ==========================================
 
-#ifndef CXX17_SCAFFOLD_HPP
-#define CXX17_SCAFFOLD_HPP
+#pragma once
 
 // Enforce strict compile-time C++ standard check
 #if __cplusplus < 201703L
@@ -45,4 +44,3 @@ constexpr T narrow_cast(U value) {
 // Placeholder macro for future linting, static analysis or CI
 #define MODERNIZED_BY_CXX17
 
-#endif // CXX17_SCAFFOLD_HPP

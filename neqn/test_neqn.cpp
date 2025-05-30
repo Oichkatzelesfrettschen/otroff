@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "ne.h"
+#include "ne.hpp"
 
 /* Test counter */
 static int tests_run = 0;

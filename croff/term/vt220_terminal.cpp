@@ -11,7 +11,6 @@ static const VT220Terminal g_vt220_instance{};
 } // namespace otroff::terminal
 
 // C-compatible interface for legacy code
-extern "C" {
 
 struct termtab {
     int bset;
@@ -89,4 +88,3 @@ const struct termtab *get_vt220_table() {
     return &legacy_table;
 }
 
-} // extern "C"

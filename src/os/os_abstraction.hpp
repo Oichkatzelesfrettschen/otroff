@@ -1,10 +1,5 @@
-#ifndef OS_ABSTRACTION_H
-#define OS_ABSTRACTION_H
-#include "cxx23_scaffold.hpp"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
+#include "cxx23_scaffold.hpp" // ensure C++23 features
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -27,9 +22,3 @@ extern "C" {
 [[nodiscard]] int os_stat(const char *path, struct stat *buf);
 [[nodiscard]] FILE *os_fopen(const char *path, const char *mode);
 [[nodiscard]] int os_fclose(FILE *file);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* OS_ABSTRACTION_H */

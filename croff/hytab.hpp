@@ -192,8 +192,7 @@ HyphenWeight HyphenationEngine::calculate_position_weight(
     return tables_.evaluate_position(word, position, at_beginning, at_ending, has_context);
 }
 
-// Legacy C interface implementation
-extern "C" {
+// Legacy C interface implementation using plain C++ functions
 int hytab_get_weight(char first, char second) {
     const auto weight = default_tables.digram_weight(first, second);
     return weight ? static_cast<int>(*weight) : 0;
@@ -206,7 +205,6 @@ int hytab_should_hyphenate(const char *word, int position) {
 
     HyphenationEngine engine{default_tables};
     return engine.should_hyphenate_at(word, static_cast<std::size_t>(position)) ? 1 : 0;
-}
 }
 
 } // namespace croff::hyphenation

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "roff.h"
-#include "os_abstraction.h"
+#include "roff.hpp"           // roff interface
+#include "os_abstraction.hpp" // platform abstraction layer
 #include <cstddef>
 #include "cxx23_scaffold.hpp" // Modern C++23 enforcement
 

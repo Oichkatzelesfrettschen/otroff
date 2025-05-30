@@ -63,7 +63,7 @@
 #include <limits.h> /* System limits */
 
 /* Local headers */
-#include "roff.h" /* ROFF system definitions and globals */
+#include "roff.hpp" /* ROFF system definitions and globals */
 
 /* SCCS version identifier */
 [[maybe_unused]] static constexpr std::string_view sccs_id =

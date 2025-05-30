@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* t3.c: interpret commands affecting whole table */
-#include "tbl.h"
+#include "tbl.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 int linsize;

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef CROFF_TERM_DASI300_CODE_TABLE_HPP
-#define CROFF_TERM_DASI300_CODE_TABLE_HPP
 #include "cxx23_scaffold.hpp"
 
 //---------------------------------------------------------------------------
@@ -235,4 +233,3 @@ class table_iterator {
 } // namespace croff
 } // namespace croff::term
 
-#endif // CROFF_TERM_DASI300_CODE_TABLE_HPP

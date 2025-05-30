@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* tc.c: find character not in table to delimit fields */
-#include "tbl.h"
+#include "tbl.hpp"
 /* Choose delimiter characters not used in the table. */
 void choochar(void) {
     int had[128], ilin, icol, k;

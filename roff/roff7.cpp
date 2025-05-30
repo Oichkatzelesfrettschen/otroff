@@ -44,7 +44,7 @@
  *       structure and morphology in a compact, efficient format.
  */
 
-#include "roff.h"
+#include "roff.hpp" // use C++ header
 
 /* Copyright notice from original Bell Labs code */
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";

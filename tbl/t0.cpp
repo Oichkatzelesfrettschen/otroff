@@ -2,7 +2,7 @@
 /* t0.c: storage allocation */
 #include <stdio.h>
 #include <stdlib.h>
-#include "tbl.h"
+#include "tbl.hpp"
 /* Global flags controlling table formatting. */
 int expflg = 0;
 int ctrflg = 0;

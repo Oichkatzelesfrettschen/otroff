@@ -60,9 +60,9 @@
  * - User-friendly error messages
  */
 
-#include "tdef.h"
-#include "t.h"
-#include "tw.h"
+#include "tdef.hpp" // troff definitions
+#include "t.hpp"    // common troff header
+#include "tw.hpp"   // typewriter table
 
 #include <stdio.h> /* C90: standard I/O functions */
 #include <stdlib.h> /* C90: exit, malloc, etc. */

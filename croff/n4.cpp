@@ -49,9 +49,9 @@
  * - Maintains historical expression syntax
  */
 
-#include "tdef.h"
-#include "env.h"
-#include "t.h"
+#include "tdef.hpp" // troff definitions
+#include "env.hpp"  // environment structure
+#include "t.hpp"    // troff header
 
 #include <stdio.h> /* C90: standard I/O functions */
 #include <stdlib.h> /* C90: exit, abs, etc. */

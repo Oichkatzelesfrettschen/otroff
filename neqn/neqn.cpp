@@ -38,7 +38,7 @@
 /* ================================================================
  * PROJECT INCLUDES - Local Header Files
  * ================================================================ */
-#include "ne.h" /* Main neqn header with type definitions */
+#include "ne.hpp" /* Main neqn header with type definitions */
 
 /* ================================================================
  * PROGRAM CONSTANTS AND CONFIGURATION

@@ -9,9 +9,8 @@
  * Compatible with C90 standard and portable across platforms.
  */
 
-#ifndef CROFF_PROTO_H
-#define CROFF_PROTO_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // common utilities
 
 /* Memory management */
 /*
@@ -28,4 +27,3 @@ char *setbrk(int size);
  */
 void init1(char a);
 
-#endif /* CROFF_PROTO_H */

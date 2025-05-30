@@ -27,8 +27,8 @@
 /* ================================================================
  * PROJECT INCLUDES
  * ================================================================ */
-#include "ne.h"
-#include "os_abstraction.h"
+#include "ne.hpp"              // main header
+#include "os_abstraction.hpp"  // platform wrappers
 
 /* ================================================================
  * MODULE CONSTANTS

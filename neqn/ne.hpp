@@ -23,9 +23,8 @@
  * All rights reserved.
  */
 
-#ifndef NE_H
-#define NE_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // common utilities
 
 /* ================================================================
  * SYSTEM INCLUDES - C90 Standard Library Headers
@@ -658,7 +657,6 @@ int neqn_is_strict_mode(neqn_context_t *context);
  * END OF HEADER - Multiple inclusion protection
  * ================================================================ */
 
-#endif /* NE_H */
 
 /* ================================================================
  * DOCUMENTATION NOTES

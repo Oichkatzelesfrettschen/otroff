@@ -26,7 +26,7 @@
  * - Comprehensive documentation for maintainability
  */
 
-#include "ne.h" /* NEQN type definitions and global declarations */
+#include "ne.hpp" /* NEQN type definitions and global declarations */
 #include <stdio.h> /* Standard I/O for printf (troff command generation) */
 #include <stdlib.h> /* Standard library functions */
 #include <string.h> /* String manipulation functions */

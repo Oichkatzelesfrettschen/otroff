@@ -5,10 +5,10 @@
  * C90 compliant implementation with proper type handling
  */
 
-#include "tdef.h"
-#include "env.h"
-#include "t.h"
-#include "proto.h"
+#include "tdef.hpp"  // primary troff definitions
+#include "env.hpp"   // environment structure definitions
+#include "t.hpp"     // common troff header
+#include "proto.hpp" // function prototypes
 
 #include <stdio.h>
 #include <stdlib.h>

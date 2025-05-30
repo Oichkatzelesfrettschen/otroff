@@ -5,13 +5,8 @@
  * It is written in portable C90, with C++ compatibility, and is suitable for
  * inclusion in both C and C++ projects. All members are documented for clarity.
  */
-#ifndef CROFF_ENV_H
-#define CROFF_ENV_H
-#include "cxx23_scaffold.hpp"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
+#include "cxx23_scaffold.hpp" // common utilities
 
 /*
  * Environment diversion structure used by troff.
@@ -52,8 +47,3 @@ typedef struct env {
  *   void init_env(env_t *e);
  */
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* CROFF_ENV_H */

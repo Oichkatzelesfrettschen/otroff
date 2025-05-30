@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ne.h"
+#include "ne.hpp"
 
 /* ================================================================
  * BUILT-IN MATHEMATICAL SYMBOLS

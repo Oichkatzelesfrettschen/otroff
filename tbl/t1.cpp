@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* t1.c: main control and input switching */
-#include "tbl.h"
+#include "tbl.hpp"
 #include <stdio.h> /* fopen, fprintf */
 #include <stdlib.h> /* exit */
 #include <signal.h> /* signal */

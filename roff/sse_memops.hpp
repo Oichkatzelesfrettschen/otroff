@@ -1,7 +1,6 @@
 /* Header guard to prevent multiple inclusions. */
-#ifndef SSE_MEMOPS_H
-#define SSE_MEMOPS_H
-#include "cxx23_scaffold.hpp"
+#pragma once
+#include "cxx23_scaffold.hpp" // utilities
 
 #include <cstddef>
 
@@ -16,4 +15,3 @@ namespace roff::util {
 
 } // namespace roff::util
 
-#endif // SSE_MEMOPS_H

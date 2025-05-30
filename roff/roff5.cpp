@@ -52,7 +52,7 @@
 #include <ctype.h>
 
 /* Include ROFF system headers */
-#include "roff.h"
+#include "roff.hpp" // roff definitions
 
 /* Copyright notice from original */
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";

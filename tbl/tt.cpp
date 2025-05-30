@@ -1,6 +1,6 @@
 #include "cxx23_scaffold.hpp"
 /* tt.c: subroutines for drawing horizontal lines */
-#include "tbl.h" /* table internals */
+#include "tbl.hpp" /* table internals */
 ctype(il, ic) {
     if (instead[il])
         return (0);

@@ -20,7 +20,7 @@
 #include <assert.h>
 
 /* Include tdef.h for proper definitions */
-#include "tdef.h"
+#include "tdef.hpp" // updated header extension
 
 /* External variables mock */
 int *wdstart, *wdend;

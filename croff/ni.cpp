@@ -9,7 +9,7 @@
  * Modernized for C90 compliance and maintainability
  */
 
-#include "tdef.h"
+#include "tdef.hpp" // updated header extension
 #include <stddef.h>
 
 /* Version identification */

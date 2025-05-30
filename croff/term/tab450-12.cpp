@@ -611,7 +611,6 @@ constexpr bool is_printable(std::uint8_t ch, const TerminalTable &table) noexcep
 } // namespace terminal_utils
 
 // Export symbols for linkage with troff system
-extern "C" {
 // Legacy C interface for compatibility
 const void *get_dasi450_table() {
     return &dasi450_terminal;
@@ -623,5 +622,4 @@ int get_terminal_resolution() {
 
 int get_character_width() {
     return dasi450_terminal.character_width();
-}
 }
