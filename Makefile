@@ -2,6 +2,7 @@
 # yields slightly different diagnostics. Force clang unless the user
 # explicitly overrides it on the command line.
 CC := clang
+CXX := clang++
 CPU ?= native
 
 # Map CPU values to 64-bit -march options
@@ -13,7 +14,8 @@ else
     MARCH := $(CPU)
 endif
 
-CFLAGS ?= -std=c90 -Wall -O2 -march=$(MARCH) -fopenmp=libgomp -Isrc/os
+CFLAGS ?= -std=c23 -Wall -O2 -march=$(MARCH) -fopenmp=libgomp -Isrc/os
+CXXFLAGS ?= -std=c++23 -Wall -O2 -march=$(MARCH)
 LDFLAGS ?= -fopenmp=libgomp
 
 # Collect source files across the project.  Only the modern C
@@ -29,7 +31,7 @@ STUBS_SRC := src/stubs.c
 # excluded from the default build.  They can now be compiled on
 # demand via dedicated make targets.  Collect all C sources within
 # each directory so the objects can be produced automatically.
-CROFF_SRC := $(sort $(wildcard croff/*.c))
+CROFF_SRC := $(filter-out croff/test_%.c,$(sort $(wildcard croff/*.c)))
 TBL_SRC   := $(sort $(wildcard tbl/*.c))
 NEQN_SRC  := $(sort $(wildcard neqn/*.c))
 
@@ -46,7 +48,7 @@ NEQN_OBJ        := $(patsubst %.c,$(OBJDIR)/%.o,$(NEQN_SRC))
 OS_OBJ          := $(patsubst %.c,$(OBJDIR)/%.o,$(OS_SRC))
 STUBS_OBJ       := $(patsubst %.c,$(OBJDIR)/%.o,$(STUBS_SRC))
 # Device driver objects are chosen via the CROFF_TERMS variable.
-CROFF_TERM_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_TERMS))
+CROFF_TERM_OBJ  := $(patsubst %.cpp,$(OBJDIR)/%.o,$(CROFF_TERMS))
 
 # Object lists used for linking and compilation
 TROFF_OBJ := $(ROFF_OBJ) $(OS_OBJ) $(STUBS_OBJ)
@@ -70,12 +72,15 @@ tbl:   $(TBL_OBJ)
 neqn:  $(NEQN_OBJ)
 roff:  $(ROFF_OBJ)
 
-# Compile any object residing in $(ALL_OBJ).  The static pattern rule
-# ensures sources from all subdirectories share consistent compiler
-# flags and output locations under $(OBJDIR).
-	$(ALL_OBJ): $(OBJDIR)/%.o: %.c
+# Compile C sources into objects
+$(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile C++ sources into objects
+$(OBJDIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJDIR)
@@ -96,7 +101,7 @@ meson:
 
 # Run the test-suite using pytest
 test:
-        pytest -q
-# Format all C and header files using clang-format
+	        pytest -q
+# Format all C/C++ and header files using clang-format
 format:
-	find . \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
+	find . \( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) -print0 | xargs -0 clang-format -i

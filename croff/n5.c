@@ -206,8 +206,7 @@ void caseab(void);
 /*
  * Return the larger of two integers
  */
-static int max(int aa, int bb)
-{
+static int max(int aa, int bb) {
     if (aa > bb)
         return aa;
     else
@@ -218,15 +217,14 @@ static int max(int aa, int bb)
  * Adjust line justification
  * Sets adjustment mode based on input character
  */
-static void casead(void)
-{
+static void casead(void) {
     register int i;
 
     ad = 1;
     /* leave admod alone */
     if (skip())
         return;
-    
+
     switch (i = getch() & CMASK) {
     case 'r': /* right adj, left ragged */
         admod = 2;
@@ -257,16 +255,14 @@ static void casead(void)
 /*
  * Disable line adjustment
  */
-static void casena(void)
-{
+static void casena(void) {
     ad = 0;
 }
 
 /*
  * Enable fill mode
  */
-static void casefi(void)
-{
+static void casefi(void) {
     tbreak();
     fi++;
     pendnf = 0;
@@ -276,8 +272,7 @@ static void casefi(void)
 /*
  * Disable fill mode
  */
-static void casenf(void)
-{
+static void casenf(void) {
     tbreak();
     fi = 0;
     /* Increase line size when not filling */
@@ -287,24 +282,21 @@ static void casenf(void)
 /*
  * Reset number of blank lines
  */
-void casers(void)
-{
+void casers(void) {
     dip->nls = 0;
 }
 
 /*
  * Increment number of blank lines
  */
-void casens(void)
-{
+void casens(void) {
     dip->nls++;
 }
 
 /*
  * Fetch a character argument or return the default c
  */
-int chget(int c)
-{
+int chget(int c) {
     register int i;
 
     if (skip() ||
@@ -321,54 +313,48 @@ int chget(int c)
 /*
  * Set control character (default '.')
  */
-void casecc(void)
-{
+void casecc(void) {
     cc = chget('.');
 }
 
 /*
  * Set no-break control character (default apostrophe)
  */
-void casec2(void)
-{
+void casec2(void) {
     c2 = chget('\'');
 }
 
 /*
  * Set hyphenation character
  */
-void casehc(void)
-{
+void casehc(void) {
     ohc = chget(OHC);
 }
 
 /*
  * Set tab character
  */
-void casetc(void)
-{
+void casetc(void) {
     tabc = chget(0);
 }
 
 /*
  * Set leader character
  */
-void caselc(void)
-{
+void caselc(void) {
     dotc = chget(0);
 }
 
 /*
  * Set hyphenation mode
  */
-void casehy(void)
-{
+void casehy(void) {
     register int i;
 
     hyf = 1;
     if (skip())
         return;
-    
+
     noscale++;
     i = tatoi();
     noscale = 0;
@@ -380,16 +366,14 @@ void casehy(void)
 /*
  * Disable hyphenation
  */
-void casenh(void)
-{
+void casenh(void) {
     hyf = 0;
 }
 
 /*
  * Center lines
  */
-void casece(void)
-{
+void casece(void) {
     register int i;
 
     noscale++;
@@ -405,8 +389,7 @@ void casece(void)
 /*
  * Set indentation
  */
-void casein(void)
-{
+void casein(void) {
     register int i;
 
     if (skip())
@@ -425,8 +408,7 @@ void casein(void)
 /*
  * Set line length
  */
-void casell(void)
-{
+void casell(void) {
     register int i;
 
     if (skip())
@@ -441,8 +423,7 @@ void casell(void)
 /*
  * Set title length
  */
-void caselt(void)
-{
+void caselt(void) {
     register int i;
 
     if (skip())
@@ -456,8 +437,7 @@ void caselt(void)
 /*
  * Temporary indent
  */
-void caseti(void)
-{
+void caseti(void) {
     register int i;
 
     if (skip())
@@ -471,8 +451,7 @@ void caseti(void)
 /*
  * Set line spacing
  */
-void casels(void)
-{
+void casels(void) {
     register int i;
 
     noscale++;
@@ -488,8 +467,7 @@ void casels(void)
 /*
  * Set page offset
  */
-void casepo(void)
-{
+void casepo(void) {
     register int i;
 
     if (skip())
@@ -507,8 +485,7 @@ void casepo(void)
 /*
  * Set page length
  */
-void casepl(void)
-{
+void casepl(void) {
     register int i;
 
     skip();
@@ -523,8 +500,7 @@ void casepl(void)
 /*
  * Set trap
  */
-void casewh(void)
-{
+void casewh(void) {
     register int i, j, k;
 
     lgf++;
@@ -552,8 +528,7 @@ void casewh(void)
 /*
  * Change trap
  */
-void casech(void)
-{
+void casech(void) {
     register int i, j, k;
 
     lgf++;
@@ -576,8 +551,7 @@ void casech(void)
 /*
  * Find trap number associated with page position i
  */
-int findn(int i)
-{
+int findn(int i) {
     register int k;
 
     for (k = 0; k < NTRAP; k++)
@@ -589,8 +563,7 @@ int findn(int i)
 /*
  * Set page number
  */
-void casepn(void)
-{
+void casepn(void) {
     register int i;
 
     skip();
@@ -606,8 +579,7 @@ void casepn(void)
 /*
  * Begin page
  */
-void casebp(void)
-{
+void casebp(void) {
     register int i, savframe;
 
     if (dip->op)
@@ -629,8 +601,7 @@ void casebp(void)
 /*
  * Print a message string; x indicates user abort when non-zero
  */
-void casetm(int x)
-{
+void casetm(int x) {
     register int i;
     char tmbuf[NTM];
 
@@ -651,8 +622,7 @@ void casetm(int x)
 /*
  * Space the requested distance
  */
-void casesp(int a)
-{
+void casesp(int a) {
     register int i, j, savlss;
 
     tbreak();
@@ -686,8 +656,7 @@ void casesp(int a)
 /*
  * Reverse line feed
  */
-void casert(void)
-{
+void casert(void) {
     register int a, *p;
 
     skip();
@@ -707,8 +676,7 @@ void casert(void)
 /*
  * Set end macro
  */
-void caseem(void)
-{
+void caseem(void) {
     lgf++;
     skip();
     em = getrq();
@@ -717,8 +685,7 @@ void caseem(void)
 /*
  * Flush output
  */
-void casefl(void)
-{
+void casefl(void) {
     tbreak();
     flusho();
 }
@@ -726,8 +693,7 @@ void casefl(void)
 /*
  * Environment switch
  */
-void caseev(void)
-{
+void caseev(void) {
     register int nxev;
     extern int block;
 
@@ -770,8 +736,7 @@ void caseev(void)
 /*
  * If-else conditional
  */
-void caseie(void)
-{
+void caseie(void) {
     if (ifx >= NIF) {
         prstr("if-else overflow.\n");
         ifx = 0;
@@ -784,16 +749,15 @@ void caseie(void)
 /*
  * Handle conditional requests
  */
-void caseif(int x)
-{
-    register int i, notflag, true;
+void caseif(int x) {
+    register int i, notflag, true_cond;
 
     if (x == 2) {
         notflag = 0;
-        true = iflist[ifx];
+        true_cond = iflist[ifx];
         goto i1;
     }
-    true = 0;
+    true_cond = 0;
     skip();
     if (((i = getch()) & CMASK) == '!') {
         notflag = 1;
@@ -804,41 +768,41 @@ void caseif(int x)
     i = tatoi();
     if (!nonumb) {
         if (i > 0)
-            true++;
+            true_cond++;
         goto i1;
     }
     switch ((i = getch()) & CMASK) {
     case 'e':
         if (!(v.pn & 01))
-            true++;
+            true_cond++;
         break;
     case 'o':
         if (v.pn & 01)
-            true++;
+            true_cond++;
         break;
 #ifdef NROFF
     case 'n':
-        true++;
+        true_cond++;
         /* fall through */
     case 't':
 #endif
 #ifndef NROFF
     case 't':
-        true++;
+        true_cond++;
         /* fall through */
     case 'n':
 #endif
     case ' ':
         break;
     default:
-        true = cmpstr(i);
+        true_cond = cmpstr(i);
     }
 i1:
     if (notflag)
-        true = !true;
+        true_cond = !true_cond;
     if (x == 1)
-        iflist[ifx] = !true;
-    if (true) {
+        iflist[ifx] = !true_cond;
+    if (true_cond) {
     i2:
         do {
             v.hp = 0;
@@ -860,8 +824,7 @@ i1:
 /*
  * Consume input up to matching delimiter
  */
-static int eatblk(int right, int left)
-{
+static int eatblk(int right, int left) {
     register int i;
 
 e0:
@@ -880,8 +843,7 @@ e0:
 /*
  * Compare a delimited string with data on input
  */
-static int cmpstr(int delim)
-{
+static int cmpstr(int delim) {
     register int i, j, p;
     int begin, cnt, k;
     int savapts, savapts1, savfont, savfont1,
@@ -944,8 +906,7 @@ rtn:
 /*
  * Read from terminal
  */
-void caserd(void)
-{
+void caserd(void) {
     lgf++;
     skip();
     getname();
@@ -971,8 +932,7 @@ void caserd(void)
 /*
  * Read a single character from the terminal
  */
-int rdtty(void)
-{
+int rdtty(void) {
     int onechar;
 
     onechar = 0;
@@ -996,24 +956,21 @@ int rdtty(void)
 /*
  * Set escape character
  */
-void caseec(void)
-{
+void caseec(void) {
     eschar = chget('\\');
 }
 
 /*
  * Turn off escape character
  */
-void caseeo(void)
-{
+void caseeo(void) {
     eschar = 0;
 }
 
 /*
  * Literal input
  */
-void caseli(void)
-{
+void caseli(void) {
     skip();
     lit = max(inumb(0), 1);
     litlev = frame;
@@ -1024,8 +981,7 @@ void caseli(void)
 /*
  * Set tab stops
  */
-void caseta(void)
-{
+void caseta(void) {
     register int i, j;
 
     tabtab[0] = nonumb = 0;
@@ -1052,8 +1008,7 @@ void caseta(void)
 /*
  * Need space
  */
-void casene(void)
-{
+void casene(void) {
     register int i, j;
 
     skip();
@@ -1072,8 +1027,7 @@ void casene(void)
 /*
  * Character translation
  */
-void casetr(void)
-{
+void casetr(void) {
     register int i, j;
 
     lgf++;
@@ -1090,8 +1044,7 @@ void casetr(void)
 /*
  * Continuous underline
  */
-void casecu(void)
-{
+void casecu(void) {
     cu++;
     caseul();
 }
@@ -1099,8 +1052,7 @@ void casecu(void)
 /*
  * Underline
  */
-void caseul(void)
-{
+void caseul(void) {
     register int i;
 
     noscale++;
@@ -1126,8 +1078,7 @@ void caseul(void)
 /*
  * Margin character
  */
-void casemc(void)
-{
+void casemc(void) {
     register int i;
 
     if (icf > 1)
@@ -1146,8 +1097,7 @@ void casemc(void)
 /*
  * Mark vertical position
  */
-void casemk(void)
-{
+void casemk(void) {
     register int i, j;
 
     if (dip->op)
@@ -1169,8 +1119,7 @@ void casemk(void)
 /*
  * Save vertical space
  */
-void casesv(void)
-{
+void casesv(void) {
     register int i;
 
     skip();
@@ -1184,8 +1133,7 @@ void casesv(void)
 /*
  * Read a numeric parameter with a minimum value
  */
-static void getnm(int *p, int min)
-{
+static void getnm(int *p, int min) {
     register int i;
 
     *p = min; /* Initialize *p to the minimum value */
@@ -1201,8 +1149,7 @@ static void getnm(int *p, int min)
 /*
  * Number lines
  */
-void casenn(void)
-{
+void casenn(void) {
     noscale++;
     nn = max(tatoi(), 1);
     noscale = 0;
@@ -1214,8 +1161,7 @@ void casenn(void)
  * Print the remainder of the input line as an error message and then
  * terminate processing cleanly.
  */
-void caseab(void)
-{
+void caseab(void) {
     casetm(1); /* Output the user-supplied abort message */
-    done2(0);  /* Perform cleanup and exit */
+    done2(0); /* Perform cleanup and exit */
 }

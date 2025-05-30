@@ -2,8 +2,8 @@
 # Enhanced C90 compliant build system
 
 # Compiler configuration
-CC = gcc
-CFLAGS = -std=c90 -Wall -Wextra -Werror -pedantic -g -O2
+CC = clang
+CFLAGS = -std=c23 -Wall -Wextra -Werror -pedantic -g -O2
 CFLAGS += -Wcast-align -Wcast-qual -Wconversion -Wformat=2
 CFLAGS += -Wmissing-prototypes -Wpointer-arith -Wshadow
 CFLAGS += -Wstrict-prototypes -Wwrite-strings -Wunused
@@ -47,7 +47,7 @@ $(TEST_BINARY): $(TEST_OBJECTS)
 # Static analysis
 analyze: $(SOURCES) $(TEST_SOURCES)
 	@echo "Running static analysis..."
-	cppcheck --enable=all --std=c90 --suppress=missingIncludeSystem $(SOURCES) $(TEST_SOURCES)
+cppcheck --enable=all --std=c23 --suppress=missingIncludeSystem $(SOURCES) $(TEST_SOURCES)
 	@echo "Static analysis complete."
 
 # Code formatting

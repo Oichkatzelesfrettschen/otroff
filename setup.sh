@@ -5,6 +5,14 @@
 # Exit on errors, undefined variables, and failed pipelines
 set -euo pipefail
 
+# Configure compilers to use clang with modern standards
+export CC=${CC:-clang}
+export CXX=${CXX:-clang++}
+export CFLAGS="${CFLAGS:-} -std=c23"
+export CXXFLAGS="${CXXFLAGS:-} -std=c++23"
+export CLANG_TIDY=${CLANG_TIDY:-clang-tidy}
+export CLANG_FORMAT=${CLANG_FORMAT:-clang-format}
+
 # Ensure the script is executed as root for package installation
 if [[ "$(id -u)" -ne 0 ]]; then
     echo "This script must be run as root." >&2
