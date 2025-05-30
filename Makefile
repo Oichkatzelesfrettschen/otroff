@@ -1,108 +1,84 @@
-#Use clang as the compiler.The built - in 'cc' is typically GCC which
-#yields slightly different diagnostics.Force clang unless the user
-#explicitly overrides it on the command line.
-CC : = clang
-         CXX : = clang++ CPU ? = native
+# Modern Makefile for otroff using C++17
 
-#Map CPU values to 64 - bit - march options
-                               ifeq($(CPU), x86 - 64)
-                                   MARCH
-                             : = x86 - 64 else ifeq($(CPU), haswell)
-                                           MARCH : = haswell else MARCH : = $(CPU)
-                                                                              endif
+# Compiler configuration
+CXX ?= clang++
+CPU ?= native
 
-                                                                                  CFLAGS
-                                                                          ? = -std = c23 - Wall - O2 - march = $(MARCH) - fopenmp = libgomp - Isrc / os
-                                                                                                                                                         CXXFLAGS
-                                                                            ? = -std = c++ 23 - Wall - O2 - march = $(MARCH)
-                                                                                                                            LDFLAGS
-                                                                                                                        ? = -fopenmp = libgomp
+# Map CPU value to -march option
+ifeq ($(CPU),x86-64)
+MARCH := x86-64
+else ifeq ($(CPU),haswell)
+MARCH := haswell
+else
+MARCH := $(CPU)
+endif
 
-#Collect source files across the project.Only the modern C
-#replacements located under `roff /` are built.
-#Source files for each project directory
-#Automatically collect all modern C implementations and ignore the
-#historical PDP - 11 assembly sources(*.s).
-                                                                                                                              ROFF_SRC
-                                                                                                                        : = $(sort $(wildcard roff/*.c) $(wildcard roff/*.cpp))
-# Operating-system abstraction layer sources
-OS_SRC   := src/os/os_unix.c
-STUBS_SRC := src/stubs.c
-# Legacy sources under `croff`, `tbl`, and `neqn` were historically
-# excluded from the default build.  They can now be compiled on
-# demand via dedicated make targets.  Collect all C sources within
-# each directory so the objects can be produced automatically.
-CROFF_SRC := $(filter-out croff/test_%.c,$(sort $(wildcard croff/*.c)))
-TBL_SRC   := $(sort $(wildcard tbl/*.c))
-NEQN_SRC  := $(sort $(wildcard neqn/*.c))
+# Compiler and linker flags
+CXXFLAGS ?= -std=c++17 -Wall -O2 -march=$(MARCH)
+LDFLAGS ?= -fopenmp=libgomp
 
-# Device driver sources for troff
+# Source file discovery
+ROFF_SRC := $(sort $(wildcard roff/*.c roff/*.cpp))
+OS_SRC := src/os/os_unix.cpp
+STUBS_SRC := src/stubs.cpp
+CROFF_SRC := $(filter-out croff/test_%.cpp,$(sort $(wildcard croff/*.c croff/*.cpp)))
+TBL_SRC := $(sort $(wildcard tbl/*.c tbl/*.cpp))
+NEQN_SRC := $(sort $(wildcard neqn/*.c neqn/*.cpp))
 CROFF_TERMS :=
 
+# Build directory
 OBJDIR := build
 
-# Map source files to objects inside $(OBJDIR)
-ROFF_OBJ        := $(patsubst %.c,$(OBJDIR)/%.o,$(ROFF_SRC))
-CROFF_OBJ       := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_SRC))
-TBL_OBJ         := $(patsubst %.c,$(OBJDIR)/%.o,$(TBL_SRC))
-NEQN_OBJ        := $(patsubst %.c,$(OBJDIR)/%.o,$(NEQN_SRC))
-OS_OBJ          := $(patsubst %.c,$(OBJDIR)/%.o,$(OS_SRC))
-STUBS_OBJ       := $(patsubst %.c,$(OBJDIR)/%.o,$(STUBS_SRC))
-# Device driver objects are chosen via the CROFF_TERMS variable.
-CROFF_TERM_OBJ  := $(patsubst %.cpp,$(OBJDIR)/%.o,$(CROFF_TERMS))
+# Object file lists
+ROFF_OBJ := $(patsubst %.cpp,$(OBJDIR)/%.o,$(ROFF_SRC))
+CROFF_OBJ := $(patsubst %.cpp,$(OBJDIR)/%.o,$(CROFF_SRC))
+TBL_OBJ := $(patsubst %.cpp,$(OBJDIR)/%.o,$(TBL_SRC))
+NEQN_OBJ := $(patsubst %.cpp,$(OBJDIR)/%.o,$(NEQN_SRC))
+OS_OBJ := $(patsubst %.cpp,$(OBJDIR)/%.o,$(OS_SRC))
+STUBS_OBJ := $(patsubst %.cpp,$(OBJDIR)/%.o,$(STUBS_SRC))
+CROFF_TERM_OBJ := $(patsubst %.cpp,$(OBJDIR)/%.o,$(CROFF_TERMS))
 
-# Object lists used for linking and compilation
+# Aggregated object lists
 TROFF_OBJ := $(ROFF_OBJ) $(OS_OBJ) $(STUBS_OBJ)
-# Union of all object files produced by this Makefile
-ALL_OBJ   := $(TROFF_OBJ) $(CROFF_OBJ) $(TBL_OBJ) $(NEQN_OBJ) $(CROFF_TERM_OBJ)
+ALL_OBJ := $(TROFF_OBJ) $(CROFF_OBJ) $(TBL_OBJ) $(NEQN_OBJ) $(CROFF_TERM_OBJ)
 
-
-# SSE accelerated routines were originally implemented in assembly.
-# They are now provided as portable C sources and will be built
-# automatically as part of $(ROFF_SRC).
-
-# Default target builds everything
+# Default target builds troff
 all: $(OBJDIR)/troff
 
 $(OBJDIR)/troff: $(TROFF_OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
-# Build individual components
+# Optional component targets
 croff: $(CROFF_OBJ) $(CROFF_TERM_OBJ)
-tbl:   $(TBL_OBJ)
-neqn:  $(NEQN_OBJ)
-roff:  $(ROFF_OBJ)
+tbl: $(TBL_OBJ)
+neqn: $(NEQN_OBJ)
+roff: $(ROFF_OBJ)
 
-# Compile C sources into objects
-$(OBJDIR)/%.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Compile C++ sources into objects
+# Generic C++ compile rule
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Clean build artifacts
 clean:
 	rm -rf $(OBJDIR)
 
-.PHONY: all clean croff tbl neqn roff test format
+.PHONY: all clean croff tbl neqn roff test format cmake meson
 
-# Build using CMake in a separate directory
-.PHONY: cmake
+# CMake build helper
 cmake:
 	cmake -S . -B build-cmake
 	cmake --build build-cmake
 
-# Build using Meson in a separate directory
-.PHONY: meson
+# Meson build helper
 meson:
 	meson setup build-meson --reconfigure || meson setup build-meson
 	ninja -C build-meson
 
-# Run the test-suite using pytest
+# Run Python tests
 test:
-	        pytest -q
-# Format all C/C++ and header files using clang-format
+	pytest -q
+
+# Format all sources with clang-format
 format:
 	find . \( -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) -print0 | xargs -0 clang-format -i
