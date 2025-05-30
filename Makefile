@@ -25,12 +25,13 @@ ROFF_SRC := $(sort $(wildcard roff/*.c))
 # Operating-system abstraction layer sources
 OS_SRC   := src/os/os_unix.c
 STUBS_SRC := src/stubs.c
-# Legacy sources under `croff`, `tbl`, and `neqn` are currently
-# excluded from the default build as they require significant
-# modernisation work.
-CROFF_SRC :=
-TBL_SRC   :=
-NEQN_SRC  :=
+# Legacy sources under `croff`, `tbl`, and `neqn` were historically
+# excluded from the default build.  They can now be compiled on
+# demand via dedicated make targets.  Collect all C sources within
+# each directory so the objects can be produced automatically.
+CROFF_SRC := $(sort $(wildcard croff/*.c))
+TBL_SRC   := $(sort $(wildcard tbl/*.c))
+NEQN_SRC  := $(sort $(wildcard neqn/*.c))
 
 # Device driver sources for troff
 CROFF_TERMS :=
@@ -38,15 +39,19 @@ CROFF_TERMS :=
 OBJDIR := build
 
 # Map source files to objects inside $(OBJDIR)
-ROFF_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(ROFF_SRC))
-CROFF_OBJ :=
-TBL_OBJ   :=
-NEQN_OBJ  :=
-OS_OBJ    := $(patsubst %.c,$(OBJDIR)/%.o,$(OS_SRC))
-STUBS_OBJ := $(patsubst %.c,$(OBJDIR)/%.o,$(STUBS_SRC))
-CROFF_TERM_OBJ :=
+ROFF_OBJ        := $(patsubst %.c,$(OBJDIR)/%.o,$(ROFF_SRC))
+CROFF_OBJ       := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_SRC))
+TBL_OBJ         := $(patsubst %.c,$(OBJDIR)/%.o,$(TBL_SRC))
+NEQN_OBJ        := $(patsubst %.c,$(OBJDIR)/%.o,$(NEQN_SRC))
+OS_OBJ          := $(patsubst %.c,$(OBJDIR)/%.o,$(OS_SRC))
+STUBS_OBJ       := $(patsubst %.c,$(OBJDIR)/%.o,$(STUBS_SRC))
+# Device driver objects are chosen via the CROFF_TERMS variable.
+CROFF_TERM_OBJ  := $(patsubst %.c,$(OBJDIR)/%.o,$(CROFF_TERMS))
 
-ALL_OBJ := $(ROFF_OBJ) $(OS_OBJ) $(STUBS_OBJ)
+# Object lists used for linking and compilation
+TROFF_OBJ := $(ROFF_OBJ) $(OS_OBJ) $(STUBS_OBJ)
+# Union of all object files produced by this Makefile
+ALL_OBJ   := $(TROFF_OBJ) $(CROFF_OBJ) $(TBL_OBJ) $(NEQN_OBJ) $(CROFF_TERM_OBJ)
 
 
 # SSE accelerated routines were originally implemented in assembly.
@@ -56,7 +61,7 @@ ALL_OBJ := $(ROFF_OBJ) $(OS_OBJ) $(STUBS_OBJ)
 # Default target builds everything
 all: $(OBJDIR)/troff
 
-$(OBJDIR)/troff: $(ALL_OBJ)
+$(OBJDIR)/troff: $(TROFF_OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 # Build individual components
@@ -65,7 +70,10 @@ tbl:   $(TBL_OBJ)
 neqn:  $(NEQN_OBJ)
 roff:  $(ROFF_OBJ)
 
-$(OBJDIR)/%.o: %.c
+# Compile any object residing in $(ALL_OBJ).  The static pattern rule
+# ensures sources from all subdirectories share consistent compiler
+# flags and output locations under $(OBJDIR).
+	$(ALL_OBJ): $(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
