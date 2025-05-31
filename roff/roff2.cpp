@@ -1,5 +1,3 @@
-#include "cxx23_scaffold.hpp"
-
 /**
  * @file roff2.cpp
  * @brief Modern C++23 ROFF text formatter - Control command handlers and text processing
@@ -22,26 +20,26 @@
  * - Extensive logging and debugging
  */
 
-import <iostream>;
-import <string>;
-import <string_view>;
-import <vector>;
-import <unordered_map>;
-import <array>;
-import <optional>;
-import <expected>;
-import <variant>;
-import <functional>;
-import <algorithm>;
-import <ranges>;
-import <format>;
-import <concepts>;
-import <memory>;
-import <mutex>;
-import <atomic>;
-import <chrono>;
-import <source_location>;
-import <stacktrace>;
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <unordered_map>
+#include <array>
+#include <optional>
+#include <variant>
+#include <functional>
+#include <algorithm>
+#include <ranges>
+#include <format>
+#include <concepts>
+#include <memory>
+#include <mutex>
+#include <atomic>
+#include <chrono>
+#include <source_location>
+#include <filesystem>
+#include <shared_mutex>
 
 #include "roff.hpp" // updated header
 #include "roff_globals.hpp"
@@ -67,7 +65,7 @@ enum class CommandError {
  * @brief Result type for command operations
  */
 template <typename T = void>
-using CommandResult = std::expected<T, CommandError>;
+using CommandResult = std::optional<T>;
 
 /**
  * @brief Debug information for tracing command execution
@@ -76,13 +74,12 @@ struct DebugInfo {
     std::string_view command_name;
     std::chrono::system_clock::time_point timestamp;
     std::source_location location;
-    std::stacktrace trace;
     std::string parameters;
 
     DebugInfo(std::string_view cmd, std::string params = {},
               std::source_location loc = std::source_location::current())
         : command_name{cmd}, timestamp{std::chrono::system_clock::now()},
-          location{loc}, trace{std::stacktrace::current()}, parameters{std::move(params)} {}
+          location{loc}, parameters{std::move(params)} {}
 };
 
 /**
@@ -102,9 +99,9 @@ class DebugLogger {
         std::lock_guard lock{mutex_};
         trace_log_.emplace_back(info);
 
-        std::cout << std::format("[{}] Command: {} at {}:{} with params: {}\n",
-                                 std::chrono::system_clock::now(), info.command_name,
-                                 info.location.file_name(), info.location.line(), info.parameters);
+        std::cout << "Command: " << info.command_name << " at " 
+                  << info.location.file_name() << ":" << info.location.line() 
+                  << " with params: " << info.parameters << "\n";
     }
 
     void enable(bool state) noexcept { enabled_.store(state); }
@@ -162,26 +159,24 @@ template <ValidParameter T>
 [[nodiscard]] constexpr auto validate_range(T value, T min_val, T max_val)
     -> CommandResult<T> {
     if (value < min_val || value > max_val) {
-        return std::unexpected{CommandError::OutOfRange};
+        return std::nullopt;
     }
     return value;
 }
-
 /**
  * @brief Safe parameter extraction with validation
  */
 template <std::integral T>
+template <std::integral T>
 [[nodiscard]] auto extract_number(T default_val = T{}, T min_val = T{},
                                   T max_val = T{9999}) -> CommandResult<T> {
-    try {
         auto value = number(static_cast<int>(default_val));
         auto safe_value = min(value);
         return validate_range(static_cast<T>(safe_value), min_val, max_val);
     } catch (...) {
-        return std::unexpected{CommandError::ParseError};
+        return std::nullopt;
     }
 }
-
 /**
  * @brief Immutable state management for ROFF variables
  */
@@ -217,30 +212,28 @@ class RoffState {
     }
 
     template <typename F>
-    auto modify_state(F &&func) -> CommandResult<void> {
-        std::unique_lock lock{mutex_};
-        try {
+    template <typename F>
+    template <typename F>
+    auto modify_state(F &&func) -> bool {
             func(data_);
-            return {};
+            return true;
         } catch (...) {
-            return std::unexpected{CommandError::InvalidState};
+            return false;
         }
     }
-
     [[nodiscard]] auto get_line_length() const -> int {
         return read_state([](const auto &data) { return data.line_length; });
     }
 
     auto set_line_length(int length) -> CommandResult<void> {
+    auto set_line_length(int length) -> bool {
         auto validated = validate_range(length, 1, 500);
-        if (!validated)
-            return std::unexpected{validated.error()};
+    auto set_line_length(int length) -> bool {
 
         return modify_state([length](auto &data) {
             data.line_length = length;
         });
     }
-};
 
 inline RoffState roff_state;
 
@@ -260,42 +253,39 @@ class CommandBase {
 
   public:
     auto execute() -> CommandResult<void> {
+    auto execute() -> bool {
         DebugScope debug{self().command_name(), self().get_debug_info()};
 
-        auto prepare_result = self().prepare();
-        if (!prepare_result)
-            return std::unexpected{prepare_result.error()};
+    auto execute() -> bool {
+            return false;
 
         auto execute_result = self().execute_impl();
         if (!execute_result)
-            return std::unexpected{execute_result.error()};
+            return false;
 
         return self().finalize();
     }
-
     virtual ~CommandBase() = default;
 
   protected:
     virtual auto prepare() -> CommandResult<void> { return {}; }
-    virtual auto execute_impl() -> CommandResult<void> = 0;
-    virtual auto finalize() -> CommandResult<void> { return {}; }
-    virtual auto command_name() const -> std::string_view = 0;
+    virtual auto prepare() -> bool { return true; }
+    virtual auto execute_impl() -> bool = 0;
+    virtual auto finalize() -> bool { return true; }
     virtual auto get_debug_info() const -> std::string { return {}; }
-};
-
+    virtual auto prepare() -> bool { return true; }
 /**
  * @brief .ad - Text adjustment command
  */
 class AdjustCommand : public CommandBase<AdjustCommand> {
   public:
     auto execute_impl() -> CommandResult<void> override {
+    auto execute_impl() -> bool override {
         rbreak();
         return roff_state.modify_state([](auto &data) {
             data.adjust_mode = 1;
         });
-    }
-
-    auto command_name() const -> std::string_view override {
+    auto execute_impl() -> bool override {
         return "ad"sv;
     }
 };
@@ -306,10 +296,10 @@ class AdjustCommand : public CommandBase<AdjustCommand> {
 class BreakCommand : public CommandBase<BreakCommand> {
   public:
     auto execute_impl() -> CommandResult<void> override {
+    auto execute_impl() -> bool override {
         rbreak();
-        return {};
+        return true;
     }
-
     auto command_name() const -> std::string_view override {
         return "br"sv;
     }
@@ -324,36 +314,34 @@ class ControlCharCommand : public CommandBase<ControlCharCommand> {
 
   public:
     auto prepare() -> CommandResult<void> override {
+    auto prepare() -> bool override {
         skipcont();
         auto ch = getchar_roff();
         if (ch != '\n') {
             new_char_ = static_cast<char>(ch);
         }
-        return {};
-    }
+    auto prepare() -> bool override {
 
-    auto execute_impl() -> CommandResult<void> override {
+    auto execute_impl() -> bool override {
         if (new_char_) {
             cc = *new_char_;
             ch = *new_char_;
         }
-        return {};
+        return true;
     }
-
     auto command_name() const -> std::string_view override {
         return "cc"sv;
     }
 
     auto get_debug_info() const -> std::string override {
-        return new_char_ ? std::format("new_char={}", *new_char_) : "no_change"s;
+    auto get_debug_info() const -> std::string override {
+        return new_char_ ? std::string("new_char=") + *new_char_ : "no_change"s;
     }
-};
 
 /**
     validate_indent_value(indent_value);
 
-    in = indent_value;
-}
+    auto get_debug_info() const -> std::string override {
 
 /**
  * @brief .li - Literal lines.

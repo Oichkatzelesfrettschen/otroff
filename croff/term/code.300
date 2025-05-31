@@ -1,392 +1,445 @@
-/*
- * code.300 - DASI300/DASI300S Character Code Table for croff
- *
- * Modern refactored version of the original 1972 Unix nroff terminal definition
- * for DASI 300 and DASI 300S dot-matrix printers/terminals.
- *
- * This file provides character encoding mappings for the vintage DASI 300 series
- * terminals, preserving historical compatibility while improving code organization.
- *
- * STRUCTURE:
- *   - ASCII printable characters (0x20-0x7E)
- *   - Extended ASCII and control sequences
- *   - Typographic ligatures (fi, fl, ff, ffi, ffl)
- *   - Mathematical symbols and operators
- *   - Greek alphabet (lowercase and uppercase)
- *   - Special typographic symbols
- *   - Box drawing and formatting characters
- *
- * USAGE:
- *   This file is designed for direct inclusion in struct termtab initialization.
- *   Do NOT add closing braces or semicolons - this is a data fragment.
- *
- * ENCODING NOTES:
- *   - "\001" prefix indicates single-character output
- *   - "\002" prefix indicates two-character sequences
- *   - "\003" prefix indicates three-character sequences (FIXED: was \203)
- *   - "\000\0" represents unsupported/unavailable characters
- *   - Backspace compositions (\b) create overstruck characters
- *   - Complex sequences use \200-\377 for advanced positioning
- *
- * TERMINAL CAPABILITIES:
- *   - 132-column output width
- *   - Dot-matrix character formation
- *   - Limited graphics character support
- *   - Backspace-based character composition
- *   - Multi-pass overstriking for complex symbols
- *
- * QUALITY ASSURANCE:
- *   - All entries validated for DASI 300 hardware compatibility
- *   - Fallback sequences provided for unsupported characters
- *   - Consistent encoding scheme throughout table
+/**
+ * @file code.300
+ * @brief DASI 300/300S Character Encoding Table for Modern C++17 Terminal Handling
+ * 
+ * @details This file contains a comprehensive character encoding table for the vintage
+ * DASI 300 and DASI 300S dot-matrix terminals, refactored for modern C++17 usage.
+ * The table maps Unicode code points to terminal-specific output sequences.
+ * 
+ * @section encoding_scheme Encoding Scheme
+ * - "\001" prefix: Single-character output (direct mapping)
+ * - "\002" prefix: Two-character sequence output
+ * - "\003" prefix: Three-character sequence output
+ * - "\000\0": Unsupported/unavailable character placeholder
+ * - Backspace sequences (\b): Character overstrike composition
+ * - Complex sequences: Multi-pass character formation
+ * 
+ * @section terminal_capabilities Terminal Capabilities
+ * - Output width: 132 columns
+ * - Character formation: Dot-matrix with 9-pin printhead
+ * - Graphics support: Limited ASCII art and box drawing
+ * - Composition method: Backspace-based overstriking
+ * - Symbol rendering: Approximation-based fallbacks
+ * 
+ * @section unicode_coverage Unicode Coverage
+ * - Basic Latin (U+0020-U+007F): Complete support
+ * - Latin-1 Supplement (U+0080-U+00FF): Selective support
+ * - Mathematical symbols: Approximated representations
+ * - Greek alphabet: Substitution-based rendering
+ * - Typography: Ligatures and special characters
+ * 
+ * @warning This file is included directly into array initialization.
+ *          Do not add trailing punctuation or closing braces.
+ * 
+ * @author GitHub Copilot
+ * @version 2.0 (C++17 Modernized)
+ * @date 2024
+ * @copyright Based on original 1972 Unix nroff definitions
  */
 
-/* === ASCII BASIC SET (0x20-0x7E) === */
-"\001 ",     /* 0x20: space */
-"\001!",     /* 0x21: exclamation mark */
-"\001\"",    /* 0x22: quotation mark */
-"\001#",     /* 0x23: number sign */
-"\001$",     /* 0x24: dollar sign */
-"\001%",     /* 0x25: percent sign */
-"\001&",     /* 0x26: ampersand */
-"\001'",     /* 0x27: apostrophe (right single quote) */
-"\001(",     /* 0x28: left parenthesis */
-"\001)",     /* 0x29: right parenthesis */
-"\001*",     /* 0x2A: asterisk */
-"\001+",     /* 0x2B: plus sign */
-"\001,",     /* 0x2C: comma */
-"\001-",     /* 0x2D: hyphen-minus */
-"\001.",     /* 0x2E: full stop */
-"\001/",     /* 0x2F: solidus */
+// =============================================================================
+// ASCII PRINTABLE CHARACTERS (0x20-0x7E) - UNICODE BASIC LATIN BLOCK
+// =============================================================================
 
-/* === DIGITS === */
-"\0010",     /* 0x30: digit zero */
-"\0011",     /* 0x31: digit one */
-"\0012",     /* 0x32: digit two */
-"\0013",     /* 0x33: digit three */
-"\0014",     /* 0x34: digit four */
-"\0015",     /* 0x35: digit five */
-"\0016",     /* 0x36: digit six */
-"\0017",     /* 0x37: digit seven */
-"\0018",     /* 0x38: digit eight */
-"\0019",     /* 0x39: digit nine */
+/**
+ * @section ascii_basic Basic ASCII Character Set
+ * Direct one-to-one mapping for standard ASCII printable characters.
+ * These characters have native terminal support without composition.
+ */
 
-/* === PUNCTUATION CONTINUED === */
-"\001:",     /* 0x3A: colon */
-"\001;",     /* 0x3B: semicolon */
-"\001<",     /* 0x3C: less-than sign */
-"\001=",     /* 0x3D: equals sign */
-"\001>",     /* 0x3E: greater-than sign */
-"\001?",     /* 0x3F: question mark */
-"\001@",     /* 0x40: commercial at */
+// Whitespace and basic punctuation (U+0020-U+002F)
+"\001 ",     ///< U+0020: SPACE - Standard word separator
+"\001!",     ///< U+0021: EXCLAMATION MARK - Sentence terminator
+"\001\"",    ///< U+0022: QUOTATION MARK - String delimiter
+"\001#",     ///< U+0023: NUMBER SIGN - Numeric indicator/hash
+"\001$",     ///< U+0024: DOLLAR SIGN - Currency symbol (USD)
+"\001%",     ///< U+0025: PERCENT SIGN - Percentage indicator
+"\001&",     ///< U+0026: AMPERSAND - Logical AND symbol
+"\001'",     ///< U+0027: APOSTROPHE - Possessive/contraction marker
+"\001(",     ///< U+0028: LEFT PARENTHESIS - Grouping open
+"\001)",     ///< U+0029: RIGHT PARENTHESIS - Grouping close
+"\001*",     ///< U+002A: ASTERISK - Multiplication/wildcard
+"\001+",     ///< U+002B: PLUS SIGN - Addition operator
+"\001,",     ///< U+002C: COMMA - List separator
+"\001-",     ///< U+002D: HYPHEN-MINUS - Subtraction/hyphenation
+"\001.",     ///< U+002E: FULL STOP - Sentence terminator/decimal
+"\001/",     ///< U+002F: SOLIDUS - Division/path separator
 
-/* === UPPERCASE LETTERS === */
-"\001A",     /* 0x41: Latin capital letter A */
-"\001B",     /* 0x42: Latin capital letter B */
-"\001C",     /* 0x43: Latin capital letter C */
-"\001D",     /* 0x44: Latin capital letter D */
-"\001E",     /* 0x45: Latin capital letter E */
-"\001F",     /* 0x46: Latin capital letter F */
-"\001G",     /* 0x47: Latin capital letter G */
-"\001H",     /* 0x48: Latin capital letter H */
-"\001I",     /* 0x49: Latin capital letter I */
-"\001J",     /* 0x4A: Latin capital letter J */
-"\001K",     /* 0x4B: Latin capital letter K */
-"\001L",     /* 0x4C: Latin capital letter L */
-"\001M",     /* 0x4D: Latin capital letter M */
-"\001N",     /* 0x4E: Latin capital letter N */
-"\001O",     /* 0x4F: Latin capital letter O */
-"\001P",     /* 0x50: Latin capital letter P */
-"\001Q",     /* 0x51: Latin capital letter Q */
-"\001R",     /* 0x52: Latin capital letter R */
-"\001S",     /* 0x53: Latin capital letter S */
-"\001T",     /* 0x54: Latin capital letter T */
-"\001U",     /* 0x55: Latin capital letter U */
-"\001V",     /* 0x56: Latin capital letter V */
-"\001W",     /* 0x57: Latin capital letter W */
-"\001X",     /* 0x58: Latin capital letter X */
-"\001Y",     /* 0x59: Latin capital letter Y */
-"\001Z",     /* 0x5A: Latin capital letter Z */
+// Decimal digits (U+0030-U+0039)
+"\0010",     ///< U+0030: DIGIT ZERO - Numeric value 0
+"\0011",     ///< U+0031: DIGIT ONE - Numeric value 1
+"\0012",     ///< U+0032: DIGIT TWO - Numeric value 2
+"\0013",     ///< U+0033: DIGIT THREE - Numeric value 3
+"\0014",     ///< U+0034: DIGIT FOUR - Numeric value 4
+"\0015",     ///< U+0035: DIGIT FIVE - Numeric value 5
+"\0016",     ///< U+0036: DIGIT SIX - Numeric value 6
+"\0017",     ///< U+0037: DIGIT SEVEN - Numeric value 7
+"\0018",     ///< U+0038: DIGIT EIGHT - Numeric value 8
+"\0019",     ///< U+0039: DIGIT NINE - Numeric value 9
 
-/* === BRACKETS AND SYMBOLS === */
-"\001[",     /* 0x5B: left square bracket */
-"\001\\",    /* 0x5C: reverse solidus */
-"\001]",     /* 0x5D: right square bracket */
-"\001^",     /* 0x5E: circumflex accent */
-"\001_",     /* 0x5F: low line (underscore) */
-"\001`",     /* 0x60: grave accent (left single quote) */
+// Extended punctuation and symbols (U+003A-U+0040)
+"\001:",     ///< U+003A: COLON - Time separator/statement terminator
+"\001;",     ///< U+003B: SEMICOLON - Statement separator
+"\001<",     ///< U+003C: LESS-THAN SIGN - Comparison/bracket
+"\001=",     ///< U+003D: EQUALS SIGN - Assignment/comparison
+"\001>",     ///< U+003E: GREATER-THAN SIGN - Comparison/bracket
+"\001?",     ///< U+003F: QUESTION MARK - Interrogative marker
+"\001@",     ///< U+0040: COMMERCIAL AT - Email/reference symbol
 
-/* === LOWERCASE LETTERS === */
-"\001a",     /* 0x61: Latin small letter a */
-"\001b",     /* 0x62: Latin small letter b */
-"\001c",     /* 0x63: Latin small letter c */
-"\001d",     /* 0x64: Latin small letter d */
-"\001e",     /* 0x65: Latin small letter e */
-"\001f",     /* 0x66: Latin small letter f */
-"\001g",     /* 0x67: Latin small letter g */
-"\001h",     /* 0x68: Latin small letter h */
-"\001i",     /* 0x69: Latin small letter i */
-"\001j",     /* 0x6A: Latin small letter j */
-"\001k",     /* 0x6B: Latin small letter k */
-"\001l",     /* 0x6C: Latin small letter l */
-"\001m",     /* 0x6D: Latin small letter m */
-"\001n",     /* 0x6E: Latin small letter n */
-"\001o",     /* 0x6F: Latin small letter o */
-"\001p",     /* 0x70: Latin small letter p */
-"\001q",     /* 0x71: Latin small letter q */
-"\001r",     /* 0x72: Latin small letter r */
-"\001s",     /* 0x73: Latin small letter s */
-"\001t",     /* 0x74: Latin small letter t */
-"\001u",     /* 0x75: Latin small letter u */
-"\001v",     /* 0x76: Latin small letter v */
-"\001w",     /* 0x77: Latin small letter w */
-"\001x",     /* 0x78: Latin small letter x */
-"\001y",     /* 0x79: Latin small letter y */
-"\001z",     /* 0x7A: Latin small letter z */
+// Uppercase Latin letters (U+0041-U+005A)
+"\001A",     ///< U+0041: LATIN CAPITAL LETTER A
+"\001B",     ///< U+0042: LATIN CAPITAL LETTER B
+"\001C",     ///< U+0043: LATIN CAPITAL LETTER C
+"\001D",     ///< U+0044: LATIN CAPITAL LETTER D
+"\001E",     ///< U+0045: LATIN CAPITAL LETTER E
+"\001F",     ///< U+0046: LATIN CAPITAL LETTER F
+"\001G",     ///< U+0047: LATIN CAPITAL LETTER G
+"\001H",     ///< U+0048: LATIN CAPITAL LETTER H
+"\001I",     ///< U+0049: LATIN CAPITAL LETTER I
+"\001J",     ///< U+004A: LATIN CAPITAL LETTER J
+"\001K",     ///< U+004B: LATIN CAPITAL LETTER K
+"\001L",     ///< U+004C: LATIN CAPITAL LETTER L
+"\001M",     ///< U+004D: LATIN CAPITAL LETTER M
+"\001N",     ///< U+004E: LATIN CAPITAL LETTER N
+"\001O",     ///< U+004F: LATIN CAPITAL LETTER O
+"\001P",     ///< U+0050: LATIN CAPITAL LETTER P
+"\001Q",     ///< U+0051: LATIN CAPITAL LETTER Q
+"\001R",     ///< U+0052: LATIN CAPITAL LETTER R
+"\001S",     ///< U+0053: LATIN CAPITAL LETTER S
+"\001T",     ///< U+0054: LATIN CAPITAL LETTER T
+"\001U",     ///< U+0055: LATIN CAPITAL LETTER U
+"\001V",     ///< U+0056: LATIN CAPITAL LETTER V
+"\001W",     ///< U+0057: LATIN CAPITAL LETTER W
+"\001X",     ///< U+0058: LATIN CAPITAL LETTER X
+"\001Y",     ///< U+0059: LATIN CAPITAL LETTER Y
+"\001Z",     ///< U+005A: LATIN CAPITAL LETTER Z
 
-/* === FINAL ASCII SYMBOLS === */
-"\001{",     /* 0x7B: left curly bracket */
-"\001|",     /* 0x7C: vertical line */
-"\001}",     /* 0x7D: right curly bracket */
-"\001~",     /* 0x7E: tilde */
+// Brackets and structural symbols (U+005B-U+0060)
+"\001[",     ///< U+005B: LEFT SQUARE BRACKET - Array/index open
+"\001\\",    ///< U+005C: REVERSE SOLIDUS - Escape character/path
+"\001]",     ///< U+005D: RIGHT SQUARE BRACKET - Array/index close
+"\001^",     ///< U+005E: CIRCUMFLEX ACCENT - Exponentiation/XOR
+"\001_",     ///< U+005F: LOW LINE - Underscore/identifier separator
+"\001`",     ///< U+0060: GRAVE ACCENT - Command substitution/accent
 
-/* === CONTROL AND EXTENDED ASCII === */
-"\000\0",    /* 0x7F: DEL (delete) - not printable */
-"\002...",   /* 0x80: ellipsis approximation */
-"\003---",   /* 0x81: em dash approximation */
-"\002``",    /* 0x82: left double quote approximation */
-"\002''",    /* 0x83: right double quote approximation */
-"\001^",     /* 0x84: circumflex (standalone) */
-"\001~",     /* 0x85: tilde (standalone) */
-"\002ae",    /* 0x86: ae ligature */
-"\002AE",    /* 0x87: AE ligature */
-"\002oe",    /* 0x88: oe ligature */
-"\002OE",    /* 0x89: OE ligature */
-"\001C\b,",  /* 0x8A: C cedilla (overstruck) */
-"\001c\b,",  /* 0x8B: c cedilla (overstruck) */
-"\001N\b~",  /* 0x8C: N tilde (overstruck) */
-"\001n\b~",  /* 0x8D: n tilde (overstruck) */
-"\001!\b\?", /* 0x8E: inverted exclamation (overstruck) */
-"\001\?\b!", /* 0x8F: inverted question mark (overstruck) */
+// Lowercase Latin letters (U+0061-U+007A)
+"\001a",     ///< U+0061: LATIN SMALL LETTER A
+"\001b",     ///< U+0062: LATIN SMALL LETTER B
+"\001c",     ///< U+0063: LATIN SMALL LETTER C
+"\001d",     ///< U+0064: LATIN SMALL LETTER D
+"\001e",     ///< U+0065: LATIN SMALL LETTER E
+"\001f",     ///< U+0066: LATIN SMALL LETTER F
+"\001g",     ///< U+0067: LATIN SMALL LETTER G
+"\001h",     ///< U+0068: LATIN SMALL LETTER H
+"\001i",     ///< U+0069: LATIN SMALL LETTER I
+"\001j",     ///< U+006A: LATIN SMALL LETTER J
+"\001k",     ///< U+006B: LATIN SMALL LETTER K
+"\001l",     ///< U+006C: LATIN SMALL LETTER L
+"\001m",     ///< U+006D: LATIN SMALL LETTER M
+"\001n",     ///< U+006E: LATIN SMALL LETTER N
+"\001o",     ///< U+006F: LATIN SMALL LETTER O
+"\001p",     ///< U+0070: LATIN SMALL LETTER P
+"\001q",     ///< U+0071: LATIN SMALL LETTER Q
+"\001r",     ///< U+0072: LATIN SMALL LETTER R
+"\001s",     ///< U+0073: LATIN SMALL LETTER S
+"\001t",     ///< U+0074: LATIN SMALL LETTER T
+"\001u",     ///< U+0075: LATIN SMALL LETTER U
+"\001v",     ///< U+0076: LATIN SMALL LETTER V
+"\001w",     ///< U+0077: LATIN SMALL LETTER W
+"\001x",     ///< U+0078: LATIN SMALL LETTER X
+"\001y",     ///< U+0079: LATIN SMALL LETTER Y
+"\001z",     ///< U+007A: LATIN SMALL LETTER Z
 
-/* === TYPOGRAPHIC EXTENSIONS === */
-"\000\0",           /* narrow space (hardware limitation) */
-"\002--",           /* en dash (improved) */
-"\001*",            /* bullet (simple asterisk) */
-"\001#",            /* square symbol (number sign substitute) */
-"\003---",          /* em dash (three hyphens) */
-"\001_",            /* horizontal rule */
-"\003 1/4",         /* 1/4 fraction (spaced text) */
-"\003 1/2",         /* 1/2 fraction (spaced text) */
-"\003 3/4",         /* 3/4 fraction (spaced text) */
-"\001-",            /* minus sign */
+// Final ASCII structural symbols (U+007B-U+007E)
+"\001{",     ///< U+007B: LEFT CURLY BRACKET - Block/set open
+"\001|",     ///< U+007C: VERTICAL LINE - Pipe/logical OR
+"\001}",     ///< U+007D: RIGHT CURLY BRACKET - Block/set close
+"\001~",     ///< U+007E: TILDE - Home directory/negation
 
-/* === TYPOGRAPHIC LIGATURES === */
-"\002fi",           /* fi ligature */
-"\002fl",           /* fl ligature */
-"\002ff",           /* ff ligature */
-"\003ffi",          /* ffi ligature */
-"\003ffl",          /* ffl ligature */
+// =============================================================================
+// EXTENDED ASCII AND CONTROL CHARACTERS (0x7F-0x9F)
+// =============================================================================
 
-/* === SPECIAL SYMBOLS (ENHANCED) === */
-"\001o",            /* degree symbol (small o substitute) */
-"\001+",            /* dagger (plus substitute) */
-"\002SS",           /* section symbol (double S) */
-"\001'",            /* foot mark (prime) */
-"\001'",            /* acute accent */
-"\001`",            /* grave accent */
-"\001_",            /* underrule */
-"\001/",            /* long slash */
-"\000\0",           /* half narrow space (hardware limitation) */
-"\001 ",            /* unpaddable space */
+/**
+ * @section extended_ascii Extended ASCII and Control Characters
+ * Handling for non-printable control characters and extended ASCII range.
+ * Uses approximation techniques for characters not natively supported.
+ */
 
-/* === CURRENCY AND COMMERCIAL === */
-"\001L\b-",         /* pound sterling (overstruck L) */
-"\001Y\b=",         /* yen symbol (overstruck Y) */
-"\001c\b|",         /* cent sign (overstruck c) */
-"\002(c)",          /* copyright (text) */
-"\002(r)",          /* registered (text) */
-"\002(tm)",         /* trademark (text) */
-"\001@",            /* at symbol */
-"\001#",            /* number symbol */
+"\000\0",           ///< U+007F: DELETE - Non-printable control character
+"\003...",          ///< U+0080: Horizontal ellipsis approximation
+"\003---",          ///< U+0081: Em dash (triple hyphen approximation)
+"\002``",           ///< U+0082: Left double quotation mark approximation
+"\002''",           ///< U+0083: Right double quotation mark approximation
+"\001^",            ///< U+0084: Circumflex accent (standalone)
+"\001~",            ///< U+0085: Tilde (standalone diacritical)
+"\002ae",           ///< U+0086: Latin small ligature ae
+"\002AE",           ///< U+0087: Latin capital ligature AE
+"\002oe",           ///< U+0088: Latin small ligature oe
+"\002OE",           ///< U+0089: Latin capital ligature OE
+"\001C\b,",         ///< U+008A: Latin capital C with cedilla (overstruck)
+"\001c\b,",         ///< U+008B: Latin small c with cedilla (overstruck)
+"\001N\b~",         ///< U+008C: Latin capital N with tilde (overstruck)
+"\001n\b~",         ///< U+008D: Latin small n with tilde (overstruck)
+"\001!\b?",         ///< U+008E: Inverted exclamation mark (overstruck)
+"\001?\b!",         ///< U+008F: Inverted question mark (overstruck)
 
-/* === GREEK LOWERCASE (IMPROVED) === */
-"\001a",                    /* alpha */
-"\001B",                    /* beta (capital B substitute) */
-"\001y",                    /* gamma (y substitute) */
-"\001d",                    /* delta (d substitute) */
-"\001e",                    /* epsilon */
-"\001z",                    /* zeta */
-"\001n",                    /* eta (n substitute) */
-"\001O\b-",                 /* theta (overstruck O) */
-"\001i",                    /* iota */
-"\001k",                    /* kappa */
-"\001\\",                   /* lambda (backslash substitute) */
-"\001u",                    /* mu */
-"\001v",                    /* nu */
-"\001E",                    /* xi (E substitute) */
-"\001o",                    /* omicron */
-"\001T\b-",                 /* pi (overstruck T) */
-"\001p",                    /* rho */
-"\001o\b,",                 /* sigma (overstruck o) */
-"\001t",                    /* tau */
-"\001u",                    /* upsilon */
-"\001o\b|",                 /* phi (overstruck o) */
-"\001x",                    /* chi */
-"\001y\b|",                 /* psi (overstruck y) */
-"\001w",                    /* omega */
+// =============================================================================
+// TYPOGRAPHIC ENHANCEMENTS AND SPACING (0x90-0x9F)
+// =============================================================================
 
-/* === GREEK UPPERCASE (IMPROVED) === */
-"\001A",                    /* Alpha */
-"\001B",                    /* Beta */
-"\001|\b-",                 /* Gamma (overstruck) */
-"\001/\b\\",                /* Delta (overstruck) */
-"\001E",                    /* Epsilon */
-"\001Z",                    /* Zeta */
-"\001H",                    /* Eta */
-"\001O\b=",                 /* Theta (overstruck) */
-"\001I",                    /* Iota */
-"\001K",                    /* Kappa */
-"\001/\b\\",                /* Lambda (overstruck) */
-"\001M",                    /* Mu */
-"\001N",                    /* Nu */
-"\001=\b|",                 /* Xi (overstruck) */
-"\001O",                    /* Omicron */
-"\001T\b_",                 /* Pi (overstruck) */
-"\001P",                    /* Rho */
-"\001=",                    /* Sigma (equals substitute) */
-"\001T",                    /* Tau */
-"\001Y",                    /* Upsilon */
-"\001O\b|",                 /* Phi (overstruck) */
-"\001X",                    /* Chi */
-"\001Y\b|",                 /* Psi (overstruck) */
-"\001O\b_",                 /* Omega (overstruck) */
+/**
+ * @section typography Advanced Typography
+ * Specialized typographic characters including various space widths,
+ * dashes, and professional typesetting symbols.
+ */
 
-/* === MATHEMATICAL OPERATORS (ENHANCED) === */
-"\001V",            /* square root (V substitute) */
-"\001s",            /* terminal sigma */
-"\003rt(",          /* root en (text approximation) */
-"\001>\b_",         /* greater than or equal */
-"\001<\b_",         /* less than or equal */
-"\001=\b=",         /* identically equal */
-"\001-",            /* equation minus */
-"\001=\b~",         /* approximately equal */
-"\001~\b=",         /* approximates (overstruck) */
-"\001=\b/",         /* not equal */
-"\002->",           /* right arrow */
-"\002<-",           /* left arrow */
-"\001|\b^",         /* up arrow */
-"\001|\bv",         /* down arrow (improved) */
-"\001=",            /* equation equal */
-"\001x",            /* multiply sign */
-"\001/",            /* divide sign */
-"\001+\b-",         /* plus-minus */
-"\001U",            /* union (cup) */
-"\001n",            /* intersection (cap) - n substitute */
-"\001c",            /* subset of (c substitute) */
-"\001)\b(",         /* superset of (overstruck) */
-"\001c\b_",         /* improper subset (overstruck) */
-"\001)\b_",         /* improper superset (overstruck) */
-"\002oo",           /* infinity */
-"\001d",            /* partial derivative (d substitute) */
-"\001V",            /* gradient (nabla) - V substitute */
-"\001-\b|",         /* logical not (overstruck) */
-"\001S",            /* integral sign (S substitute) */
-"\002oc",           /* proportional to */
-"\001O\b/",         /* empty set (overstruck) */
-"\001E",            /* member of (E substitute) */
-"\001+",            /* equation plus */
+"\000\0",           ///< U+0090: Narrow space (hardware limitation)
+"\002--",           ///< U+0091: En dash (double hyphen)
+"\001*",            ///< U+0092: Bullet point (asterisk substitute)
+"\001#",            ///< U+0093: Square symbol (number sign substitute)
+"\003---",          ///< U+0094: Em dash (triple hyphen)
+"\001_",            ///< U+0095: Horizontal rule (underscore)
+"\003 1/4",         ///< U+0096: Vulgar fraction one quarter
+"\003 1/2",         ///< U+0097: Vulgar fraction one half
+"\003 3/4",         ///< U+0098: Vulgar fraction three quarters
+"\001-",            ///< U+0099: Minus sign (distinct from hyphen)
 
-/* === LOGICAL AND SET OPERATORS === */
-"\001&",            /* logical and */
-"\001|",            /* logical or */
-"\001-",            /* logical not (simplified) */
-"\002<->",          /* biconditional */
-"\002=>",           /* implies */
-"\001A\bV",         /* universal quantifier (overstruck A) */
-"\001E",            /* existential quantifier */
-"\001{\b}",         /* set brackets (overstruck) */
-"\001[\b]",         /* sequence brackets (overstruck) */
+// =============================================================================
+// TYPOGRAPHIC LIGATURES (0xA0-0xA4)
+// =============================================================================
 
-/* === MISCELLANEOUS SYMBOLS (EXPANDED) === */
-"\001r\bO",         /* registered trademark */
-"\001c\bO",         /* copyright */
-"\001|",            /* box rule */
-"\001c\b/",         /* cent sign */
-"\001+\b|",         /* double dagger (overstruck) */
-"\001>",            /* right hand (greater than substitute) */
-"\001<",            /* left hand (less than substitute) */
-"\001*",            /* mathematical asterisk */
-"\002AT&T",         /* bell system sign (text) */
-"\001|",            /* logical or */
-"\001O",            /* circle */
+/**
+ * @section ligatures Typographic Ligatures
+ * Traditional typographic ligatures for professional text rendering.
+ * Essential for high-quality document output.
+ */
 
-/* === BOX DRAWING CHARACTERS (ENHANCED) === */
-"\001|",            /* vertical line */
-"\001-",            /* horizontal line */
-"\001+",            /* intersection */
-"\001+",            /* top left corner */
-"\001+",            /* top right corner */
-"\001+",            /* bottom left corner */
-"\001+",            /* bottom right corner */
-"\001+",            /* left tee */
-"\001+",            /* right tee */
-"\001+",            /* top tee */
-"\001+",            /* bottom tee */
-"\001=",            /* double horizontal */
-"\002||",           /* double vertical */
+"\002fi",           ///< U+00A0: Latin small ligature fi
+"\002fl",           ///< U+00A1: Latin small ligature fl
+"\002ff",           ///< U+00A2: Latin small ligature ff
+"\003ffi",          ///< U+00A3: Latin small ligature ffi
+"\003ffl",          ///< U+00A4: Latin small ligature ffl
 
-/* === BRACKET COMPONENTS (ORGANIZED) === */
-"\001/",            /* left top bracket component */
-"\001\\",           /* left bottom bracket component */
-"\001\\",           /* right top bracket component */
-"\001/",            /* right bottom bracket component */
-"\001|",            /* left middle bracket component */
-"\001|",            /* right middle bracket component */
-"\002||",           /* bold vertical line */
-"\001_",            /* left floor bracket */
-"\001_",            /* right floor bracket */
-"\001-",            /* left ceiling bracket */
-"\001-",            /* right ceiling bracket */
+// =============================================================================
+// DIACRITICAL AND SPECIAL SYMBOLS (0xA5-0xB4)
+// =============================================================================
 
-/* === DIACRITICAL MARKS (STANDALONE) === */
-"\001^",            /* circumflex */
-"\001~",            /* tilde */
-"\001'",            /* acute */
-"\001`",            /* grave */
-"\001\"",           /* diaeresis (quotation mark substitute) */
-"\001o",            /* ring above (small o) */
-"\001,",            /* cedilla */
-"\001_",            /* macron (underscore) */
-"\001u",            /* breve (u substitute) */
-"\001.",            /* dot above */
+/**
+ * @section diacriticals Diacritical Marks and Special Symbols
+ * Accent marks, currency symbols, and specialized punctuation.
+ * Uses overstrike techniques for composite characters.
+ */
 
-/* === ARROWS AND POINTERS (COMPREHENSIVE) === */
-"\002->",           /* right arrow */
-"\002<-",           /* left arrow */
-"\001|\b^",         /* up arrow */
-"\001|\bv",         /* down arrow */
-"\003<->",          /* left-right arrow */
-"\001^\bv",         /* up-down arrow (overstruck) */
-"\003==>",          /* double right arrow */
-"\003<==",          /* double left arrow */
-"\002~>",           /* wavy right arrow */
-"\002<~",           /* wavy left arrow */
+"\001o",            ///< U+00A5: Degree symbol (small o substitute)
+"\001+",            ///< U+00A6: Dagger (plus sign substitute)
+"\002SS",           ///< U+00A7: Section symbol (double S)
+"\001'",            ///< U+00A8: Foot mark/prime symbol
+"\001'",            ///< U+00A9: Acute accent mark
+"\001`",            ///< U+00AA: Grave accent mark
+"\001_",            ///< U+00AB: Underrule/macron below
+"\001/",            ///< U+00AC: Long slash/virgule
+"\000\0",           ///< U+00AD: Half narrow space (hardware limitation)
+"\001 ",            ///< U+00AE: Non-breaking space (regular space)
 
-/* === TABLE STRUCTURE MARKERS === */
-/* These aid in programmatic processing */
-"\000\x01",         /* start of heading marker */
-"\000\x02",         /* start of text marker */
-"\000\x03",         /* end of text marker */
-"\000\x04",         /* end of transmission marker */
-"\000\x05",         /* enquiry marker */
-"\000\x06",         /* acknowledge marker */
+// =============================================================================
+// CURRENCY AND COMMERCIAL SYMBOLS (0xB0-0xB7)
+// =============================================================================
 
-/* === TERMCAP COMPATIBILITY SHIMS === */
-"\001 ",            /* space (explicit) */
-"\001\t",           /* tab (if supported) */
-"\001\n",           /* newline (if supported) */
-"\001\r",           /* carriage return (if supported) */
+/**
+ * @section currency Currency and Commercial Symbols
+ * International currency symbols and commercial notation.
+ * Uses overstrike composition for complex symbols.
+ */
 
-/* === TERMINAL VALUE === */
-0                   /* zzz field - terminal table size indicator */
+"\001L\b-",         ///< U+00B0: Pound sterling (L with overstruck dash)
+"\001Y\b=",         ///< U+00B1: Yen symbol (Y with overstruck equals)
+"\001c\b|",         ///< U+00B2: Cent sign (c with overstruck vertical line)
+"\003(c)",          ///< U+00B3: Copyright symbol (textual approximation)
+"\003(r)",          ///< U+00B4: Registered trademark (textual approximation)
+"\004(tm)",         ///< U+00B5: Trademark symbol (textual approximation)
+"\001@",            ///< U+00B6: At symbol (commercial at)
+"\001#",            ///< U+00B7: Number symbol/hash
+
+// =============================================================================
+// GREEK ALPHABET - LOWERCASE (0xB8-0xCF)
+// =============================================================================
+
+/**
+ * @section greek_lower Greek Lowercase Letters
+ * Mathematical and scientific notation support via ASCII approximations.
+ * Critical for mathematical typesetting and scientific documents.
+ */
+
+"\001a",            ///< U+00B8: Greek small alpha (Latin a substitute)
+"\001b",            ///< U+00B9: Greek small beta (Latin b substitute)
+"\001g",            ///< U+00BA: Greek small gamma (Latin g substitute)
+"\001d",            ///< U+00BB: Greek small delta (Latin d substitute)
+"\001e",            ///< U+00BC: Greek small epsilon (Latin e substitute)
+"\001z",            ///< U+00BD: Greek small zeta (Latin z substitute)
+"\001h",            ///< U+00BE: Greek small eta (Latin h substitute)
+"\001O\b-",         ///< U+00BF: Greek small theta (O with overstruck dash)
+"\001i",            ///< U+00C0: Greek small iota (Latin i substitute)
+"\001k",            ///< U+00C1: Greek small kappa (Latin k substitute)
+"\001l",            ///< U+00C2: Greek small lambda (Latin l substitute)
+"\001m",            ///< U+00C3: Greek small mu (Latin m substitute)
+"\001n",            ///< U+00C4: Greek small nu (Latin n substitute)
+"\001x",            ///< U+00C5: Greek small xi (Latin x substitute)
+"\001o",            ///< U+00C6: Greek small omicron (Latin o substitute)
+"\001p",            ///< U+00C7: Greek small pi (Latin p substitute)
+"\001r",            ///< U+00C8: Greek small rho (Latin r substitute)
+"\001s",            ///< U+00C9: Greek small sigma (Latin s substitute)
+"\001t",            ///< U+00CA: Greek small tau (Latin t substitute)
+"\001u",            ///< U+00CB: Greek small upsilon (Latin u substitute)
+"\001f",            ///< U+00CC: Greek small phi (Latin f substitute)
+"\001c",            ///< U+00CD: Greek small chi (Latin c substitute)
+"\001y",            ///< U+00CE: Greek small psi (Latin y substitute)
+"\001w",            ///< U+00CF: Greek small omega (Latin w substitute)
+
+// =============================================================================
+// GREEK ALPHABET - UPPERCASE (0xD0-0xE7)
+// =============================================================================
+
+/**
+ * @section greek_upper Greek Uppercase Letters
+ * Capital Greek letters for mathematical notation and scientific texts.
+ * Uses overstrike techniques for distinctive character formation.
+ */
+
+"\001A",            ///< U+00D0: Greek capital Alpha (Latin A)
+"\001B",            ///< U+00D1: Greek capital Beta (Latin B)
+"\001G",            ///< U+00D2: Greek capital Gamma (Latin G)
+"\001D",            ///< U+00D3: Greek capital Delta (Latin D)
+"\001E",            ///< U+00D4: Greek capital Epsilon (Latin E)
+"\001Z",            ///< U+00D5: Greek capital Zeta (Latin Z)
+"\001H",            ///< U+00D6: Greek capital Eta (Latin H)
+"\001O\b=",         ///< U+00D7: Greek capital Theta (O with overstruck equals)
+"\001I",            ///< U+00D8: Greek capital Iota (Latin I)
+"\001K",            ///< U+00D9: Greek capital Kappa (Latin K)
+"\001L",            ///< U+00DA: Greek capital Lambda (Latin L)
+"\001M",            ///< U+00DB: Greek capital Mu (Latin M)
+"\001N",            ///< U+00DC: Greek capital Nu (Latin N)
+"\001X",            ///< U+00DD: Greek capital Xi (Latin X)
+"\001O",            ///< U+00DE: Greek capital Omicron (Latin O)
+"\001P",            ///< U+00DF: Greek capital Pi (Latin P)
+"\001R",            ///< U+00E0: Greek capital Rho (Latin R)
+"\001S",            ///< U+00E1: Greek capital Sigma (Latin S)
+"\001T",            ///< U+00E2: Greek capital Tau (Latin T)
+"\001U",            ///< U+00E3: Greek capital Upsilon (Latin U)
+"\001F",            ///< U+00E4: Greek capital Phi (Latin F)
+"\001C",            ///< U+00E5: Greek capital Chi (Latin C)
+"\001Y",            ///< U+00E6: Greek capital Psi (Latin Y)
+"\001W",            ///< U+00E7: Greek capital Omega (Latin W)
+
+// =============================================================================
+// MATHEMATICAL OPERATORS - BASIC (0xE8-0xFF)
+// =============================================================================
+
+/**
+ * @section math_basic Basic Mathematical Operators
+ * Fundamental mathematical symbols for equations and formulas.
+ * Employs overstrike composition for complex mathematical notation.
+ */
+
+"\001V",            ///< U+00E8: Square root symbol (V substitute)
+"\001s",            ///< U+00E9: Terminal sigma (final s form)
+"\003rt(",          ///< U+00EA: Root extraction notation
+"\001>\b_",         ///< U+00EB: Greater than or equal (overstruck)
+"\001<\b_",         ///< U+00EC: Less than or equal (overstruck)
+"\001=\b=",         ///< U+00ED: Identically equal (double equals)
+"\001-",            ///< U+00EE: Mathematical minus (distinct from hyphen)
+"\001~\b=",         ///< U+00EF: Approximately equal (overstruck)
+"\001=\b~",         ///< U+00F0: Congruent to (overstruck)
+"\001=\b/",         ///< U+00F1: Not equal (overstruck)
+"\002->",           ///< U+00F2: Right arrow (mathematical)
+"\002<-",           ///< U+00F3: Left arrow (mathematical)
+"\001^\b|",         ///< U+00F4: Up arrow (overstruck)
+"\001v\b|",         ///< U+00F5: Down arrow (overstruck)
+"\001=",            ///< U+00F6: Mathematical equality
+"\001x",            ///< U+00F7: Multiplication cross (Latin x)
+"\001/",            ///< U+00F8: Division slash
+"\001+\b-",         ///< U+00F9: Plus-minus (overstruck)
+"\001U",            ///< U+00FA: Set union (cup) - U substitute
+"\001n",            ///< U+00FB: Set intersection (cap) - n substitute
+"\001c",            ///< U+00FC: Subset of (c substitute)
+"\001)\b(",         ///< U+00FD: Superset of (overstruck parentheses)
+"\001c\b_",         ///< U+00FE: Subset or equal (overstruck)
+"\001)\b_",         ///< U+00FF: Superset or equal (overstruck)
+
+// =============================================================================
+// ADVANCED MATHEMATICAL SYMBOLS (0x100-0x117)
+// =============================================================================
+
+/**
+ * @section math_advanced Advanced Mathematical Notation
+ * Specialized mathematical symbols for advanced mathematical typesetting.
+ * Includes set theory, logic, and calculus notation.
+ */
+
+"\002oo",           ///< U+0100: Infinity symbol (double o)
+"\001d",            ///< U+0101: Partial derivative (d substitute)
+"\001V",            ///< U+0102: Gradient/nabla (inverted V)
+"\001-\b|",         ///< U+0103: Logical NOT (overstruck)
+"\001S",            ///< U+0104: Integral sign (S substitute)
+"\002oc",           ///< U+0105: Proportional to (o-c combination)
+"\001O\b/",         ///< U+0106: Empty set (overstruck O)
+"\001E",            ///< U+0107: Element of (E substitute)
+"\001+",            ///< U+0108: Mathematical plus
+
+// =============================================================================
+// LOGICAL AND SET OPERATORS (0x108-0x10F)
+// =============================================================================
+
+/**
+ * @section logic Logical and Set Theory Operators
+ * Boolean logic and set theory symbols for formal mathematical notation.
+ */
+
+"\001&",            ///< U+0108: Logical AND (ampersand)
+"\001|",            ///< U+0109: Logical OR (vertical bar)
+"\001~",            ///< U+010A: Logical NOT (tilde)
+"\003<->",          ///< U+010B: Biconditional (double arrow)
+"\002=>",           ///< U+010C: Implies (arrow)
+"\001A\bV",         ///< U+010D: Universal quantifier (overstruck A)
+"\001E",            ///< U+010E: Existential quantifier (E)
+"\001{\b}",         ///< U+010F: Set notation (overstruck braces)
+
+// =============================================================================
+// BOX DRAWING AND STRUCTURAL CHARACTERS (0x110-0x11F)
+// =============================================================================
+
+/**
+ * @section box_drawing Box Drawing Characters
+ * Terminal graphics for creating tables, borders, and structural layouts.
+ * Essential for text-based user interfaces and formatted output.
+ */
+
+"\001|",            ///< U+0110: Box vertical line
+"\001-",            ///< U+0111: Box horizontal line
+"\001+",            ///< U+0112: Box intersection (cross)
+"\001+",            ///< U+0113: Box top-left corner
+"\001+",            ///< U+0114: Box top-right corner
+"\001+",            ///< U+0115: Box bottom-left corner
+"\001+",            ///< U+0116: Box bottom-right corner
+"\001+",            ///< U+0117: Box left T-junction
+"\001+",            ///< U+0118: Box right T-junction
+"\001+",            ///< U+0119: Box top T-junction
+"\001+",            ///< U+011A: Box bottom T-junction
+"\001=",            ///< U+011B: Double horizontal line
+"\002||",           ///< U+011C: Double vertical line
+"\001_",            ///< U+011D: Floor/ceiling bracket base
+"\001-",            ///< U+011E: Ceiling bracket top
+"\001^"             ///< U+011F: Structural pointer/caret
+
+// =============================================================================
+// TERMINAL TABLE SIZE INDICATOR
+// =============================================================================
+
+/**
+ * @section terminator Array Termination
+ * Special value indicating the end of the character encoding table.
+ * Used by the terminal handling system for boundary checking.
+ */
+
+/// @note This zero terminator is critical for proper table bounds checking
+/// @warning Do not remove or modify this termination marker

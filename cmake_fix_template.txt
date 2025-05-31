@@ -1,0 +1,15 @@
+# Check if this is the problematic line in CMakeLists.txt
+# This is a template fix - you may need to adjust based on your actual CMakeLists.txt
+
+# Option 1: Comment out the problematic line
+# target_sources(your_target PRIVATE src/os/os_unix.c)
+
+# Option 2: Make it conditional
+if(UNIX AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/os/os_unix.c")
+    target_sources(your_target PRIVATE src/os/os_unix.c)
+endif()
+
+# Option 3: Use a different existing file
+# target_sources(your_target PRIVATE src/os/os_posix.c)
+
+# Option 4: Remove the line entirely if not needed

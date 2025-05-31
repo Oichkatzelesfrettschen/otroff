@@ -91,6 +91,25 @@ static_assert(sizeof(termtab300) <= 4096, "terminal table must remain small");
  * The included file (code.300) must provide the codetab array and must NOT include its own closing brace or semicolon.
  * The reserved field is set to 0.
  */
+/**
+ * @brief Configuration table for Termtab 300 terminal device.
+ * 
+ * This structure defines the terminal characteristics and control sequences
+ * for a Termtab 300 terminal, including resolution settings, character
+ * dimensions, and various control strings for terminal operations.
+ * 
+ * The configuration includes:
+ * - Terminal initialization and reset bit patterns
+ * - Resolution specifications for horizontal/vertical positioning
+ * - Character and spacing dimensions in units per inch
+ * - Control sequences for cursor movement, plotting, and formatting
+ * - Terminal-specific escape sequences and command strings
+ * 
+ * @note Some features like halfline adjustment and bold formatting are
+ *       not supported on this terminal type and are set to empty values.
+ * @note The codetab character encoding table is included from an external
+ *       file "code.300" which contains terminal-specific character mappings.
+ */
 inline constexpr termtab300 t{
     0, // bset: Bit settings for terminal initialization.
     0177420, // breset: Octal value representing terminal reset settings; used to configure the terminal's control bits during initialization.

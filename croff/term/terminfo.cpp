@@ -1,567 +1,305 @@
 #include "cxx23_scaffold.hpp"
-/*
- * terminfo.c - Modern terminal driving tables (C90 portable)
- *
- * This file defines terminal tables for modern terminals including VT220/320/420/520,
- * xterm, and ANSI X3.64/ECMA-48/ISO 6429 compliant terminals.
- * Refactored for C90 portability, clarity, and maintainability.
- *
- * Supported terminal types:
- *   - VT220/VT320/VT420/VT520 series
- *   - xterm and xterm-compatible terminals
- *   - ANSI X3.64/ECMA-48/ISO 6429 compliant terminals
- *   - Modern terminal emulators
- *
- * Usage:
- *   - Each struct termtab describes terminal capabilities and control sequences
- *   - Table instances are initialized with terminal-specific values
- *   - Character code tables use standard ASCII/UTF-8 mappings
- *   - This file is intended for inclusion in nroff/roff terminal drivers
- */
-
-#define INCH 240
-
-#include <cstddef>
+#include <array>
 #include <cstdint>
+#include <string_view>
 
-/*
- * struct termtab - Terminal table structure for modern terminals
+using namespace std::string_view_literals;
+
+/**
+ * @file terminfo.cpp
+ * @brief Terminal capability definitions and configuration tables for text formatting systems
+ * 
+ * This file provides a comprehensive set of terminal capability tables for various terminal
+ * types commonly used in text processing and document formatting systems. It implements a
+ * modern C++17 approach to terminal abstraction with compile-time constant definitions.
+ * 
+ * The module defines terminal capabilities including:
+ * - Resolution and spacing parameters for precise text positioning
+ * - Control sequences for cursor movement and text formatting
+ * - Character encoding tables for special symbols and typography
+ * - Terminal initialization and reset sequences
+ * 
+ * Supported terminal types:
+ * - DEC VT220: Legacy Digital terminal with basic ANSI capabilities
+ * - DEC VT320: Enhanced Digital terminal with extended ANSI features
+ * - xterm: Modern UTF-8 capable terminal emulator with Unicode support
+ * - ANSI: Generic ANSI X3.64/ECMA-48/ISO 6429 compliant terminal
+ * 
+ * The design emphasizes type safety, compile-time evaluation, and backward compatibility
+ * with legacy terminal systems while providing modern C++ interfaces.
+ * 
+ * @namespace terminal Contains all terminal-related types and configurations
+ * @since C++17
+ * @author Terminal capabilities implementation
+ */
+ * @brief Modern Terminal Driver Tables - Pure C++17 Implementation
+ * @author Modern C++17 Engineering Team
+ * @version 3.0
+ * @date 2024
  *
- * Members:
- *   bset      - Bits to set on initialization
- *   breset    - Bits to reset on initialization
- *   Hor       - Horizontal resolution (units per space)
- *   Vert      - Vertical resolution (units per line)
- *   Newline   - Newline spacing (units)
- *   Char      - Character width (units)
- *   Em        - Em width (units)
- *   Halfline  - Halfline spacing (units)
- *   Adj       - Adjustment spacing (units)
- *   twinit    - Terminal initialization string
- *   twrest    - Terminal reset string
- *   twnl      - Newline string
- *   hlr       - Halfline reverse string
- *   hlf       - Halfline forward string
- *   flr       - Fullline reverse string
- *   bdon      - Bold on string
- *   bdoff     - Bold off string
- *   ploton    - Plot mode on string
- *   plotoff   - Plot mode off string
- *   up        - Cursor up string
- *   down      - Cursor down string
- *   right     - Cursor right string
- *   left      - Cursor left string
- *   codetab   - Character code table
- *   zzz       - Reserved/unused
+ * @details Pure C++17 implementation of terminal capability tables.
+ *          Completely redesigned with modern C++17 principles:
+ *          - Full type safety with std::array and string_view
+ *          - Constexpr evaluation for compile-time optimization
+ *          - ANSI X3.64/ECMA-48/ISO 6429 escape sequence support
+ *          - Exception-safe design patterns
+ *          - Zero-cost abstractions
  */
-struct termtab {
-    std::uint16_t bset;
-    std::uint16_t breset;
-    std::uint16_t Hor;
-    std::uint16_t Vert;
-    std::uint16_t Newline;
-    std::uint16_t Char;
-    std::uint16_t Em;
-    std::uint16_t Halfline;
-    std::uint16_t Adj;
-    const char *twinit;
-    const char *twrest;
-    const char *twnl;
-    const char *hlr;
-    const char *hlf;
-    const char *flr;
-    const char *bdon;
-    const char *bdoff;
-    const char *ploton;
-    const char *plotoff;
-    const char *up;
-    const char *down;
-    const char *right;
-    const char *left;
-    const char *codetab[256 - 32];
-    [[maybe_unused]] std::uint16_t zzz{};
-};
 
-/*
- * VT220 Terminal Table
- * Digital VT220 with ANSI X3.64 escape sequences
- */
-inline constexpr termtab vt220{
-    0, /* bset */
-    0, /* breset */
-    INCH / 10, /* Hor - 10 chars per inch */
-    INCH / 6, /* Vert - 6 lines per inch */
-    INCH / 6, /* Newline */
-    INCH / 10, /* Char */
-    INCH / 10, /* Em */
-    INCH / 12, /* Halfline */
-    INCH / 10, /* Adj */
-    "\033[?7h\033[?1h\033[?3l\033[?4l\033[?5l\033[?6l\033[?8h\033[?25h", /* twinit */
-    "\033c\033[!p", /* twrest - hard reset */
-    "\r\n", /* twnl */
-    "\033M", /* hlr - reverse index */
-    "\033D", /* hlf - index */
-    "\033M", /* flr - reverse index */
-    "\033[1m", /* bdon - bold on */
-    "\033[0m", /* bdoff - all attributes off */
-    "", /* ploton - not supported */
-    "", /* plotoff - not supported */
-    "\033[A", /* up - cursor up */
-    "\033[B", /* down - cursor down */
-    "\033[C", /* right - cursor right */
-    "\033[D", /* left - cursor left */
-    /* Standard ASCII character table */
-    {
-        "\001 ", /*space*/
-        "\001!", /*!*/
-        "\001\"", /*"*/
-        "\001#", /*#*/
-        "\001$", /*$*/
-        "\001%", /*%*/
-        "\001&", /*&*/
-        "\001'", /*'*/
-        "\001(", /*(*/
-        "\001)", /*)*/
-        "\001*", /***/
-        "\001+", /*+*/
-        "\001,", /*,*/
-        "\001-", /*-*/
-        "\001.", /*.*/
-        "\001/", /*/*/
-        "\0010", /*0*/
-        "\0011", /*1*/
-        "\0012", /*2*/
-        "\0013", /*3*/
-        "\0014", /*4*/
-        "\0015", /*5*/
-        "\0016", /*6*/
-        "\0017", /*7*/
-        "\0018", /*8*/
-        "\0019", /*9*/
-        "\001:", /*:*/
-        "\001;", /*;*/
-        "\001<", /*<*/
-        "\001=", /*=*/
-        "\001>", /*>*/
-        "\001?", /*?*/
-        "\001@", /*@*/
-        "\001A", /*A*/
-        "\001B", /*B*/
-        "\001C", /*C*/
-        "\001D", /*D*/
-        "\001E", /*E*/
-        "\001F", /*F*/
-        "\001G", /*G*/
-        "\001H", /*H*/
-        "\001I", /*I*/
-        "\001J", /*J*/
-        "\001K", /*K*/
-        "\001L", /*L*/
-        "\001M", /*M*/
-        "\001N", /*N*/
-        "\001O", /*O*/
-        "\001P", /*P*/
-        "\001Q", /*Q*/
-        "\001R", /*R*/
-        "\001S", /*S*/
-        "\001T", /*T*/
-        "\001U", /*U*/
-        "\001V", /*V*/
-        "\001W", /*W*/
-        "\001X", /*X*/
-        "\001Y", /*Y*/
-        "\001Z", /*Z*/
-        "\001[", /*[*/
-        "\001\\", /*\*/
-        "\001]", /*]*/
-        "\001^", /*^*/
-        "\001_", /*_*/
-        "\001`", /*`*/
-        "\001a", /*a*/
-        "\001b", /*b*/
-        "\001c", /*c*/
-        "\001d", /*d*/
-        "\001e", /*e*/
-        "\001f", /*f*/
-        "\001g", /*g*/
-        "\001h", /*h*/
-        "\001i", /*i*/
-        "\001j", /*j*/
-        "\001k", /*k*/
-        "\001l", /*l*/
-        "\001m", /*m*/
-        "\001n", /*n*/
-        "\001o", /*o*/
-        "\001p", /*p*/
-        "\001q", /*q*/
-        "\001r", /*r*/
-        "\001s", /*s*/
-        "\001t", /*t*/
-        "\001u", /*u*/
-        "\001v", /*v*/
-        "\001w", /*w*/
-        "\001x", /*x*/
-        "\001y", /*y*/
-        "\001z", /*z*/
-        "\001{", /*{*/
-        "\001|", /*|*/
-        "\001}", /*}*/
-        "\001~", /*~*/
-        "\000\0", /*narrow sp*/
-        "\001-", /*hyphen*/
-        "\001*", /*bullet*/
-        "\001+", /*square*/
-        "\001-", /*3/4 em*/
-        "\001_", /*rule*/
-        "\0031/4", /*1/4*/
-        "\0031/2", /*1/2*/
-        "\0033/4", /*3/4*/
-        "\001-", /*minus*/
-        "\002fi", /*fi*/
-        "\002fl", /*fl*/
-        "\002ff", /*ff*/
-        "\003ffi", /*ffi*/
-        "\003ffl", /*ffl*/
-        "\001\260", /*degree*/
-        "\001\261", /*dagger*/
-        "\001\247", /*section*/
-        "\001'", /*foot mark*/
-        "\001\264", /*acute accent*/
-        "\001\140", /*grave accent*/
-        "\001_", /*underrule*/
-        "\001/", /*slash*/
-        "\000\0", /*half narrow space*/
-        "\001 ", /*unpaddable space*/
-        "\001\341", /*alpha*/
-        "\001\342", /*beta*/
-        "\001\343", /*gamma*/
-        "\001\344", /*delta*/
-        "\001\345", /*epsilon*/
-        "\001\346", /*zeta*/
-        "\001\347", /*eta*/
-        "\001\350", /*theta*/
-        "\001\351", /*iota*/
-        "\001\352", /*kappa*/
-        "\001\353", /*lambda*/
-        "\001\354", /*mu*/
-        "\001\355", /*nu*/
-        "\001\356", /*xi*/
-        "\001\357", /*omicron*/
-        "\001\360", /*pi*/
-        "\001\361", /*rho*/
-        "\001\362", /*sigma*/
-        "\001\363", /*tau*/
-        "\001\364", /*upsilon*/
-        "\001\365", /*phi*/
-        "\001\366", /*chi*/
-        "\001\367", /*psi*/
-        "\001\370", /*omega*/
-        "\001\301", /*Gamma*/
-        "\001\304", /*Delta*/
-        "\001\310", /*Theta*/
-        "\001\313", /*Lambda*/
-        "\001\316", /*Xi*/
-        "\001\320", /*Pi*/
-        "\001\323", /*Sigma*/
-        "\000\0", /**/
-        "\001\325", /*Upsilon*/
-        "\001\326", /*Phi*/
-        "\001\327", /*Psi*/
-        "\001\330", /*Omega*/
-        "\001\221", /*square root*/
-        "\001\362", /*terminal sigma*/
-        "\000\0", /*root en*/
-        "\002>=", /*>=*/
-        "\002<=", /*<=*/
-        "\002==", /*identically equal*/
-        "\001-", /*equation minus*/
-        "\002~=", /*approx =*/
-        "\002~", /*approximates*/
-        "\002!=", /*not equal*/
-        "\002->", /*right arrow*/
-        "\002<-", /*left arrow*/
-        "\001^", /*up arrow*/
-        "\001v", /*down arrow*/
-        "\001=", /*equation equal*/
-        "\001x", /*multiply*/
-        "\001/", /*divide*/
-        "\002+-", /*plus-minus*/
-        "\001U", /*cup*/
-        "\000\0", /*cap*/
-        "\000\0", /*subset*/
-        "\000\0", /*superset*/
-        "\000\0", /*improper subset*/
-        "\000\0", /*improper superset*/
-        "\002oo", /*infinity*/
-        "\001d", /*partial*/
-        "\001\\/", /*gradient*/
-        "\001~", /*not*/
-        "\001S", /*integral*/
-        "\000\0", /*proportional*/
-        "\000\0", /*empty set*/
-        "\000\0", /*member*/
-        "\001+", /*plus*/
-        "\002(R)", /*registered*/
-        "\002(C)", /*copyright*/
-        "\001|", /*box rule*/
-        "\002ct", /*cent*/
-        "\000\0", /*dbl dagger*/
-        "\000\0", /*right hand*/
-        "\000\0", /*left hand*/
-        "\001*", /*math star*/
-        "\000\0", /*bell*/
-        "\001|", /*or*/
-        "\001O", /*circle*/
-        "\001|", /*left top*/
-        "\001|", /*left bottom*/
-        "\001|", /*right top*/
-        "\001|", /*right bot*/
-        "\001|", /*left center*/
-        "\001|", /*right center*/
-        "\001|", /*bold vertical*/
-        "\001|", /*left floor*/
-        "\001|", /*right floor*/
-        "\001|", /*left ceiling*/
-        "\001|" /*right ceiling*/
-    },
-    0 /* zzz */
-};
+namespace terminal {
 
-/*
- * VT320 Terminal Table
- * Digital VT320 with extended ANSI features
- */
-inline constexpr termtab vt320{
-    0, /* bset */
-    0, /* breset */
-    INCH / 10, /* Hor */
-    INCH / 6, /* Vert */
-    INCH / 6, /* Newline */
-    INCH / 10, /* Char */
-    INCH / 10, /* Em */
-    INCH / 12, /* Halfline */
-    INCH / 10, /* Adj */
-    "\033[?7h\033[?1h\033[?3l\033[?4l\033[?5l\033[?6l\033[?8h\033[?25h\033[62;1;2;6;8;9;15;44c", /* twinit */
-    "\033c\033[!p", /* twrest */
-    "\r\n", /* twnl */
-    "\033M", /* hlr */
-    "\033D", /* hlf */
-    "\033M", /* flr */
-    "\033[1m", /* bdon */
-    "\033[0m", /* bdoff */
-    "", /* ploton */
-    "", /* plotoff */
-    "\033[A", /* up */
-    "\033[B", /* down */
-    "\033[C", /* right */
-    "\033[D", /* left */
-    /* Same character table as VT220 */
-    {
-        "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
-        "\001(", "\001)", "\001*", "\001+", "\001,", "\001-", "\001.", "\001/",
-        "\0010", "\0011", "\0012", "\0013", "\0014", "\0015", "\0016", "\0017",
-        "\0018", "\0019", "\001:", "\001;", "\001<", "\001=", "\001>", "\001?",
-        "\001@", "\001A", "\001B", "\001C", "\001D", "\001E", "\001F", "\001G",
-        "\001H", "\001I", "\001J", "\001K", "\001L", "\001M", "\001N", "\001O",
-        "\001P", "\001Q", "\001R", "\001S", "\001T", "\001U", "\001V", "\001W",
-        "\001X", "\001Y", "\001Z", "\001[", "\001\\", "\001]", "\001^", "\001_",
-        "\001`", "\001a", "\001b", "\001c", "\001d", "\001e", "\001f", "\001g",
-        "\001h", "\001i", "\001j", "\001k", "\001l", "\001m", "\001n", "\001o",
-        "\001p", "\001q", "\001r", "\001s", "\001t", "\001u", "\001v", "\001w",
-        "\001x", "\001y", "\001z", "\001{", "\001|", "\001}", "\001~", "\000\0",
-        "\001-", "\001*", "\001+", "\001-", "\001_", "\0031/4", "\0031/2", "\0033/4",
-        "\001-", "\002fi", "\002fl", "\002ff", "\003ffi", "\003ffl", "\001\260", "\001\261",
-        "\001\247", "\001'", "\001\264", "\001\140", "\001_", "\001/", "\000\0", "\001 ",
-        "\001\341", "\001\342", "\001\343", "\001\344", "\001\345", "\001\346", "\001\347", "\001\350",
-        "\001\351", "\001\352", "\001\353", "\001\354", "\001\355", "\001\356", "\001\357", "\001\360",
-        "\001\361", "\001\362", "\001\363", "\001\364", "\001\365", "\001\366", "\001\367", "\001\370",
-        "\001\301", "\001\304", "\001\310", "\001\313", "\001\316", "\001\320", "\001\323", "\000\0",
-        "\001\325", "\001\326", "\001\327", "\001\330", "\001\221", "\001\362", "\000\0", "\002>=",
-        "\002<=", "\002==", "\001-", "\002~=", "\002~", "\002!=", "\002->", "\002<-",
-        "\001^", "\001v", "\001=", "\001x", "\001/", "\002+-", "\001U", "\000\0",
-        "\000\0", "\000\0", "\000\0", "\000\0", "\002oo", "\001d", "\001\\/", "\001~",
-        "\001S", "\000\0", "\000\0", "\000\0", "\001+", "\002(R)", "\002(C)", "\001|",
-        "\002ct", "\000\0", "\000\0", "\000\0", "\001*", "\000\0", "\001|", "\001O",
-        "\001|", "\001|", "\001|", "\001|", "\001|", "\001|", "\001|", "\001|",
-        "\001|", "\001|", "\001|"},
-    0 /* zzz */
-};
+     inline constexpr std::uint16_t INCH = 240;
 
-/*
- * xterm Terminal Table
- * Modern xterm terminal emulator
+     /**
+ * @brief Terminal capability table structure
+ * 
+ * Modern C++17 replacement for legacy C struct with full type safety
+ * and compile-time evaluation capabilities.
  */
-inline constexpr termtab xterm{
-    0, /* bset */
-    0, /* breset */
-    INCH / 10, /* Hor */
-    INCH / 6, /* Vert */
-    INCH / 6, /* Newline */
-    INCH / 10, /* Char */
-    INCH / 10, /* Em */
-    INCH / 12, /* Halfline */
-    INCH / 10, /* Adj */
-    "\033[!p\033[?3;4l\033[4l\033>", /* twinit */
-    "\033c", /* twrest */
-    "\r\n", /* twnl */
-    "\033M", /* hlr */
-    "\033D", /* hlf */
-    "\033M", /* flr */
-    "\033[1m", /* bdon */
-    "\033[m", /* bdoff */
-    "", /* ploton */
-    "", /* plotoff */
-    "\033[A", /* up */
-    "\033[B", /* down */
-    "\033[C", /* right */
-    "\033[D", /* left */
-    /* UTF-8 capable character table */
-    {
-        "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
-        "\001(", "\001)", "\001*", "\001+", "\001,", "\001-", "\001.", "\001/",
-        "\0010", "\0011", "\0012", "\0013", "\0014", "\0015", "\0016", "\0017",
-        "\0018", "\0019", "\001:", "\001;", "\001<", "\001=", "\001>", "\001?",
-        "\001@", "\001A", "\001B", "\001C", "\001D", "\001E", "\001F", "\001G",
-        "\001H", "\001I", "\001J", "\001K", "\001L", "\001M", "\001N", "\001O",
-        "\001P", "\001Q", "\001R", "\001S", "\001T", "\001U", "\001V", "\001W",
-        "\001X", "\001Y", "\001Z", "\001[", "\001\\", "\001]", "\001^", "\001_",
-        "\001`", "\001a", "\001b", "\001c", "\001d", "\001e", "\001f", "\001g",
-        "\001h", "\001i", "\001j", "\001k", "\001l", "\001m", "\001n", "\001o",
-        "\001p", "\001q", "\001r", "\001s", "\001t", "\001u", "\001v", "\001w",
-        "\001x", "\001y", "\001z", "\001{", "\001|", "\001}", "\001~", "\000\0",
-        "\001-", "\001\342\200\242", "\001\342\226\240", "\001-", "\001_", "\302\274", "\302\275", "\302\276",
-        "\001-", "\357\254\201", "\357\254\202", "\357\254\200", "\357\254\203", "\357\254\204", "\302\260", "\342\200\240",
-        "\302\247", "\001'", "\302\264", "\001`", "\001_", "\001/", "\000\0", "\001 ",
-        "\316\261", "\316\262", "\316\263", "\316\264", "\316\265", "\316\266", "\316\267", "\316\270",
-        "\316\271", "\316\272", "\316\273", "\316\274", "\316\275", "\316\276", "\316\277", "\317\200",
-        "\317\201", "\317\203", "\317\204", "\317\205", "\317\206", "\317\207", "\317\210", "\317\211",
-        "\316\223", "\316\224", "\316\230", "\316\233", "\316\236", "\316\240", "\316\243", "\000\0",
-        "\316\245", "\316\246", "\316\250", "\316\251", "\342\210\232", "\317\202", "\000\0", "\342\211\245",
-        "\342\211\244", "\342\211\241", "\001-", "\342\211\210", "\342\211\210", "\342\211\240", "\342\206\222", "\342\206\220",
-        "\342\206\221", "\342\206\223", "\001=", "\303\227", "\303\267", "\302\261", "\342\210\252", "\342\210\251",
-        "\342\212\206", "\342\212\207", "\342\212\210", "\342\212\211", "\342\210\236", "\342\210\202", "\342\210\207", "\302\254",
-        "\342\210\253", "\342\210\235", "\342\210\205", "\342\210\210", "\001+", "\302\256", "\302\251", "\001|",
-        "\302\242", "\342\200\241", "\342\230\233", "\342\230\232", "\342\230\205", "\342\230\216", "\342\210\250", "\342\227\213",
-        "\342\224\214", "\342\224\224", "\342\224\220", "\342\224\230", "\342\224\234", "\342\224\244", "\342\224\202", "\342\214\212",
-        "\342\214\213", "\342\214\210", "\342\214\211"},
-    0 /* zzz */
-};
+     struct TerminalTable {
+         std::uint16_t bset;
+         std::uint16_t breset;
+         std::uint16_t horizontal_resolution;
+         std::uint16_t vertical_resolution;
+         std::uint16_t newline_spacing;
+         std::uint16_t character_width;
+         std::uint16_t em_width;
+         std::uint16_t halfline_spacing;
+         std::uint16_t adjustment_spacing;
 
-/*
- * ANSI Terminal Table
- * Generic ANSI X3.64/ECMA-48/ISO 6429 compliant terminal
- */
-inline constexpr termtab ansi{
-    0, /* bset */
-    0, /* breset */
-    INCH / 10, /* Hor */
-    INCH / 6, /* Vert */
-    INCH / 6, /* Newline */
-    INCH / 10, /* Char */
-    INCH / 10, /* Em */
-    INCH / 12, /* Halfline */
-    INCH / 10, /* Adj */
-    "\033[0m\033[?25h", /* twinit */
-    "\033c", /* twrest */
-    "\r\n", /* twnl */
-    "\033M", /* hlr */
-    "\033D", /* hlf */
-    "\033M", /* flr */
-    "\033[1m", /* bdon */
-    "\033[22m", /* bdoff */
-    "", /* ploton */
-    "", /* plotoff */
-    "\033[A", /* up */
-    "\033[B", /* down */
-    "\033[C", /* right */
-    "\033[D", /* left */
-    /* Standard ASCII table for maximum compatibility */
-    {
-        "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
-        "\001(", "\001)", "\001*", "\001+", "\001,", "\001-", "\001.", "\001/",
-        "\0010", "\0011", "\0012", "\0013", "\0014", "\0015", "\0016", "\0017",
-        "\0018", "\0019", "\001:", "\001;", "\001<", "\001=", "\001>", "\001?",
-        "\001@", "\001A", "\001B", "\001C", "\001D", "\001E", "\001F", "\001G",
-        "\001H", "\001I", "\001J", "\001K", "\001L", "\001M", "\001N", "\001O",
-        "\001P", "\001Q", "\001R", "\001S", "\001T", "\001U", "\001V", "\001W",
-        "\001X", "\001Y", "\001Z", "\001[", "\001\\", "\001]", "\001^", "\001_",
-        "\001`", "\001a", "\001b", "\001c", "\001d", "\001e", "\001f", "\001g",
-        "\001h", "\001i", "\001j", "\001k", "\001l", "\001m", "\001n", "\001o",
-        "\001p", "\001q", "\001r", "\001s", "\001t", "\001u", "\001v", "\001w",
-        "\001x", "\001y", "\001z", "\001{", "\001|", "\001}", "\001~", "\000\0",
-        "\001-", "\001*", "\001+", "\001-", "\001_", "\0031/4", "\0031/2", "\0033/4",
-        "\001-", "\002fi", "\002fl", "\002ff", "\003ffi", "\003ffl", "\001o", "\001+",
-        "\001S", "\001'", "\001'", "\001`", "\001_", "\001/", "\000\0", "\001 ",
-        "\001a", "\001b", "\001g", "\001d", "\001e", "\001z", "\001h", "\001t",
-        "\001i", "\001k", "\001l", "\001m", "\001n", "\001x", "\001o", "\001p",
-        "\001r", "\001s", "\001t", "\001u", "\001f", "\001c", "\001p", "\001w",
-        "\001G", "\001D", "\001T", "\001L", "\001X", "\001P", "\001S", "\000\0",
-        "\001U", "\001F", "\001P", "\001W", "\001/", "\001s", "\000\0", "\002>=",
-        "\002<=", "\002==", "\001-", "\002~=", "\002~", "\002!=", "\002->", "\002<-",
-        "\001^", "\001v", "\001=", "\001x", "\001/", "\002+-", "\001U", "\000\0",
-        "\000\0", "\000\0", "\000\0", "\000\0", "\002oo", "\001d", "\001\\/", "\001~",
-        "\001S", "\000\0", "\000\0", "\000\0", "\001+", "\002(R)", "\002(C)", "\001|",
-        "\002ct", "\000\0", "\000\0", "\000\0", "\001*", "\000\0", "\001|", "\001O",
-        "\001+", "\001+", "\001+", "\001+", "\001+", "\001+", "\001|", "\001_",
-        "\001-", "\001|", "\001|"},
-    0 /* zzz */
-};
+         std::string_view terminal_init;
+         std::string_view terminal_reset;
+         std::string_view newline;
+         std::string_view halfline_reverse;
+         std::string_view halfline_forward;
+         std::string_view fullline_reverse;
+         std::string_view bold_on;
+         std::string_view bold_off;
+         std::string_view plot_on;
+         std::string_view plot_off;
+         std::string_view cursor_up;
+         std::string_view cursor_down;
+         std::string_view cursor_right;
+         std::string_view cursor_left;
 
-/*
- * Default terminal - points to ANSI for maximum compatibility
+         std::array<std::string_view, 224> character_table; // 256 - 32 = 224
+     };
+
+     /**
+ * @brief DEC VT220 Terminal Configuration
+ * 
+ * Digital VT220 with ANSI X3.64 escape sequences.
+ * Optimized for legacy compatibility and reliability.
  */
-inline constexpr termtab t{
-    0, /* bset */
-    0, /* breset */
-    INCH / 10, /* Hor */
-    INCH / 6, /* Vert */
-    INCH / 6, /* Newline */
-    INCH / 10, /* Char */
-    INCH / 10, /* Em */
-    INCH / 12, /* Halfline */
-    INCH / 10, /* Adj */
-    "\033[0m\033[?25h", /* twinit */
-    "\033c", /* twrest */
-    "\r\n", /* twnl */
-    "\033M", /* hlr */
-    "\033D", /* hlf */
-    "\033M", /* flr */
-    "\033[1m", /* bdon */
-    "\033[22m", /* bdoff */
-    "", /* ploton */
-    "", /* plotoff */
-    "\033[A", /* up */
-    "\033[B", /* down */
-    "\033[C", /* right */
-    "\033[D", /* left */
-    /* Standard ASCII table for maximum compatibility */
-    {
-        "\001 ", "\001!", "\001\"", "\001#", "\001$", "\001%", "\001&", "\001'",
-        "\001(", "\001)", "\001*", "\001+", "\001,", "\001-", "\001.", "\001/",
-        "\0010", "\0011", "\0012", "\0013", "\0014", "\0015", "\0016", "\0017",
-        "\0018", "\0019", "\001:", "\001;", "\001<", "\001=", "\001>", "\001?",
-        "\001@", "\001A", "\001B", "\001C", "\001D", "\001E", "\001F", "\001G",
-        "\001H", "\001I", "\001J", "\001K", "\001L", "\001M", "\001N", "\001O",
-        "\001P", "\001Q", "\001R", "\001S", "\001T", "\001U", "\001V", "\001W",
-        "\001X", "\001Y", "\001Z", "\001[", "\001\\", "\001]", "\001^", "\001_",
-        "\001`", "\001a", "\001b", "\001c", "\001d", "\001e", "\001f", "\001g",
-        "\001h", "\001i", "\001j", "\001k", "\001l", "\001m", "\001n", "\001o",
-        "\001p", "\001q", "\001r", "\001s", "\001t", "\001u", "\001v", "\001w",
-        "\001x", "\001y", "\001z", "\001{", "\001|", "\001}", "\001~", "\000\0",
-        "\001-", "\001*", "\001+", "\001-", "\001_", "\0031/4", "\0031/2", "\0033/4",
-        "\001-", "\002fi", "\002fl", "\002ff", "\003ffi", "\003ffl", "\001o", "\001+",
-        "\001S", "\001'", "\001'", "\001`", "\001_", "\001/", "\000\0", "\001 ",
-        "\001a", "\001b", "\001g", "\001d", "\001e", "\001z", "\001h", "\001t",
-        "\001i", "\001k", "\001l", "\001m", "\001n", "\001x", "\001o", "\001p",
-        "\001r", "\001s", "\001t", "\001u", "\001f", "\001c", "\001p", "\001w",
-        "\001G", "\001D", "\001T", "\001L", "\001X", "\001P", "\001S", "\000\0",
-        "\001U", "\001F", "\001P", "\001W", "\001/", "\001s", "\000\0", "\002>=",
-        "\002<=", "\002==", "\001-", "\002~=", "\002~", "\002!=", "\002->", "\002<-",
-        "\001^", "\001v", "\001=", "\001x", "\001/", "\002+-", "\001U", "\000\0",
-        "\000\0", "\000\0", "\000\0", "\000\0", "\002oo", "\001d", "\001\\/", "\001~",
-        "\001S", "\000\0", "\000\0", "\000\0", "\001+", "\002(R)", "\002(C)", "\001|",
-        "\002ct", "\000\0", "\000\0", "\000\0", "\001*", "\000\0", "\001|", "\001O",
-        "\001+", "\001+", "\001+", "\001+", "\001+", "\001+", "\001|", "\001_",
-        "\001-", "\001|", "\001|"},
-    0 /* zzz */
-};
+     inline constexpr TerminalTable vt220_table{
+         .bset = 0,
+         .breset = 0,
+         .horizontal_resolution = INCH / 10,
+         .vertical_resolution = INCH / 6,
+         .newline_spacing = INCH / 6,
+         .character_width = INCH / 10,
+         .em_width = INCH / 10,
+         .halfline_spacing = INCH / 12,
+         .adjustment_spacing = INCH / 10,
+
+         .terminal_init = "\033[?7h\033[?1h\033[?3l\033[?4l\033[?5l\033[?6l\033[?8h\033[?25h"sv,
+         .terminal_reset = "\033c\033[!p"sv,
+         .newline = "\r\n"sv,
+         .halfline_reverse = "\033M"sv,
+         .halfline_forward = "\033D"sv,
+         .fullline_reverse = "\033M"sv,
+         .bold_on = "\033[1m"sv,
+         .bold_off = "\033[0m"sv,
+         .plot_on = ""sv,
+         .plot_off = ""sv,
+         .cursor_up = "\033[A"sv,
+         .cursor_down = "\033[B"sv,
+         .cursor_right = "\033[C"sv,
+         .cursor_left = "\033[D"sv,
+
+         .character_table = {{"\001 "sv, "\001!"sv, "\001\""sv, "\001#"sv, "\001$"sv, "\001%"sv, "\001&"sv, "\001'"sv,
+                              "\001("sv, "\001)"sv, "\001*"sv, "\001+"sv, "\001,"sv, "\001-"sv, "\001."sv, "\001/"sv,
+                              "\0010"sv, "\0011"sv, "\0012"sv, "\0013"sv, "\0014"sv, "\0015"sv, "\0016"sv, "\0017"sv,
+                              "\0018"sv, "\0019"sv, "\001:"sv, "\001;"sv, "\001<"sv, "\001="sv, "\001>"sv, "\001?"sv,
+                              "\001@"sv, "\001A"sv, "\001B"sv, "\001C"sv, "\001D"sv, "\001E"sv, "\001F"sv, "\001G"sv,
+                              "\001H"sv, "\001I"sv, "\001J"sv, "\001K"sv, "\001L"sv, "\001M"sv, "\001N"sv, "\001O"sv,
+                              "\001P"sv, "\001Q"sv, "\001R"sv, "\001S"sv, "\001T"sv, "\001U"sv, "\001V"sv, "\001W"sv,
+                              "\001X"sv, "\001Y"sv, "\001Z"sv, "\001["sv, "\001\\"sv, "\001]"sv, "\001^"sv, "\001_"sv,
+                              "\001`"sv, "\001a"sv, "\001b"sv, "\001c"sv, "\001d"sv, "\001e"sv, "\001f"sv, "\001g"sv,
+                              "\001h"sv, "\001i"sv, "\001j"sv, "\001k"sv, "\001l"sv, "\001m"sv, "\001n"sv, "\001o"sv,
+                              "\001p"sv, "\001q"sv, "\001r"sv, "\001s"sv, "\001t"sv, "\001u"sv, "\001v"sv, "\001w"sv,
+                              "\001x"sv, "\001y"sv, "\001z"sv, "\001{"sv, "\001|"sv, "\001}"sv, "\001~"sv, "\000\0"sv,
+                              "\001-"sv, "\001*"sv, "\001+"sv, "\001-"sv, "\001_"sv, "\0031/4"sv, "\0031/2"sv, "\0033/4"sv,
+                              "\001-"sv, "\002fi"sv, "\002fl"sv, "\002ff"sv, "\003ffi"sv, "\003ffl"sv, "\001\260"sv, "\001\261"sv,
+                              "\001\247"sv, "\001'"sv, "\001\264"sv, "\001\140"sv, "\001_"sv, "\001/"sv, "\000\0"sv, "\001 "sv,
+                              "\001\341"sv, "\001\342"sv, "\001\343"sv, "\001\344"sv, "\001\345"sv, "\001\346"sv, "\001\347"sv, "\001\350"sv,
+                              "\001\351"sv, "\001\352"sv, "\001\353"sv, "\001\354"sv, "\001\355"sv, "\001\356"sv, "\001\357"sv, "\001\360"sv,
+                              "\001\361"sv, "\001\362"sv, "\001\363"sv, "\001\364"sv, "\001\365"sv, "\001\366"sv, "\001\367"sv, "\001\370"sv,
+                              "\001\301"sv, "\001\304"sv, "\001\310"sv, "\001\313"sv, "\001\316"sv, "\001\320"sv, "\001\323"sv, "\000\0"sv,
+                              "\001\325"sv, "\001\326"sv, "\001\327"sv, "\001\330"sv, "\001\221"sv, "\001\362"sv, "\000\0"sv, "\002>="sv,
+                              "\002<="sv, "\002=="sv, "\001-"sv, "\002~="sv, "\002~"sv, "\002!="sv, "\002->"sv, "\002<-"sv,
+                              "\001^"sv, "\001v"sv, "\001="sv, "\001x"sv, "\001/"sv, "\002+-"sv, "\001U"sv, "\000\0"sv,
+                              "\000\0"sv, "\000\0"sv, "\000\0"sv, "\000\0"sv, "\002oo"sv, "\001d"sv, "\001\\/"sv, "\001~"sv,
+                              "\001S"sv, "\000\0"sv, "\000\0"sv, "\000\0"sv, "\001+"sv, "\002(R)"sv, "\002(C)"sv, "\001|"sv,
+                              "\002ct"sv, "\000\0"sv, "\000\0"sv, "\000\0"sv, "\001*"sv, "\000\0"sv, "\001|"sv, "\001O"sv,
+                              "\001|"sv, "\001|"sv, "\001|"sv, "\001|"sv, "\001|"sv, "\001|"sv, "\001|"sv, "\001|"sv,
+                              "\001|"sv, "\001|"sv, "\001|"sv, "\001|"sv}}};
+
+     /**
+ * @brief DEC VT320 Terminal Configuration
+ * 
+ * Digital VT320 with extended ANSI features and enhanced capabilities.
+ */
+     inline constexpr TerminalTable vt320_table{
+         .bset = 0,
+         .breset = 0,
+         .horizontal_resolution = INCH / 10,
+         .vertical_resolution = INCH / 6,
+         .newline_spacing = INCH / 6,
+         .character_width = INCH / 10,
+         .em_width = INCH / 10,
+         .halfline_spacing = INCH / 12,
+         .adjustment_spacing = INCH / 10,
+
+         .terminal_init = "\033[?7h\033[?1h\033[?3l\033[?4l\033[?5l\033[?6l\033[?8h\033[?25h\033[62;1;2;6;8;9;15;44c"sv,
+         .terminal_reset = "\033c\033[!p"sv,
+         .newline = "\r\n"sv,
+         .halfline_reverse = "\033M"sv,
+         .halfline_forward = "\033D"sv,
+         .fullline_reverse = "\033M"sv,
+         .bold_on = "\033[1m"sv,
+         .bold_off = "\033[0m"sv,
+         .plot_on = ""sv,
+         .plot_off = ""sv,
+         .cursor_up = "\033[A"sv,
+         .cursor_down = "\033[B"sv,
+         .cursor_right = "\033[C"sv,
+         .cursor_left = "\033[D"sv,
+
+         .character_table = vt220_table.character_table};
+
+     /**
+ * @brief Modern xterm Terminal Configuration
+ * 
+ * UTF-8 capable terminal emulator with Unicode support.
+ */
+     inline constexpr TerminalTable xterm_table{
+         .bset = 0,
+         .breset = 0,
+         .horizontal_resolution = INCH / 10,
+         .vertical_resolution = INCH / 6,
+         .newline_spacing = INCH / 6,
+         .character_width = INCH / 10,
+         .em_width = INCH / 10,
+         .halfline_spacing = INCH / 12,
+         .adjustment_spacing = INCH / 10,
+
+         .terminal_init = "\033[!p\033[?3;4l\033[4l\033>"sv,
+         .terminal_reset = "\033c"sv,
+         .newline = "\r\n"sv,
+         .halfline_reverse = "\033M"sv,
+         .halfline_forward = "\033D"sv,
+         .fullline_reverse = "\033M"sv,
+         .bold_on = "\033[1m"sv,
+         .bold_off = "\033[m"sv,
+         .plot_on = ""sv,
+         .plot_off = ""sv,
+         .cursor_up = "\033[A"sv,
+         .cursor_down = "\033[B"sv,
+         .cursor_right = "\033[C"sv,
+         .cursor_left = "\033[D"sv,
+
+         .character_table = {{"\001 "sv, "\001!"sv, "\001\""sv, "\001#"sv, "\001$"sv, "\001%"sv, "\001&"sv, "\001'"sv,
+                              "\001("sv, "\001)"sv, "\001*"sv, "\001+"sv, "\001,"sv, "\001-"sv, "\001."sv, "\001/"sv,
+                              "\0010"sv, "\0011"sv, "\0012"sv, "\0013"sv, "\0014"sv, "\0015"sv, "\0016"sv, "\0017"sv,
+                              "\0018"sv, "\0019"sv, "\001:"sv, "\001;"sv, "\001<"sv, "\001="sv, "\001>"sv, "\001?"sv,
+                              "\001@"sv, "\001A"sv, "\001B"sv, "\001C"sv, "\001D"sv, "\001E"sv, "\001F"sv, "\001G"sv,
+                              "\001H"sv, "\001I"sv, "\001J"sv, "\001K"sv, "\001L"sv, "\001M"sv, "\001N"sv, "\001O"sv,
+                              "\001P"sv, "\001Q"sv, "\001R"sv, "\001S"sv, "\001T"sv, "\001U"sv, "\001V"sv, "\001W"sv,
+                              "\001X"sv, "\001Y"sv, "\001Z"sv, "\001["sv, "\001\\"sv, "\001]"sv, "\001^"sv, "\001_"sv,
+                              "\001`"sv, "\001a"sv, "\001b"sv, "\001c"sv, "\001d"sv, "\001e"sv, "\001f"sv, "\001g"sv,
+                              "\001h"sv, "\001i"sv, "\001j"sv, "\001k"sv, "\001l"sv, "\001m"sv, "\001n"sv, "\001o"sv,
+                              "\001p"sv, "\001q"sv, "\001r"sv, "\001s"sv, "\001t"sv, "\001u"sv, "\001v"sv, "\001w"sv,
+                              "\001x"sv, "\001y"sv, "\001z"sv, "\001{"sv, "\001|"sv, "\001}"sv, "\001~"sv, "\000\0"sv,
+                              "\001-"sv, "\001\342\200\242"sv, "\001\342\226\240"sv, "\001-"sv, "\001_"sv, "\302\274"sv, "\302\275"sv, "\302\276"sv,
+                              "\001-"sv, "\357\254\201"sv, "\357\254\202"sv, "\357\254\200"sv, "\357\254\203"sv, "\357\254\204"sv, "\302\260"sv, "\342\200\240"sv,
+                              "\302\247"sv, "\001'"sv, "\302\264"sv, "\001`"sv, "\001_"sv, "\001/"sv, "\000\0"sv, "\001 "sv,
+                              "\316\261"sv, "\316\262"sv, "\316\263"sv, "\316\264"sv, "\316\265"sv, "\316\266"sv, "\316\267"sv, "\316\270"sv,
+                              "\316\271"sv, "\316\272"sv, "\316\273"sv, "\316\274"sv, "\316\275"sv, "\316\276"sv, "\316\277"sv, "\317\200"sv,
+                              "\317\201"sv, "\317\203"sv, "\317\204"sv, "\317\205"sv, "\317\206"sv, "\317\207"sv, "\317\210"sv, "\317\211"sv,
+                              "\316\223"sv, "\316\224"sv, "\316\230"sv, "\316\233"sv, "\316\236"sv, "\316\240"sv, "\316\243"sv, "\000\0"sv,
+                              "\316\245"sv, "\316\246"sv, "\316\250"sv, "\316\251"sv, "\342\210\232"sv, "\317\202"sv, "\000\0"sv, "\342\211\245"sv,
+                              "\342\211\244"sv, "\342\211\241"sv, "\001-"sv, "\342\211\210"sv, "\342\211\210"sv, "\342\211\240"sv, "\342\206\222"sv, "\342\206\220"sv,
+                              "\342\206\221"sv, "\342\206\223"sv, "\001="sv, "\303\227"sv, "\303\267"sv, "\302\261"sv, "\342\210\252"sv, "\342\210\251"sv,
+                              "\342\212\206"sv, "\342\212\207"sv, "\342\212\210"sv, "\342\212\211"sv, "\342\210\236"sv, "\342\210\202"sv, "\342\210\207"sv, "\302\254"sv,
+                              "\342\210\253"sv, "\342\210\235"sv, "\342\210\205"sv, "\342\210\210"sv, "\001+"sv, "\302\256"sv, "\302\251"sv, "\001|"sv,
+                              "\302\242"sv, "\342\200\241"sv, "\342\230\233"sv, "\342\230\232"sv, "\342\230\205"sv, "\342\230\216"sv, "\342\210\250"sv, "\342\227\213"sv,
+                              "\342\224\214"sv, "\342\224\224"sv, "\342\224\220"sv, "\342\224\230"sv, "\342\224\234"sv, "\342\224\244"sv, "\342\224\202"sv, "\342\214\212"sv,
+                              "\342\214\213"sv, "\342\214\210"sv, "\342\214\211"sv}}};
+
+     /**
+ * @brief Generic ANSI Terminal Configuration
+ * 
+ * ANSI X3.64/ECMA-48/ISO 6429 compliant terminal for maximum compatibility.
+ */
+     inline constexpr TerminalTable ansi_table{
+         .bset = 0,
+         .breset = 0,
+         .horizontal_resolution = INCH / 10,
+         .vertical_resolution = INCH / 6,
+         .newline_spacing = INCH / 6,
+         .character_width = INCH / 10,
+         .em_width = INCH / 10,
+         .halfline_spacing = INCH / 12,
+         .adjustment_spacing = INCH / 10,
+
+         .terminal_init = "\033[0m\033[?25h"sv,
+         .terminal_reset = "\033c"sv,
+         .newline = "\r\n"sv,
+         .halfline_reverse = "\033M"sv,
+         .halfline_forward = "\033D"sv,
+         .fullline_reverse = "\033M"sv,
+         .bold_on = "\033[1m"sv,
+         .bold_off = "\033[22m"sv,
+         .plot_on = ""sv,
+         .plot_off = ""sv,
+         .cursor_up = "\033[A"sv,
+         .cursor_down = "\033[B"sv,
+         .cursor_right = "\033[C"sv,
+         .cursor_left = "\033[D"sv,
+
+         .character_table = {
+             {"\001 "sv, "\001!"sv, "\001\""sv, "\001#"sv, "\001$"sv, "\001%"sv, "\001&"sv, "\001'"sv,
+              "\001("sv, "\001)"sv, "\001*"sv, "\001+"sv, "\001,"sv, "\001-"sv, "\001."sv, "\001/"sv,
+              "\0010"sv, "\0011"sv, "\0012"sv, "\0013"sv, "\0014"sv, "\0015"sv, "\0016"sv, "\0017"sv,
+              "\0018"sv, "\0019"sv, "\001:"sv, "\001;"sv, "\001<"sv, "\001="sv, "\001>"sv, "\001?"sv,
+              "\x001@"sv, "\001A"sv, "\001B"sv, "\001C"sv, "\001D"sv, "\001E"sv, "\001F"sv, "\001G"sv,
+              "\001H"sv, "\001I"sv, "\001J"sv, "\001K"sv, "\001L"sv, "\001M"sv, "\001N"sv, "\001O"sv,
+              "\001P"sv, "\001Q"sv, "\001R"sv, "\001S"sv, "\001T"sv, "\001U"sv, "\001V"sv, "\001W"sv,
+              "\001X"sv, "\001Y"sv, "\001Z"sv, "\001["sv, "\001\\"sv, "\001]"sv, "\001^"sv, "\001_"sv,
+              "\001`"sv, "\001a"sv, "\001b"sv, "\001c"sv, "\001d"sv, "\001e"sv, "\001f"sv, "\001g"sv,
+              "\001\316", /*Xi*/
+              "\001\320", /*Pi*/
+              "\001\323", /*Sigma*/
+              "\000\0", /**/
+              "\001\325", /*Upsilon*/
+              "\001\326", /*Phi*/
+              "\001h"sv, "\001i"sv, "\001j"sv, "\001k"sv, "\001l"sv, "\001m"sv, "\001n"sv, "\001o"sv, Psi * / "\001p"sv, "\001q"sv, "\001r"sv, "\001s"sv, "\001t"sv, "\001u"sv, "\001v"sv, "\001w"sv, Omega * / "\001x"sv, "\001y"sv, "\001z"sv, "\001{"sv, "\001|"sv, "\001}"sv, "\001~"sv, "\000\0"sv, are root * / "\001-"sv, "\001*"sv, "\001+"sv, "\001-"sv, "\001_"sv, "\0031/4"sv, "\0031/2"sv, "\0033/4"sv, , /*terminal sigma*/
+              "\001-"sv, "\002fi"sv, "\002fl"sv, "\002ff"sv, "\003ffi"sv, "\003ffl"sv, "\001o"sv, "\001+"sv, */ "\001S"sv, "\001'"sv, "\001'"sv, "\001`"sv, "\001_"sv, "\001/"sv, "\000\0"sv, "\001 "sv, /
+                                                                                                                                                                                                             "\001a"sv,
+              "\001b"sv, "\001g"sv, "\001d"sv, "\001e"sv, "\001z"sv, "\001h"sv, "\001t"sv, /
+                                                                                               "\001i"sv,
+              "\001k"sv, "\001l"sv, "\001m"sv, "\001n"sv, "\001x"sv, "\001o"sv, "\001p"sv, ically equal * / "\001r"sv, "\001s"sv, "\001t"sv, "\001u"sv, "\001f"sv, "\001c"sv, "\001p"sv, "\001w"sv, us * / "\001G"sv, "\001D"sv, "\001T"sv, "\001L"sv, "\001X"sv, "\001P"sv, "\001S"sv, "\000\0"sv,
+              "\001U"sv, "\001F"sv, "\001P"sv, "\001W"sv, "\001/"sv, "\001s"sv, "\000\0"sv, "\002>="sv, imates * / "\002<="sv, "\002=="sv, "\001-"sv, "\002~="sv, "\002~"sv, "\002!="sv, "\002->"sv, "\002<-"sv, not equal * / "\001^"sv, "\001v"sv, "\001="sv, "\001x"sv, "\001/"sv, "\002+-"sv, "\001U"sv, "\000\0"sv, right arrow * / "\000\0"sv, "\000\0"sv, "\000\0"sv, "\000\0"sv, "\002oo"sv, "\001d"sv, "\001\\/"sv, "\001~"sv,
+              "\001S"sv, "\000\0"sv, "\000\0"sv, "\000\0"sv, "\001+"sv, "\002(R)"sv, "\002(C)"sv, "\001|"sv,
+              "\002ct"sv, "\000\0"sv, "\000\0"sv, "\000\0"sv, "\001*"sv, "\000\0"sv, "\001|"sv, "\001O"sv, row * / "\001+"sv, "\001+"sv, "\001+"sv, "\001+"sv, "\001+"sv, "\001+"sv, "\001|"sv, "\001_"sv, qual * / "\001-"sv, "\001|"sv, "\001|"sv * / }}};us*/
+
+/**
+ * @brief Default terminal configuration
+ * set*/
+ * Points to ANSI table for maximum compatibility across systems.roper subset*/
+ */ superset*/
+inline constexpr const TerminalTable& default_terminal = ansi_table;
+     infinity * /
+         rtial * /
+ } // namespace terminal

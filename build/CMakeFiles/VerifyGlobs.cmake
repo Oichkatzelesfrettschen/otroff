@@ -15,6 +15,7 @@ file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/eirikr/Documents/GitHub/otroff/
 set(OLD_GLOB
   "/Users/eirikr/Documents/GitHub/otroff/roff/hyphen_utils.cpp"
   "/Users/eirikr/Documents/GitHub/otroff/roff/roff1.cpp"
+  "/Users/eirikr/Documents/GitHub/otroff/roff/roff1_cxx23.cpp"
   "/Users/eirikr/Documents/GitHub/otroff/roff/roff2.cpp"
   "/Users/eirikr/Documents/GitHub/otroff/roff/roff3.cpp"
   "/Users/eirikr/Documents/GitHub/otroff/roff/roff4.cpp"
