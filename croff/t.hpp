@@ -4,11 +4,11 @@
  * This header contains common includes, global state structures,
  * and function prototypes used throughout the troff typesetting system.
  * 
- * Conforms to C90 standard for maximum portability.
+ * Relies on C++23 features for modern utilities and portability.
  */
 
-#pragma once
-#include "cxx23_scaffold.hpp" // utilities
+#pragma once // Ensures the header file is included only once during compilation, preventing duplicate definitions
+#include "cxx23_scaffold.hpp" // utilities for C++23 features
 
 /* 
  * Standard C90 library includes for troff implementation
@@ -24,6 +24,19 @@
  * or given reasonable default values for C90 compliance
  */
 #ifndef NDI
+/*
+ * NDI - Number of Device Interfaces
+ * 
+ * This macro defines the maximum number of device interfaces supported
+#define NN 200 /* Default total number of variables */
+/* NN represents the maximum number of variables that can be stored in the system.
+ * It is used to define the size of arrays and structures that hold variable-related data.
+ * Adjust this value based on the expected scale of your application. */
+*specific output device or configuration, allowing the system to manage
+                                                  *multiple devices simultaneously.Adjust this value based on the
+                                                      *requirements of your application or
+                                              hardware setup.
+                                                      * /
 #define NDI 10 /* Default number of device interfaces */
 #endif
 
@@ -35,7 +48,7 @@
 #define NNAMES 100 /* Default number of named variables */
 #endif
 
-/*
+                                                  /*
  * Global device state structure array
  * 
  * Contains device-specific parameters used across the troff implementation:
@@ -52,7 +65,7 @@
  * - hnl: horizontal new line
  * - curd: current device
  */
-extern struct device_state {
+                                                  extern struct device_state {
     int op; /* Output position */
     int dnl; /* Device new line */
     int dimac; /* Device initial macro */
@@ -130,4 +143,3 @@ void sub1(int tt[2], int delta);
  * Version identification (commented out for C90 compliance)
  * Original: static char Sccsid[] "@(#)t.h 1.3 of 4/26/77";
  */
-
