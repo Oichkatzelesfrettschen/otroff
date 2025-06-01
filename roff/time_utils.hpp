@@ -7,7 +7,7 @@
 
 #include <chrono>
 
-namespace roff::utils {
+namespace otroff::roff_legacy::utils { // Changed namespace
 
 /// Alias for system clock points with second precision.
 using sys_seconds =
@@ -16,4 +16,4 @@ using sys_seconds =
 /// Return the current time as a ``sys_seconds`` value.
 [[nodiscard]] sys_seconds current_time() noexcept;
 
-} // namespace roff::utils
+} // namespace otroff::roff_legacy::utils

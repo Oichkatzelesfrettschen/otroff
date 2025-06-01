@@ -12,8 +12,11 @@
 #pragma once
 
 #include "cxx17_scaffold.hpp"
+// Forward declare some types that might be used by function pointers if necessary
+// struct SomeType;
 
-namespace roff {
+namespace otroff { // Outer namespace
+namespace roff_legacy { // Inner namespace for legacy roff code
 
 // ============================================================================
 // Global State Variables (externally defined in implementation files)
@@ -160,7 +163,77 @@ constexpr int SUFFIX_BUF_SIZE = 512;   ///< Suffix buffer size
 constexpr int MAX_NAME_LEN = 18;       ///< Maximum filename length
 constexpr int BLOCK_MASK = 077;        ///< Block alignment mask (octal 77)
 
-} // namespace roff
+// Additional function declarations that might have been in roff_globals.hpp
+// and not in the original roff.hpp, or need to be confirmed.
+// Many of these are command handlers.
+void case_ad();
+void case_br();
+void case_cc();
+void case_ce();
+void case_ds();
+void case_fi();
+void case_in();
+void case_ix(); // Assuming this was meant to be different from case_in
+void case_li();
+void case_ll();
+void case_ls();
+void case_na();
+void case_ne();
+void case_nf();
+void case_pa(); // Also known as case_bp
+void case_bp();
+void case_bl();
+void case_pl();
+void case_sk();
+void case_sp();
+void case_ss();
+void case_tr();
+void case_ta();
+void case_ti();
+void case_ul();
+void case_un();
+void case_hx();
+void case_he();
+void case_fo();
+void case_eh();
+void case_oh();
+void case_ef();
+void case_of();
+void case_m1();
+void case_m2();
+void case_m3();
+void case_m4();
+void case_hc(); // Hyphenation character related?
+void case_tc(); // Tab character related?
+void case_hy(); // Hyphenation related?
+void case_n1(); // Numbering related?
+void case_n2(); // Numbering related?
+void case_nn(); // Numbering related?
+void case_ni(); // Numbering related?
+void case_jo(); // Justification related?
+void case_ar(); // Not obvious
+void case_ro(); // Roman numerals related?
+void case_nx();
+void case_po();
+void case_de();
+void case_ig();
+void case_mk();
 
-// Make global variables accessible without namespace qualification
-using namespace roff;
+// Ensure init_globals is declared if it's going to be used across files
+void init_globals();
+int alph(int c); // Declaration for the alph function used in roff5.cpp
+// extern char nextf[]; // Already declared
+// extern char bname[]; // Already declared
+// extern unsigned char trtab[]; // Already declared as char trtab[]
+// extern unsigned char tabtab[]; // Already declared as int tabtab[] - type mismatch needs care
+                                // Assuming int tabtab[] from roff8.cpp is the correct one.
+// extern int ilist[]; // Already declared
+// extern int *ilistp; // Already declared
+
+} // namespace roff_legacy
+} // namespace otroff
+
+// Removed: using namespace roff;
+// Users of this header will need to use:
+// using namespace otroff::roff_legacy;
+// or qualify names with otroff::roff_legacy::

@@ -4,7 +4,10 @@
 #include <chrono>
 
 // Implementation of modern time helper routines.
-namespace roff::utils {
+namespace otroff::roff_legacy::utils { // Changed namespace
+
+// Using the outer namespace for consistency, though not strictly needed here
+using namespace otroff::roff_legacy;
 
 /// Obtain the current system time with second precision.
 [[nodiscard]] sys_seconds current_time() noexcept {
@@ -12,4 +15,4 @@ namespace roff::utils {
         std::chrono::system_clock::now());
 }
 
-} // namespace roff::utils
+} // namespace otroff::roff_legacy::utils

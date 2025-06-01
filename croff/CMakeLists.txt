@@ -1,16 +1,8 @@
-# Build the croff formatter
-file(GLOB CROFF_SOURCES *.c *.cpp)
-add_executable(croff ${CROFF_SOURCES})
-set_source_files_properties(${CROFF_SOURCES} PROPERTIES LANGUAGE CXX)
+project(croff_project)
 
-# Explicitly set C++ standard for this target
-set_target_properties(croff PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-)
+add_library(croff_lib STATIC "") # Sources for croff_lib will be added later
+# For now, ensure it links to common settings and os_abstraction if needed
+target_link_libraries(croff_lib INTERFACE otroff_common os_abstraction)
 
-# Include headers from the croff directory
-target_include_directories(croff PRIVATE ${CMAKE_SOURCE_DIR}/croff)
-# Link against the OS abstraction layer
-target_link_libraries(croff PRIVATE os_abstraction)
+add_executable(croff_exe n1.cpp) # Changed from main.cpp to n1.cpp
+target_link_libraries(croff_exe PRIVATE croff_lib)

@@ -63,7 +63,13 @@
 #include <climits> /* System limits */
 
 /* Local headers */
-#include "roff.hpp" /* ROFF system definitions and globals */
+#include "roff.hpp" /* ROFF system definitions and globals (now with new namespace) */
+
+namespace otroff {
+namespace roff_legacy {
+
+// Using directive for convenience within this file
+using namespace otroff::roff_legacy;
 
 /* SCCS version identifier */
 [[maybe_unused]] static constexpr std::string_view sccs_id =
@@ -150,7 +156,10 @@ static char *fivesp;
  * - Update character and word counts
  * - Handle various formatting flags
  */
-namespace roff {
+// All function definitions below were previously in 'namespace roff' or global.
+// They are now part of 'namespace otroff::roff_legacy' due to the wrappers at top/bottom
+// and the 'using namespace otroff::roff_legacy;' directive above.
+
 void text(void) {
     int c;
 
@@ -215,10 +224,9 @@ void text(void) {
     /* Handle underline countdown */
     ::roff::ul--;
     if (::roff::ul < 0) {
-        ::roff::ul = 0;
+        ul = 0;
     }
 }
-} // namespace roff
 
 /**
  * @brief Process text in no-fill mode with optional centering.
@@ -245,7 +253,6 @@ void text(void) {
  * - Account for line numbering if active
  * - Force simple spacing (nwd = 1000)
  */
-namespace roff {
 void nofill(void) {
     int c;
     int char_width;
@@ -296,7 +303,6 @@ void nofill(void) {
         ul = 0;
     }
 }
-} // namespace roff
 
 /**
  * @brief Calculate and apply line justification.
@@ -348,6 +354,8 @@ static void adjust(void) {
     rbreak();
 }
 
+// Note: fill_line_buffer_and_get_char was 'static int roff::fill_line_buffer_and_get_char'
+// It should now be 'static int fill_line_buffer_and_get_char' within the outer namespace.
 /**
  * @brief Handle fill mode spacing with justification.
  *
@@ -374,47 +382,45 @@ static void adjust(void) {
  *
  * @return Next character from line buffer for output
  */
-namespace roff { // This was roff::fill, now making it static to roff4
 static int fill_line_buffer_and_get_char(void) {
     int spaces;
     int next_char;
 
     /* Start with base extra spacing */
-    spaces = ::roff::fmq;
+    spaces = fmq;
 
     /* Apply spacing and advance past current space */
     do {
         spaces++;
-        ::roff::nc--;
-        ::roff::linep++;
-    } while (::roff::nc > 0 && *(::roff::linep - 1) == SPACE_CHAR);
+        nc--;
+        linep++;
+    } while (nc > 0 && *(linep - 1) == SPACE_CHAR);
 
     /* Back up to last non-space character */
-    ::roff::linep--;
+    linep--;
 
     /* Apply even/odd line spacing algorithm */
-    if ((::roff::totout & 1) == 0) {
+    if ((totout & 1) == 0) {
         /* Even line - add extra space early */
-        ::roff::fac++;
-        if (::roff::fac < ::roff::nwd) {
+        fac++;
+        if (fac < nwd) {
             spaces++;
         }
     } else {
         /* Odd line - add extra space later */
-        ::roff::fac--;
-        if (::roff::fac >= 0) {
+        fac--;
+        if (fac >= 0) {
             spaces++;
         }
     }
 
     /* Output the calculated spacing */
-    ::roff::space(spaces); // This is roff::space
+    space(spaces);
 
     /* Get next character for processing */
-    next_char = (unsigned char)*::roff::linep;
+    next_char = (unsigned char)*linep;
     return next_char;
 }
-} // namespace roff // End of static fill_line_buffer_and_get_char
 
 /**
  * @brief Move word from word buffer to line buffer with hyphenation.
@@ -623,8 +629,8 @@ cleanup:
     }
 
     /* Ensure word pointer is within bounds */
-    if (::roff::wordp < ::roff::word) {
-        ::roff::wordp = ::roff::word;
+    if (wordp < word) {
+        wordp = word;
     }
 
     return fits_on_line ? 0 : 1;
@@ -724,8 +730,7 @@ static void topbot(void) {
  * @param c Character to measure
  * @return Display width of character (-1, 0, or 1)
  */
-namespace roff {
-int width(int c) {
+int width(int c) { // This is the definition for otroff::roff_legacy::width
     /* Check for hyphenation character */
     if (c == ohc) {
         return 0;
@@ -754,7 +759,6 @@ int width(int c) {
     /* Regular printable characters */
     return 0; /* Device-dependent width */
 }
-} // namespace roff
 
 /**
  * @brief Wrapper for width function to match void return type.
@@ -1050,11 +1054,9 @@ static void headseg(void (*output_func)(int)) {
  *
  * @param count Number of spaces to output
  */
-namespace roff {
-void space(int count) {
+void space(int count) { // This is the definition for otroff::roff_legacy::space
     nlines(count, putchar_roff);
 }
-} // namespace roff
 
 /**
  * @brief Output multiple instances using specified function.
@@ -1089,14 +1091,12 @@ static void nlines(int count, void (*func)(int)) {
  * @param num Number to convert and output
  * @param output_func Function to output each digit
  */
-namespace roff {
-void decimal(int num, void (*output_func)(int)) {
+void decimal(int num, void (*output_func)(int)) { // This is the definition for otroff::roff_legacy::decimal
     conv_value = num;
     conv_out = output_func;
     conv_width = 0;
     decml();
 }
-} // namespace roff
 
 /**
  * @brief Core decimal conversion implementation.
@@ -1209,3 +1209,6 @@ static void roman1(void) {
         conv_width += width(c);
     }
 }
+
+} // namespace roff_legacy
+} // namespace otroff

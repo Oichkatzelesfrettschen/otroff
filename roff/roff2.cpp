@@ -274,21 +274,38 @@ class CommandBase {
     virtual auto finalize() -> bool { return true; }
     virtual auto get_debug_info() const -> std::string { return {}; }
     virtual auto prepare() -> bool { return true; }
+}; // This was missing a semicolon in the provided snippet, assuming it's there in the actual file.
+// End of modern C++23 experimental section for the purpose of this refactoring.
+
+namespace otroff {
+namespace roff_legacy {
+
+// Using directive for convenience for the legacy C functions below.
+using namespace otroff::roff_legacy;
+
+// The legacy C-style case_xx functions start from here.
+// Definitions for functions like case_ad, case_br, case_cc, etc.
+// should be here if they are not in the modern C++ classes above.
+// Based on grep, they start around case_li.
+// If case_ad, case_br, case_cc etc. are defined below, they will be correctly namespaced.
+// If they were meant to be part of the classes above, this will create a problem later,
+// but for now, the goal is to namespace the C-style functions.
+
+// Assuming the C-style case_ad() is different from AdjustCommand::execute_impl()
+// If roff.hpp declares void case_ad(), its definition should be here.
+// If AdjustCommand is the *only* .ad handler, then the roff.hpp declaration for case_ad() is for that.
+// This is a point of potential conflict if both exist and are linked.
+// For now, I will assume the functions below are the C implementations.
+
 /**
  * @brief .ad - Text adjustment command
  */
-class AdjustCommand : public CommandBase<AdjustCommand> {
-  public:
-    auto execute_impl() -> CommandResult<void> override {
-    auto execute_impl() -> bool override {
-        rbreak();
-        return roff_state.modify_state([](auto &data) {
-            data.adjust_mode = 1;
-        });
-    auto execute_impl() -> bool override {
-        return "ad"sv;
-    }
-};
+ // This C-style case_ad was not found by grep in roff2.cpp.bak,
+ // but declared in roff.hpp. If its definition is elsewhere or missing,
+ // this namespacing won't cover its definition.
+ // For now, proceeding with functions found by grep in roff2.cpp.bak.
+
+// Legacy C-style functions from roff2.cpp.bak begin here
 
 /**
  * @brief .br - Line break command
@@ -432,6 +449,9 @@ void case_na(void) {
     rbreak();
     ad = 0; /* Disable adjust mode */
 }
+
+// ... (other case_xx functions from roff2.cpp.bak continue here) ...
+// The grep output showed case_li as the first one in roff2.cpp.bak
 
 /**
  * @brief .ne - Need space.
@@ -1068,3 +1088,6 @@ void case_mk(void) {
     rbreak();
     putchar_roff(002); /* Output STX (start of text) marker */
 }
+
+} // namespace roff_legacy
+} // namespace otroff

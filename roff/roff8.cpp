@@ -35,9 +35,13 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstddef> // For size_t
 
 /* Include ROFF system headers */
-#include "roff.hpp" // roff definitions
+#include "roff.hpp" // roff definitions (now includes namespaces)
+
+namespace otroff {
+namespace roff_legacy {
 
 /* Copyright notice from original Bell Labs code */
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
@@ -845,3 +849,6 @@ void init_globals(void) {
 size_t get_data_segment_size(void) {
     return static_cast<char *>(&end_marker) - static_cast<char *>(&stbuf_marker);
 }
+
+} // namespace roff_legacy
+} // namespace otroff

@@ -52,7 +52,13 @@
 #include <cctype>
 
 /* Include ROFF system headers */
-#include "roff.hpp" // roff definitions
+#include "roff.hpp" // roff definitions (now with new namespace and alph(int) declaration)
+
+namespace otroff {
+namespace roff_legacy {
+
+// Using directive for convenience within this file
+using namespace otroff::roff_legacy;
 
 /* Copyright notice from original */
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
@@ -75,24 +81,26 @@ static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Labor
 #define NIBBLE_SHIFT 4 /**< Bits per nibble */
 
 /* External variables from ROFF system */
-extern int hypedf; /**< Hyphenation processed flag */
-extern int hyf; /**< Hyphenation enabled flag */
-extern int nhyph; /**< Number of hyphenation points found */
-extern int thresh; /**< Hyphenation threshold value */
-extern int old; /**< Old-style punctuation flag */
-extern int suff; /**< Suffix file descriptor */
-extern int nfile; /**< Current file descriptor */
-extern char *wordp; /**< Pointer to current word */
-extern char *hstart; /**< Hyphenation start pointer */
-extern char *nhstart; /**< New hyphenation start pointer */
-extern char *maxloc; /**< Location of maximum digram score */
-extern int maxdig; /**< Maximum digram score found */
-extern char sufb[]; /**< Suffix buffer */
+// These are now accessed via `using namespace otroff::roff_legacy;` from roff.hpp
+// extern int hypedf;
+// extern int hyf;
+// extern int nhyph;
+// extern int thresh;
+// extern int old;
+// extern int suff;
+// extern int nfile;
+// extern char *wordp;
+// extern char *hstart;
+// extern char *nhstart;
+// extern char *maxloc;
+// extern int maxdig;
+// extern char sufbuf[]; // Corrected name
 
 /* External function prototypes */
-extern int alph(int c); /**< Check if character is alphabetic */
-extern int alph2(int c); /**< Alternative alphabetic check */
-extern int rdsufb(int offset, int file_desc); /**< Read suffix buffer */
+// These are now accessed via `using namespace otroff::roff_legacy;` from roff.hpp
+// extern int alph(int c);
+// extern int alph2(int c);
+// extern int rdsufb(int offset, int file_desc);
 
 /* Static variables for hyphenation state */
 static char punctuation_chars[] = "<.,()\"\\'`"; /**< Punctuation character set */
@@ -820,3 +828,6 @@ static void rdsuf(int offset, char **result) {
     /* Return buffer address */
     *result = pattern_buffer;
 }
+
+} // namespace roff_legacy
+} // namespace otroff
