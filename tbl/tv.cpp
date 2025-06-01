@@ -260,7 +260,7 @@ class VerticalLineMeasurements {
     }
 
     [[nodiscard]] BarType get_bare_entry_type(const char *content) const {
-        if (!content) {
+        if (content == nullptr) {
             return static_cast<BarType>(1); // Special case for null
         }
 
@@ -406,6 +406,7 @@ void draw_vertical_lines(
 }
 
 // Legacy compatibility function (converted to pure C++17)
+extern "C" {
 void drawvert(int start, int end, int c, int lwid) {
     // Get global context - this would need to be injected in real implementation
     extern TableContext global_table_context;
@@ -417,5 +418,6 @@ void drawvert(int start, int end, int c, int lwid) {
                         global_output_stream,
                         global_table_formatting);
 }
+} // extern "C"
 
 } // namespace tbl

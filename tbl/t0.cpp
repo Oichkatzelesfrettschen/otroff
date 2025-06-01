@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* t0.c: storage allocation converted to C++ */
 #include <cstdio>
 #include <cstdlib>

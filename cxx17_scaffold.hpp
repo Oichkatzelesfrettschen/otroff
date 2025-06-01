@@ -14,17 +14,19 @@
 #define CXX17 [[nodiscard]] constexpr
 
 // Safe narrow cast: replace C-style casts
-#include <bit>
-#include <concepts>
-#include <type_traits>
-#include <stdexcept>
+#include <bit> // For bit_cast if needed, though narrow_cast is about value conversion
+// #include <concepts> // C++20 header, remove for C++17
+#include <type_traits> // For std::is_arithmetic_v, std::enable_if_t
+#include <stdexcept>   // For std::runtime_error
 
-template <typename T, typename U>
-    requires std::is_arithmetic_v<T> && std::is_arithmetic_v<U>
+template <typename T, typename U,
+          typename = std::enable_if_t<std::is_arithmetic_v<T> && std::is_arithmetic_v<U>>>
 constexpr T narrow_cast(U value) {
-    if (static_cast<U>(static_cast<T>(value)) != value)
+    T result = static_cast<T>(value);
+    if (static_cast<U>(result) != value || ((result < T{}) != (value < U{}))) { // Check for overflow and sign change
         throw std::runtime_error("narrow_cast failure: precision loss or overflow");
-    return static_cast<T>(value);
+    }
+    return result;
 }
 
 // Compile-time type reflection marker (C++17 feature)

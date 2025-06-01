@@ -1,5 +1,5 @@
-#include "cxx23_scaffold.hpp"
-#include <stddef.h>
+#include "../cxx17_scaffold.hpp"
+#include <cstddef>
 /*
 character name tables
 modified for BTL special font version 4

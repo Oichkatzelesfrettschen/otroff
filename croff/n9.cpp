@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file n9.c
  * @brief Miscellaneous formatting functions for troff.

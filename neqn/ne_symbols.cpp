@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne_symbols.c
  * @brief Symbol table and mathematical notation definitions for neqn
@@ -8,9 +8,9 @@
  * mathematical notation symbols used by the neqn preprocessor.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "ne.hpp"
 
 /* ================================================================
@@ -84,7 +84,7 @@ static const neqn_builtin_symbol_t builtin_symbols[] = {
     {"section", "§", "Section symbol"},
     {"paragraph", "¶", "Paragraph symbol"},
 
-    {NULL, NULL, NULL} /* Terminator */
+    {nullptr, nullptr, nullptr} /* Terminator */
 };
 
 /* ================================================================
@@ -97,23 +97,23 @@ static const neqn_builtin_symbol_t builtin_symbols[] = {
 int neqn_init_builtin_symbols(neqn_context_t *context) {
     int i;
 
-    if (context == NULL) {
+    if (context == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
-    for (i = 0; builtin_symbols[i].name != NULL; i++) {
-        neqn_symbol_t *symbol = malloc(sizeof(neqn_symbol_t));
-        if (symbol == NULL) {
+    for (i = 0; builtin_symbols[i].name != nullptr; i++) {
+        neqn_symbol_t *symbol = static_cast<neqn_symbol_t *>(malloc(sizeof(neqn_symbol_t)));
+        if (symbol == nullptr) {
             return NEQN_ERROR_MEMORY;
         }
 
         symbol->name = neqn_strdup(builtin_symbols[i].name);
         symbol->value = neqn_strdup(builtin_symbols[i].terminal_output);
-        symbol->tree = NULL;
+        symbol->tree = nullptr;
         symbol->line_defined = 0;
         symbol->is_builtin = 1;
 
-        if (symbol->name == NULL || symbol->value == NULL) {
+        if (symbol->name == nullptr || symbol->value == nullptr) {
             free(symbol->name);
             free(symbol->value);
             free(symbol);
@@ -138,22 +138,22 @@ neqn_symbol_t *neqn_symbol_lookup_enhanced(neqn_context_t *context, const char *
     unsigned int hash;
     neqn_symbol_t *symbol;
 
-    if (context == NULL || name == NULL) {
-        return NULL;
+    if (context == nullptr || name == nullptr) {
+        return nullptr;
     }
 
     /* Look up in hash table */
     hash = neqn_hash_string(name);
     symbol = context->symbols[hash];
 
-    while (symbol != NULL) {
+    while (symbol != nullptr) {
         if (strcmp(symbol->name, name) == 0) {
             return symbol;
         }
         symbol = symbol->next;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -163,7 +163,7 @@ void neqn_debug_print_symbols(neqn_context_t *context) {
     int i;
     neqn_symbol_t *symbol;
 
-    if (context == NULL) {
+    if (context == nullptr) {
         return;
     }
 
@@ -171,7 +171,7 @@ void neqn_debug_print_symbols(neqn_context_t *context) {
 
     for (i = 0; i < NEQN_HASH_SIZE; i++) {
         symbol = context->symbols[i];
-        while (symbol != NULL) {
+        while (symbol != nullptr) {
             printf("  %s = %s", symbol->name, symbol->value ? symbol->value : "(null)");
             if (symbol->is_builtin) {
                 printf(" [built-in]");
@@ -194,37 +194,37 @@ int neqn_symbol_define_enhanced(neqn_context_t *context,
     neqn_symbol_t *symbol;
     unsigned int hash;
 
-    if (context == NULL || name == NULL) {
+    if (context == nullptr || name == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
     /* Check for existing symbol */
     existing = neqn_symbol_lookup_enhanced(context, name);
-    if (existing != NULL) {
+    if (existing != nullptr) {
         if (existing->is_builtin) {
             neqn_warning(context, "Redefining built-in symbol '%s'", name);
         }
 
         /* Update existing symbol */
         free(existing->value);
-        existing->value = value ? neqn_strdup(value) : NULL;
+        existing->value = value ? neqn_strdup(value) : nullptr;
         existing->line_defined = context->line_number;
         return NEQN_SUCCESS;
     }
 
     /* Create new symbol */
-    symbol = malloc(sizeof(neqn_symbol_t));
-    if (symbol == NULL) {
+    symbol = static_cast<neqn_symbol_t *>(malloc(sizeof(neqn_symbol_t)));
+    if (symbol == nullptr) {
         return NEQN_ERROR_MEMORY;
     }
 
     symbol->name = neqn_strdup(name);
-    symbol->value = value ? neqn_strdup(value) : NULL;
-    symbol->tree = NULL;
+    symbol->value = value ? neqn_strdup(value) : nullptr;
+    symbol->tree = nullptr;
     symbol->line_defined = context->line_number;
     symbol->is_builtin = 0;
 
-    if (symbol->name == NULL || (value != NULL && symbol->value == NULL)) {
+    if (symbol->name == nullptr || (value != nullptr && symbol->value == nullptr)) {
         free(symbol->name);
         free(symbol->value);
         free(symbol);
@@ -251,15 +251,15 @@ neqn_node_t *neqn_superscript(neqn_node_t *base, neqn_node_t *exponent) {
     char *formatted;
     size_t len;
 
-    if (base == NULL || exponent == NULL) {
-        return NULL;
+    if (base == nullptr || exponent == nullptr) {
+        return nullptr;
     }
 
     /* Calculate length needed */
     len = strlen(base->content) + strlen(exponent->content) + 4; /* "^{}" */
-    formatted = malloc(len);
-    if (formatted == NULL) {
-        return NULL;
+    formatted = static_cast<char *>(malloc(len));
+    if (formatted == nullptr) {
+        return nullptr;
     }
 
     /* Format as base^{exponent} */
@@ -268,7 +268,7 @@ neqn_node_t *neqn_superscript(neqn_node_t *base, neqn_node_t *exponent) {
     result = neqn_node_create(NEQN_NODE_SUPER, formatted);
     free(formatted);
 
-    if (result != NULL) {
+    if (result != nullptr) {
         result->left = base;
         result->right = exponent;
     }
@@ -284,15 +284,15 @@ neqn_node_t *neqn_subscript(neqn_node_t *base, neqn_node_t *subscript) {
     char *formatted;
     size_t len;
 
-    if (base == NULL || subscript == NULL) {
-        return NULL;
+    if (base == nullptr || subscript == nullptr) {
+        return nullptr;
     }
 
     /* Calculate length needed */
     len = strlen(base->content) + strlen(subscript->content) + 4; /* "_{}" */
-    formatted = malloc(len);
-    if (formatted == NULL) {
-        return NULL;
+    formatted = static_cast<char *>(malloc(len));
+    if (formatted == nullptr) {
+        return nullptr;
     }
 
     /* Format as base_{subscript} */
@@ -301,7 +301,7 @@ neqn_node_t *neqn_subscript(neqn_node_t *base, neqn_node_t *subscript) {
     result = neqn_node_create(NEQN_NODE_SUB, formatted);
     free(formatted);
 
-    if (result != NULL) {
+    if (result != nullptr) {
         result->left = base;
         result->right = subscript;
     }
@@ -317,15 +317,15 @@ neqn_node_t *neqn_fraction(neqn_node_t *numerator, neqn_node_t *denominator) {
     char *formatted;
     size_t len;
 
-    if (numerator == NULL || denominator == NULL) {
-        return NULL;
+    if (numerator == nullptr || denominator == nullptr) {
+        return nullptr;
     }
 
     /* Calculate length needed */
     len = strlen(numerator->content) + strlen(denominator->content) + 8; /* "() / ()" */
-    formatted = malloc(len);
-    if (formatted == NULL) {
-        return NULL;
+    formatted = static_cast<char *>(malloc(len));
+    if (formatted == nullptr) {
+        return nullptr;
     }
 
     /* Format as (numerator) / (denominator) */
@@ -334,7 +334,7 @@ neqn_node_t *neqn_fraction(neqn_node_t *numerator, neqn_node_t *denominator) {
     result = neqn_node_create(NEQN_NODE_FRACTION, formatted);
     free(formatted);
 
-    if (result != NULL) {
+    if (result != nullptr) {
         result->left = numerator;
         result->right = denominator;
     }
@@ -350,15 +350,15 @@ neqn_node_t *neqn_sqrt(neqn_node_t *expression) {
     char *formatted;
     size_t len;
 
-    if (expression == NULL) {
-        return NULL;
+    if (expression == nullptr) {
+        return nullptr;
     }
 
     /* Calculate length needed */
     len = strlen(expression->content) + 10; /* "sqrt{}" */
-    formatted = malloc(len);
-    if (formatted == NULL) {
-        return NULL;
+    formatted = static_cast<char *>(malloc(len));
+    if (formatted == nullptr) {
+        return nullptr;
     }
 
     /* Format as sqrt{expression} */
@@ -367,7 +367,7 @@ neqn_node_t *neqn_sqrt(neqn_node_t *expression) {
     result = neqn_node_create(NEQN_NODE_SQRT, formatted);
     free(formatted);
 
-    if (result != NULL) {
+    if (result != nullptr) {
         result->left = expression;
     }
 
@@ -388,34 +388,34 @@ int neqn_format_equation(neqn_context_t *context,
     neqn_node_t *current;
     size_t pos = 0;
 
-    if (context == NULL || tree == NULL || buffer == NULL || capacity == 0) {
+    if (context == nullptr || tree == nullptr || buffer == nullptr || capacity == 0) {
         return -1;
     }
 
     buffer[0] = '\0';
 
     current = tree;
-    while (current != NULL && pos < capacity - 1) {
+    while (current != nullptr && pos < capacity - 1) {
         const char *output_text = current->content;
         neqn_symbol_t *symbol;
 
         /* Look up symbol for potential substitution */
         if (current->type == NEQN_NODE_IDENTIFIER) {
             symbol = neqn_symbol_lookup_enhanced(context, current->content);
-            if (symbol != NULL && symbol->value != NULL) {
+            if (symbol != nullptr && symbol->value != nullptr) {
                 output_text = symbol->value;
             }
         }
 
         /* Add to buffer */
-        if (output_text != NULL) {
+        if (output_text != nullptr) {
             size_t text_len = strlen(output_text);
             if (pos + text_len < capacity - 1) {
                 strcpy(buffer + pos, output_text);
                 pos += text_len;
 
                 /* Add space between tokens */
-                if (current->next != NULL && pos < capacity - 2) {
+                if (current->next != nullptr && pos < capacity - 2) {
                     buffer[pos++] = ' ';
                     buffer[pos] = '\0';
                 }

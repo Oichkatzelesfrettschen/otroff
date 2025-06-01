@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp"
 /*
  * tabtn300.cpp - Terminet300 nroff driving tables (C++23)
  *

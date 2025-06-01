@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 
 /**
  * @file suftab.c
@@ -35,7 +35,7 @@
  * Uses static data only; no dynamic memory allocation is performed by this module.
  */
 
-#include <stddef.h> /* For size_t type definition */
+#include <cstddef> /* For size_t type definition */
 #include "suftab.hpp" /* Module interface */
 
 /**
@@ -366,7 +366,7 @@ static const unsigned char *suftab_get_entry_ptr(unsigned short start_offset, in
     int entry_len;
 
     if (start_offset == 0) { /* No entries for this letter or invalid offset */
-        return NULL;
+        return nullptr;
     }
 
     ptr = &suftab_bytes[start_offset];
@@ -376,14 +376,14 @@ static const unsigned char *suftab_get_entry_ptr(unsigned short start_offset, in
     /* Traverse entries to find the one at entry_num */
     while (current_entry_idx < entry_num) {
         if (ptr >= end_of_table) { /* Check before dereferencing ptr */
-            return NULL; /* Reached end of table prematurely */
+            return nullptr; /* Reached end of table prematurely */
         }
         entry_len = suftab_get_entry_length(ptr);
         if (entry_len == 0) {
             /* Found a zero-length entry, which typically marks the end of entries for a letter,
              * or it's an invalid entry if not the one we are looking for.
              */
-            return NULL; /* Target entry_num not reached before end marker */
+            return nullptr; /* Target entry_num not reached before end marker */
         }
         /* Move to the next entry: +1 for the length/flags byte itself */
         ptr += entry_len + 1;
@@ -420,7 +420,7 @@ static const unsigned char *suftab_get_entry_ptr(unsigned short start_offset, in
     }
 
     /* If entry_num was not found, or if ptr is out of bounds */
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -428,10 +428,10 @@ static const unsigned char *suftab_get_entry_ptr(unsigned short start_offset, in
  * @param entry_ptr Pointer to the first byte (length/flags byte) of a suffix entry.
  *                  Must not be @c NULL.
  * @return The length of the suffix pattern (0-63).
- *         Returns 0 if @p entry_ptr is @c NULL (though this should be guarded by caller).
+ *         Returns 0 if @p entry_ptr is @c nullptr (though this should be guarded by caller).
  */
 static int suftab_get_entry_length(const unsigned char *entry_ptr) {
-    if (entry_ptr == NULL) {
+    if (entry_ptr == nullptr) {
         return 0; /* Defensive check */
     }
     return (int)(*entry_ptr & SUFTAB_LENGTH_MASK);
@@ -442,10 +442,10 @@ static int suftab_get_entry_length(const unsigned char *entry_ptr) {
  * @param entry_ptr Pointer to the first byte (length/flags byte) of a suffix entry.
  *                  Must not be @c NULL.
  * @return Non-zero (true) if the break flag is set, 0 (false) otherwise.
- *         Returns 0 if @p entry_ptr is @c NULL.
+ *         Returns 0 if @p entry_ptr is @c nullptr.
  */
 static int suftab_has_break_flag(const unsigned char *entry_ptr) {
-    if (entry_ptr == NULL) {
+    if (entry_ptr == nullptr) {
         return 0; /* Defensive check */
     }
     return (*entry_ptr & SUFTAB_BREAK_FLAG) ? 1 : 0;
@@ -456,10 +456,10 @@ static int suftab_has_break_flag(const unsigned char *entry_ptr) {
  * @param entry_ptr Pointer to the first byte (length/flags byte) of a suffix entry.
  *                  Must not be @c NULL.
  * @return Non-zero (true) if the priority flag is set, 0 (false) otherwise.
- *         Returns 0 if @p entry_ptr is @c NULL.
+ *         Returns 0 if @p entry_ptr is @c nullptr.
  */
 static int suftab_has_priority_flag(const unsigned char *entry_ptr) {
-    if (entry_ptr == NULL) {
+    if (entry_ptr == nullptr) {
         return 0; /* Defensive check */
     }
     return (*entry_ptr & SUFTAB_PRIORITY_FLAG) ? 1 : 0;
@@ -563,7 +563,7 @@ int suftab_lookup(int letter, suftab_callback_t callback, void *user_data) {
         }
 
         /* Call callback with pattern data (ptr + 1 points to the pattern itself) */
-        if (callback != NULL) {
+        if (callback != nullptr) {
             callback(ptr + 1, entry_len, flags, user_data);
         }
 

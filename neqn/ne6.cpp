@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne6.c
  * @brief NEQN equation typesetting - Part 6: Matrix and column handling.
@@ -37,8 +37,8 @@
  */
 
 #include "ne.hpp" /* NEQN type definitions and global declarations */
-#include <stdio.h> /* Standard I/O for printf (troff command generation) */
-#include <stdlib.h> /* Standard library functions */
+#include <cstdio> /* Standard I/O for printf (troff command generation) */
+#include <cstdlib> /* Standard library functions */
 
 /* SCCS version identifier */
 static const char sccs_id[] = "@(#)ne6.c 1.3 25/05/29";

@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp"
 #include "vt220_terminal.hpp"
 #include <stdexcept>
 #include <algorithm>
@@ -41,6 +41,7 @@ struct termtab {
 };
 
 // Legacy C interface
+extern "C" {
 const struct termtab *get_vt220_table() {
     static struct termtab legacy_table = {};
     static bool initialized = false;
@@ -87,4 +88,5 @@ const struct termtab *get_vt220_table() {
 
     return &legacy_table;
 }
+} // extern "C"
 

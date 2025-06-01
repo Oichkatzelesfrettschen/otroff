@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne_core.c
  * @brief Core implementation functions for the neqn preprocessor
@@ -17,12 +17,12 @@
 /* ================================================================
  * SYSTEM INCLUDES
  * ================================================================ */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
+#include <cerrno>
+#include <cstdarg>
 
 /* ================================================================
  * PROJECT INCLUDES
@@ -48,8 +48,8 @@ neqn_context_t *neqn_context_create(void) {
     int i;
 
     context = malloc(sizeof(neqn_context_t));
-    if (context == NULL) {
-        return NULL;
+    if (context == nullptr) {
+        return nullptr;
     }
 
     /* Initialize all fields to safe defaults */
@@ -57,8 +57,8 @@ neqn_context_t *neqn_context_create(void) {
 
     context->input = stdin;
     context->output = stdout;
-    context->input_filename = NULL;
-    context->output_filename = NULL;
+    context->input_filename = nullptr;
+    context->output_filename = nullptr;
     context->line_number = 0;
     context->column_number = 0;
     context->error_count = 0;
@@ -68,15 +68,15 @@ neqn_context_t *neqn_context_create(void) {
 
     /* Initialize symbol table */
     for (i = 0; i < NEQN_HASH_SIZE; i++) {
-        context->symbols[i] = NULL;
+        context->symbols[i] = nullptr;
     }
 
     /* Allocate initial line buffer */
     context->line_capacity = NEQN_INITIAL_LINE_SIZE;
     context->current_line = malloc(context->line_capacity);
-    if (context->current_line == NULL) {
+    if (context->current_line == nullptr) {
         free(context);
-        return NULL;
+        return nullptr;
     }
 
     return context;
@@ -89,45 +89,45 @@ void neqn_context_destroy(neqn_context_t *context) {
     int i;
     neqn_symbol_t *sym, *next;
 
-    if (context == NULL) {
+    if (context == nullptr) {
         return;
     }
 
     /* Close files if they're not standard streams */
-    if (context->input != NULL && context->input != stdin) {
+    if (context->input != nullptr && context->input != stdin) {
         os_fclose(context->input);
     }
 
-    if (context->output != NULL && context->output != stdout) {
+    if (context->output != nullptr && context->output != stdout) {
         os_fclose(context->output);
     }
 
     /* Free filename strings */
-    if (context->input_filename != NULL) {
+    if (context->input_filename != nullptr) {
         free(context->input_filename);
     }
 
-    if (context->output_filename != NULL) {
+    if (context->output_filename != nullptr) {
         free(context->output_filename);
     }
 
     /* Free line buffer */
-    if (context->current_line != NULL) {
+    if (context->current_line != nullptr) {
         free(context->current_line);
     }
 
     /* Free symbol table */
     for (i = 0; i < NEQN_HASH_SIZE; i++) {
         sym = context->symbols[i];
-        while (sym != NULL) {
+        while (sym != nullptr) {
             next = sym->next;
-            if (sym->name != NULL) {
+            if (sym->name != nullptr) {
                 free(sym->name);
             }
-            if (sym->value != NULL) {
+            if (sym->value != nullptr) {
                 free(sym->value);
             }
-            if (sym->tree != NULL) {
+            if (sym->tree != nullptr) {
                 neqn_node_destroy(sym->tree);
             }
             free(sym);
@@ -144,22 +144,22 @@ void neqn_context_destroy(neqn_context_t *context) {
 int neqn_context_set_input(neqn_context_t *context, const char *filename) {
     FILE *new_input;
 
-    if (context == NULL) {
+    if (context == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
     /* Handle stdin case */
-    if (filename == NULL) {
+    if (filename == nullptr) {
         new_input = stdin;
     } else {
         new_input = os_fopen(filename, "r");
-        if (new_input == NULL) {
+        if (new_input == nullptr) {
             return NEQN_ERROR_IO;
         }
     }
 
     /* Close previous input if not stdin */
-    if (context->input != NULL && context->input != stdin) {
+    if (context->input != nullptr && context->input != stdin) {
         os_fclose(context->input);
     }
 
@@ -167,14 +167,14 @@ int neqn_context_set_input(neqn_context_t *context, const char *filename) {
     context->input = new_input;
 
     /* Update filename */
-    if (context->input_filename != NULL) {
+    if (context->input_filename != nullptr) {
         free(context->input_filename);
-        context->input_filename = NULL;
+        context->input_filename = nullptr;
     }
 
-    if (filename != NULL) {
+    if (filename != nullptr) {
         context->input_filename = neqn_strdup(filename);
-        if (context->input_filename == NULL) {
+        if (context->input_filename == nullptr) {
             return NEQN_ERROR_MEMORY;
         }
     }
@@ -192,22 +192,22 @@ int neqn_context_set_input(neqn_context_t *context, const char *filename) {
 int neqn_context_set_output(neqn_context_t *context, const char *filename) {
     FILE *new_output;
 
-    if (context == NULL) {
+    if (context == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
     /* Handle stdout case */
-    if (filename == NULL) {
+    if (filename == nullptr) {
         new_output = stdout;
     } else {
         new_output = os_fopen(filename, "w");
-        if (new_output == NULL) {
+        if (new_output == nullptr) {
             return NEQN_ERROR_IO;
         }
     }
 
     /* Close previous output if not stdout */
-    if (context->output != NULL && context->output != stdout) {
+    if (context->output != nullptr && context->output != stdout) {
         os_fclose(context->output);
     }
 
@@ -215,14 +215,14 @@ int neqn_context_set_output(neqn_context_t *context, const char *filename) {
     context->output = new_output;
 
     /* Update filename */
-    if (context->output_filename != NULL) {
+    if (context->output_filename != nullptr) {
         free(context->output_filename);
-        context->output_filename = NULL;
+        context->output_filename = nullptr;
     }
 
-    if (filename != NULL) {
+    if (filename != nullptr) {
         context->output_filename = neqn_strdup(filename);
-        if (context->output_filename == NULL) {
+        if (context->output_filename == nullptr) {
             return NEQN_ERROR_MEMORY;
         }
     }
@@ -243,12 +243,12 @@ int neqn_read_line(neqn_context_t *context, char **buffer, size_t *capacity) {
     size_t pos = 0;
     int ch;
 
-    if (context == NULL || buffer == NULL || capacity == NULL) {
+    if (context == nullptr || buffer == nullptr || capacity == nullptr) {
         return -1;
     }
 
     /* Use context buffer if none provided */
-    if (*buffer == NULL || *capacity == 0) {
+    if (*buffer == nullptr || *capacity == 0) {
         *buffer = context->current_line;
         *capacity = context->line_capacity;
     }
@@ -261,8 +261,8 @@ int neqn_read_line(neqn_context_t *context, char **buffer, size_t *capacity) {
         /* Expand buffer if needed */
         if (pos >= buffer_size - 1) {
             size_t new_size = buffer_size * NEQN_LINE_GROWTH_FACTOR;
-            char *new_buffer = realloc(line_buffer, new_size);
-            if (new_buffer == NULL) {
+            char *new_buffer = static_cast<char *>(realloc(line_buffer, new_size));
+            if (new_buffer == nullptr) {
                 return -1;
             }
 
@@ -280,7 +280,7 @@ int neqn_read_line(neqn_context_t *context, char **buffer, size_t *capacity) {
         }
 
         /* Store character */
-        line_buffer[pos++] = (char)ch;
+        line_buffer[pos++] = static_cast<char>(ch);
 
         /* Check for end of line */
         if (ch == '\n') {
@@ -308,7 +308,7 @@ int neqn_write_output(neqn_context_t *context, const char *format, ...) {
     va_list args;
     int result;
 
-    if (context == NULL || format == NULL) {
+    if (context == nullptr || format == nullptr) {
         return -1;
     }
 
@@ -331,7 +331,7 @@ int neqn_process_line(neqn_context_t *context, const char *line) {
     int result = NEQN_SUCCESS;
     size_t i;
 
-    if (context == NULL || line == NULL) {
+    if (context == nullptr || line == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
@@ -344,7 +344,7 @@ int neqn_process_line(neqn_context_t *context, const char *line) {
     /* Tokenize the line */
     while (pos < strlen(line) && token_count < NEQN_MAX_ARGS) {
         token = neqn_get_next_token(context, line, &pos);
-        if (token == NULL) {
+        if (token == nullptr) {
             break;
         }
 
@@ -359,7 +359,7 @@ int neqn_process_line(neqn_context_t *context, const char *line) {
     /* Parse tokens into expression tree */
     if (token_count > 0) {
         tree = neqn_parse_expression(context, tokens, token_count);
-        if (tree != NULL) {
+        if (tree != nullptr) {
             /* Generate output */
             result = neqn_generate_output(context, tree);
             neqn_node_destroy(tree);
@@ -389,9 +389,9 @@ neqn_token_t *neqn_token_create(neqn_token_type_t type,
                                 size_t length) {
     neqn_token_t *token;
 
-    token = malloc(sizeof(neqn_token_t));
-    if (token == NULL) {
-        return NULL;
+    token = static_cast<neqn_token_t *>(malloc(sizeof(neqn_token_t)));
+    if (token == nullptr) {
+        return nullptr;
     }
 
     token->type = type;
@@ -399,16 +399,16 @@ neqn_token_t *neqn_token_create(neqn_token_type_t type,
     token->line_number = 0;
     token->column_number = 0;
 
-    if (text != NULL && length > 0) {
-        token->text = malloc(length + 1);
-        if (token->text == NULL) {
+    if (text != nullptr && length > 0) {
+        token->text = static_cast<char *>(malloc(length + 1));
+        if (token->text == nullptr) {
             free(token);
-            return NULL;
+            return nullptr;
         }
         memcpy(token->text, text, length);
         token->text[length] = '\0';
     } else {
-        token->text = NULL;
+        token->text = nullptr;
     }
 
     return token;
@@ -418,11 +418,11 @@ neqn_token_t *neqn_token_create(neqn_token_type_t type,
  * @brief Destroy a token
  */
 void neqn_token_destroy(neqn_token_t *token) {
-    if (token == NULL) {
+    if (token == nullptr) {
         return;
     }
 
-    if (token->text != NULL) {
+    if (token->text != nullptr) {
         free(token->text);
     }
 
@@ -439,8 +439,8 @@ neqn_token_t *neqn_get_next_token(neqn_context_t *context,
     size_t start;
     neqn_token_type_t type;
 
-    if (context == NULL || line == NULL || position == NULL) {
-        return NULL;
+    if (context == nullptr || line == nullptr || position == nullptr) {
+        return nullptr;
     }
 
     pos = *position;
@@ -453,7 +453,7 @@ neqn_token_t *neqn_get_next_token(neqn_context_t *context,
     /* Check for end of line */
     if (pos >= strlen(line) || line[pos] == '\n') {
         *position = pos;
-        return neqn_token_create(NEQN_TOKEN_EOF, NULL, 0);
+        return neqn_token_create(NEQN_TOKEN_EOF, nullptr, 0);
     }
 
     start = pos;
@@ -505,26 +505,26 @@ neqn_token_t *neqn_get_next_token(neqn_context_t *context,
 neqn_node_t *neqn_node_create(neqn_node_type_t type, const char *content) {
     neqn_node_t *node;
 
-    node = malloc(sizeof(neqn_node_t));
-    if (node == NULL) {
-        return NULL;
+    node = static_cast<neqn_node_t *>(malloc(sizeof(neqn_node_t)));
+    if (node == nullptr) {
+        return nullptr;
     }
 
     node->type = type;
-    node->left = NULL;
-    node->right = NULL;
-    node->next = NULL;
+    node->left = nullptr;
+    node->right = nullptr;
+    node->next = nullptr;
     node->precedence = 0;
     node->line_number = 0;
 
-    if (content != NULL) {
+    if (content != nullptr) {
         node->content = neqn_strdup(content);
-        if (node->content == NULL) {
+        if (node->content == nullptr) {
             free(node);
-            return NULL;
+            return nullptr;
         }
     } else {
-        node->content = NULL;
+        node->content = nullptr;
     }
 
     return node;
@@ -534,7 +534,7 @@ neqn_node_t *neqn_node_create(neqn_node_type_t type, const char *content) {
  * @brief Destroy an expression tree
  */
 void neqn_node_destroy(neqn_node_t *node) {
-    if (node == NULL) {
+    if (node == nullptr) {
         return;
     }
 
@@ -544,7 +544,7 @@ void neqn_node_destroy(neqn_node_t *node) {
     neqn_node_destroy(node->next);
 
     /* Free content */
-    if (node->content != NULL) {
+    if (node->content != nullptr) {
         free(node->content);
     }
 
@@ -560,12 +560,12 @@ neqn_node_t *neqn_parse_expression(neqn_context_t *context,
     neqn_node_t *root;
     size_t i;
 
-    if (context == NULL || tokens == NULL || count == 0) {
-        return NULL;
+    if (context == nullptr || tokens == nullptr || count == 0) {
+        return nullptr;
     }
 
     /* Simple implementation: create a sequence of nodes */
-    root = NULL;
+    root = nullptr;
 
     for (i = 0; i < count; i++) {
         neqn_node_t *node;
@@ -588,19 +588,19 @@ neqn_node_t *neqn_parse_expression(neqn_context_t *context,
         }
 
         node = neqn_node_create(node_type, tokens[i]->text);
-        if (node == NULL) {
+        if (node == nullptr) {
             neqn_node_destroy(root);
-            return NULL;
+            return nullptr;
         }
 
         node->line_number = tokens[i]->line_number;
 
         /* Link nodes in sequence */
-        if (root == NULL) {
+        if (root == nullptr) {
             root = node;
         } else {
             neqn_node_t *current = root;
-            while (current->next != NULL) {
+            while (current->next != nullptr) {
                 current = current->next;
             }
             current->next = node;
@@ -620,16 +620,16 @@ neqn_node_t *neqn_parse_expression(neqn_context_t *context,
 int neqn_generate_output(neqn_context_t *context, neqn_node_t *tree) {
     neqn_node_t *current;
 
-    if (context == NULL || tree == NULL) {
+    if (context == nullptr || tree == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
     /* Simple implementation: output nodes in sequence */
     current = tree;
-    while (current != NULL) {
-        if (current->content != NULL) {
+    while (current != nullptr) {
+        if (current->content != nullptr) {
             neqn_write_output(context, "%s", current->content);
-            if (current->next != NULL) {
+            if (current->next != nullptr) {
                 neqn_write_output(context, " ");
             }
         }
@@ -653,11 +653,11 @@ void neqn_error(neqn_context_t *context,
                 const char *format, ...) {
     va_list args;
 
-    if (context != NULL) {
+    if (context != nullptr) {
         context->error_count++;
 
         fprintf(stderr, "neqn: ");
-        if (context->input_filename != NULL) {
+        if (context->input_filename != nullptr) {
             fprintf(stderr, "%s:", context->input_filename);
         }
         if (context->line_number > 0) {
@@ -665,7 +665,7 @@ void neqn_error(neqn_context_t *context,
         }
         fprintf(stderr, " error: ");
 
-        if (format != NULL) {
+        if (format != nullptr) {
             va_start(args, format);
             vfprintf(stderr, format, args);
             va_end(args);
@@ -681,11 +681,11 @@ void neqn_error(neqn_context_t *context,
 void neqn_warning(neqn_context_t *context, const char *format, ...) {
     va_list args;
 
-    if (context != NULL) {
+    if (context != nullptr) {
         context->warning_count++;
 
         fprintf(stderr, "neqn: ");
-        if (context->input_filename != NULL) {
+        if (context->input_filename != nullptr) {
             fprintf(stderr, "%s:", context->input_filename);
         }
         if (context->line_number > 0) {
@@ -693,7 +693,7 @@ void neqn_warning(neqn_context_t *context, const char *format, ...) {
         }
         fprintf(stderr, " warning: ");
 
-        if (format != NULL) {
+        if (format != nullptr) {
             va_start(args, format);
             vfprintf(stderr, format, args);
             va_end(args);
@@ -744,14 +744,14 @@ char *neqn_strdup(const char *str) {
     char *copy;
     size_t len;
 
-    if (str == NULL) {
-        return NULL;
+    if (str == nullptr) {
+        return nullptr;
     }
 
     len = strlen(str);
-    copy = malloc(len + 1);
-    if (copy == NULL) {
-        return NULL;
+    copy = static_cast<char *>(malloc(len + 1));
+    if (copy == nullptr) {
+        return nullptr;
     }
 
     memcpy(copy, str, len + 1);
@@ -765,7 +765,7 @@ int neqn_strcat_safe(char *dest, const char *src, size_t dest_size) {
     size_t dest_len;
     size_t src_len;
 
-    if (dest == NULL || src == NULL || dest_size == 0) {
+    if (dest == nullptr || src == nullptr || dest_size == 0) {
         return NEQN_ERROR_INVALID;
     }
 
@@ -786,12 +786,12 @@ int neqn_strcat_safe(char *dest, const char *src, size_t dest_size) {
 unsigned int neqn_hash_string(const char *str) {
     unsigned int hash = 0;
 
-    if (str == NULL) {
+    if (str == nullptr) {
         return 0;
     }
 
     while (*str != '\0') {
-        hash = hash * 31 + (unsigned char)*str;
+        hash = hash * 31 + static_cast<unsigned char>(*str);
         str++;
     }
 
@@ -809,7 +809,7 @@ int neqn_symbol_define(neqn_context_t *context,
                        const char *name,
                        const char *value) {
     /* Stub implementation */
-    if (context == NULL || name == NULL) {
+    if (context == nullptr || name == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
@@ -821,11 +821,11 @@ int neqn_symbol_define(neqn_context_t *context,
  */
 neqn_symbol_t *neqn_symbol_lookup(neqn_context_t *context, const char *name) {
     /* Stub implementation */
-    if (context == NULL || name == NULL) {
-        return NULL;
+    if (context == nullptr || name == nullptr) {
+        return nullptr;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -833,7 +833,7 @@ neqn_symbol_t *neqn_symbol_lookup(neqn_context_t *context, const char *name) {
  */
 int neqn_symbol_undefine(neqn_context_t *context, const char *name) {
     /* Stub implementation */
-    if (context == NULL || name == NULL) {
+    if (context == nullptr || name == nullptr) {
         return NEQN_ERROR_INVALID;
     }
 
@@ -848,7 +848,7 @@ int neqn_symbol_undefine(neqn_context_t *context, const char *name) {
  * @brief Enable or disable strict parsing mode
  */
 void neqn_set_strict_mode(neqn_context_t *context, int strict_mode) {
-    if (context != NULL) {
+    if (context != nullptr) {
         context->strict_mode = strict_mode;
     }
 }
@@ -857,7 +857,7 @@ void neqn_set_strict_mode(neqn_context_t *context, int strict_mode) {
  * @brief Check if strict mode is enabled
  */
 int neqn_is_strict_mode(neqn_context_t *context) {
-    if (context == NULL) {
+    if (context == nullptr) {
         return 0;
     }
 

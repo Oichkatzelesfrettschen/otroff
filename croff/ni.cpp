@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * ni.c - nroff/troff initialization and global variables
  * 
@@ -10,7 +10,7 @@
  */
 
 #include "tdef.hpp" // updated header extension
-#include <stddef.h>
+#include <cstddef>
 
 /* Version identification */
 static char Sccsid[] = "@(#)ni.c  1.3 of 4/26/77";

@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne2.c
  * @brief NEQN equation typesetting - Part 2: Advanced constructs and special formatting.
@@ -25,9 +25,9 @@
  */
 
 #include "ne.hpp" /* NEQN type definitions and global declarations */
-#include <stdio.h> /* Standard I/O for printf (troff command generation) */
-#include <stdlib.h> /* Standard library functions */
-#include <string.h> /* String manipulation functions */
+#include <cstdio> /* Standard I/O for printf (troff command generation) */
+#include <cstdlib> /* Standard library functions */
+#include <cstring> /* String manipulation functions */
 
 /* SCCS version identifier */
 static const char sccs_id[] = "@(#)ne2.c 1.3 25/05/29";
@@ -302,7 +302,7 @@ void paren(int leftc, int p1, int rightc) {
         break;
 
     default: /* custom character - repeat vertically */
-        brack(m, (char *)&leftc, (char *)&leftc, (char *)&leftc);
+        brack(m, reinterpret_cast<char *>(&leftc), reinterpret_cast<char *>(&leftc), reinterpret_cast<char *>(&leftc));
         break;
     }
 
@@ -341,7 +341,7 @@ void paren(int leftc, int p1, int rightc) {
             break;
 
         default: /* custom character - repeat vertically */
-            brack(m, (char *)&rightc, (char *)&rightc, (char *)&rightc);
+            brack(m, reinterpret_cast<char *>(&rightc), reinterpret_cast<char *>(&rightc), reinterpret_cast<char *>(&rightc));
             break;
         }
 

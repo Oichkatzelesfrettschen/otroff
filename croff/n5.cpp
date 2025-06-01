@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * n5.c - Miscellaneous processing requests for troff/nroff
  *
@@ -10,7 +10,7 @@
 #include "tdef.hpp" // core definitions
 #include "env.hpp"  // environment structure
 #include "t.hpp"    // troff header
-#include <stdio.h>
+#include <cstdio>
 
 /* External variable declarations */
 extern int ascii;
@@ -921,7 +921,7 @@ void caserd(void) {
                 prstr(nextf);
                 prstr(":");
             } else {
-                prstr(""); /* bell */
+                prstrfl(""); /* bell */
             }
         }
     }

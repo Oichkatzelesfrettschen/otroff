@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 
 namespace roff {
 
@@ -90,6 +90,15 @@ extern int ilist[];     ///< Include list stack array
 extern int ch;          ///< Current character from input
 extern int nlflg;       ///< Newline flag for input processing
 
+// Additional state variables from roff4.cpp
+extern int ulstate;     ///< Underline state
+extern int ce;          ///< Center line count
+extern int fi;          ///< Fill mode flag
+extern int ul;          ///< Underline count
+extern int ad;          ///< Adjust mode flag
+extern int ro;          ///< Roman numeral flag for page numbers
+extern int llh;         ///< Line length for headers/footers
+
 // ============================================================================
 // Core Function Declarations
 // ============================================================================
@@ -105,8 +114,13 @@ int width(int c);
 void headout(char** header_ptr);
 void decimal(int num, void (*output_func)(int));
 void space(int count);
-void fill();
+void fill(); // Ensuring this is void fill() as implemented in roff3.cpp
 void flushi();
+
+// Functions previously static in roff3.cpp, now part of API
+int alph2(int ch);
+void wbf(int character, int position);
+int rdsufb(int offset, int file_desc);
 
 // Line and page processing
 void eject();
@@ -134,6 +148,7 @@ void copyb();
 int min(int value);
 void getname(char* name_buffer);
 void istop();
+void hyphen(); // Should be here if called from roff4
 
 // ============================================================================
 // Constants

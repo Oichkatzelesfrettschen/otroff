@@ -8,16 +8,16 @@
  */
 
 #pragma once // Ensures the header file is included only once during compilation, preventing duplicate definitions
-#include "cxx23_scaffold.hpp" // utilities for C++23 features
+#include "../cxx17_scaffold.hpp" // utilities for C++17 features
 
 /* 
  * Standard C90 library includes for troff implementation
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h> // POSIX header, leave as is
+#include <csignal>
 
 /*
  * Configuration constants - these should be defined elsewhere

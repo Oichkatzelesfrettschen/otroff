@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp"
 /*
  * tab450.c - DASI450 nroff driving tables (C90 portable)
  *
@@ -18,7 +18,7 @@
 #include <cstdint>
 #include <array>
 #include <string_view>
-#include <stdint.h>
+// <stdint.h> is redundant when <cstdint> is included
 
 /*
  * struct termtab - Terminal table structure for DASI450

@@ -24,17 +24,17 @@
  */
 
 #pragma once
-#include "cxx23_scaffold.hpp" // common utilities
+#include "../cxx17_scaffold.hpp" // common utilities
 
 /* ================================================================
  * SYSTEM INCLUDES - C90 Standard Library Headers
  * ================================================================ */
-#include <stdio.h> /* Standard I/O operations */
-#include <stdlib.h> /* Memory allocation, program control */
-#include <string.h> /* String manipulation functions */
-#include <ctype.h> /* Character classification */
-#include <stdarg.h> /* Variable argument lists */
-#include <limits.h> /* Implementation-defined limits */
+#include <cstdio> /* Standard I/O operations */
+#include <cstdlib> /* Memory allocation, program control */
+#include <cstring> /* String manipulation functions */
+#include <cctype> /* Character classification */
+#include <cstdarg> /* Variable argument lists */
+#include <climits> /* Implementation-defined limits */
 
 /* ================================================================
  * COMPILER COMPATIBILITY AND FEATURE DETECTION
@@ -213,6 +213,10 @@ typedef struct neqn_context {
 
 extern neqn_context_t *neqn_current_context; /**< Current processing context */
 extern int neqn_exit_status; /**< Program exit status */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ================================================================
  * CORE FUNCTION PROTOTYPES - Initialization and Cleanup
@@ -657,6 +661,9 @@ int neqn_is_strict_mode(neqn_context_t *context);
  * END OF HEADER - Multiple inclusion protection
  * ================================================================ */
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 /* ================================================================
  * DOCUMENTATION NOTES

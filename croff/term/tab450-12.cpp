@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp"
 /*
  * tab450-12.cpp - DASI450 nroff driving tables (C++23)
  *
@@ -612,6 +612,7 @@ constexpr bool is_printable(std::uint8_t ch, const TerminalTable &table) noexcep
 
 // Export symbols for linkage with troff system
 // Legacy C interface for compatibility
+extern "C" {
 const void *get_dasi450_table() {
     return &dasi450_terminal;
 }
@@ -623,3 +624,4 @@ int get_terminal_resolution() {
 int get_character_width() {
     return dasi450_terminal.character_width();
 }
+} // extern "C"

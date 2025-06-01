@@ -20,7 +20,7 @@
  *          - Module-based architecture with import declarations
  */
 
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp" // Changed to C++17 scaffold
 
 namespace roff::core {
 

@@ -1,8 +1,8 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* t3.c: interpret commands affecting whole table */
 #include "tbl.hpp"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 namespace tbl {
 int linsize;
@@ -10,7 +10,7 @@ static void backrest(char *cp);
 struct optstr {
     char *optnam;
     int *optadd;
-} options[] = {{"expand", &expflg}, {"EXPAND", &expflg}, {"center", &ctrflg}, {"CENTER", &ctrflg}, {"box", &boxflg}, {"BOX", &boxflg}, {"allbox", &allflg}, {"ALLBOX", &allflg}, {"doublebox", &dboxflg}, {"DOUBLEBOX", &dboxflg}, {"frame", &boxflg}, {"FRAME", &boxflg}, {"doubleframe", &dboxflg}, {"DOUBLEFRAME", &dboxflg}, {"tab", &tab}, {"TAB", &tab}, {"linesize", &linsize}, {"LINESIZE", &linsize}, {0, 0}};
+} options[] = {{"expand", &expflg}, {"EXPAND", &expflg}, {"center", &ctrflg}, {"CENTER", &ctrflg}, {"box", &boxflg}, {"BOX", &boxflg}, {"allbox", &allflg}, {"ALLBOX", &allflg}, {"doublebox", &dboxflg}, {"DOUBLEBOX", &dboxflg}, {"frame", &boxflg}, {"FRAME", &boxflg}, {"doubleframe", &dboxflg}, {"DOUBLEFRAME", &dboxflg}, {"tab", &tab}, {"TAB", &tab}, {"linesize", &linsize}, {"LINESIZE", &linsize}, {nullptr, nullptr}};
 /* Parse global options for a table. */
 void getcomm(void) {
     char line[200], *cp, nb[25], *t;

@@ -33,6 +33,7 @@ set_source_files_properties(
 target_include_directories(os_abstraction PUBLIC src/os)
 
 # Optional components
+# Option to build the roff text formatter (currently has C++17 compilation issues)
 option(BUILD_ROFF "Build the roff text formatter" OFF)
 option(BUILD_CROFF "Build the croff formatter" OFF)
 option(BUILD_NEQN "Build the neqn preprocessor" OFF)

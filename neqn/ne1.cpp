@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne1.c
  * @brief NEQN equation typesetting - Part 1: Box manipulation and basic constructs.
@@ -27,9 +27,9 @@
  */
 
 #include "ne.hpp" /* NEQN type definitions and global declarations */
-#include <stdio.h> /* Standard I/O for printf (troff command generation) */
-#include <stdlib.h> /* Standard library functions */
-#include <string.h> /* String manipulation functions */
+#include <cstdio> /* Standard I/O for printf (troff command generation) */
+#include <cstdlib> /* Standard library functions */
+#include <cstring> /* String manipulation functions */
 
 /* SCCS version identifier */
 static const char sccs_id[] = "@(#)ne1.c 1.3 25/05/29";
@@ -331,7 +331,7 @@ int numb(char *p1) {
     int c; /* Current character being processed */
 
     /* Input validation */
-    if (p1 == NULL) {
+    if (p1 == nullptr) {
         if (dbg)
             printf(".\tERROR: numb: null string pointer\n");
         return 0;

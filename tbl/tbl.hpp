@@ -1,7 +1,7 @@
 /* tbl.h: external declarations and prototypes */
 
 #pragma once
-#include "cxx23_scaffold.hpp" // utilities
+#include "../cxx17_scaffold.hpp" // utilities
 
 #include <array>
 #include <cstdio>
@@ -55,7 +55,7 @@ class Parser {
     std::array<int, MAXCOL> lused{};
     std::array<int, MAXCOL> rused{};
     std::array<int, MAXLIN> linestop{};
-    char *ifile = (char *)"Input";
+    const char *ifile = "Input"; // Changed type and removed cast
     int texname = 'a';
     int texct = 0;
     std::string texstr =
@@ -138,6 +138,9 @@ inline Parser parser;
 #define tabin parser.tabin
 #define tabout parser.tabout
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* Function prototypes */
 void tableput();
 void gettbl(void);
@@ -210,4 +213,7 @@ int left(int i, int c, int *lwidp);
 int lefdata(int i, int c);
 int next(int i);
 int prev(int i);
+#ifdef __cplusplus
+} // extern "C"
+#endif
 } // namespace tbl

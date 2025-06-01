@@ -1,7 +1,7 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* t8.c: write out one line of output table */
 #include "tbl.hpp"
-#include <stdio.h> /* fprintf */
+#include <cstdio> /* fprintf */
 #define realsplit ((ct == 'a' || ct == 'n') && table[nl][c].rcol)
 
 namespace tbl {
@@ -20,13 +20,13 @@ void putline(int i, int nl) {
     if (instead[nl] == 0 && fullbot[nl] == 0)
         for (c = 0; c < ncol; c++) {
             s = table[nl][c].col;
-            if (s == 0)
+            if (s == nullptr)
                 continue;
             if (vspen(s)) {
                 for (ip = nl; ip < nlin; ip = next(ip))
                     if (!vspen(s = table[ip][c].col))
                         break;
-                if (s > 0 && s < 128)
+                if (s > 0 && s < 128) // This s is potentially an int after loop, not char*
                     fprintf(tabout, ".ne \\n(%c|u\n", s);
                 continue;
             }
@@ -64,7 +64,7 @@ void putline(int i, int nl) {
     vspf = 0;
     for (c = 0; c < ncol; c++) {
         s = table[nl][c].col;
-        if (s == 0)
+        if (s == nullptr)
             continue;
         if (point(s))
             continue;
@@ -95,7 +95,7 @@ void putline(int i, int nl) {
         fn = font[stynum[i]][c];
         size = csize[stynum[i]][c];
         if (*size == 0)
-            size = 0;
+            size = nullptr;
         switch (ct = ctype(i, c)) {
         case 'n':
         case 'a':
@@ -209,7 +209,7 @@ void funnies(int stl, int lin) {
         s = table[lin][c].col;
         if (point(s))
             continue;
-        if (s == 0)
+        if (s == nullptr)
             continue;
         fprintf(tabout, ".sp |\\n(##u-1v\n");
         fprintf(tabout, ".nr %d ", SIND);
@@ -255,7 +255,7 @@ void putfont(char *fn) {
 }
 /* Emit a size change escape sequence. */
 void putsize(char *s) {
-    if (s && *s)
+    if (s && *s) // No change needed here, `s && *s` is a common C check for non-empty string
         fprintf(tabout, "\\s%s", s);
 }
 } // namespace tbl

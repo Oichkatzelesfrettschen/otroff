@@ -6,7 +6,7 @@
  * inclusion in both C and C++ projects. All members are documented for clarity.
  */
 #pragma once
-#include "cxx23_scaffold.hpp" // common utilities
+#include "../cxx17_scaffold.hpp" // common utilities
 
 /*
  * Environment diversion structure used by troff.

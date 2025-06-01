@@ -1,6 +1,7 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* tc.c: find character not in table to delimit fields */
 #include "tbl.hpp"
+#include <cstdint> // For uintptr_t / intptr_t
 
 namespace tbl {
 /* Choose delimiter characters not used in the table. */
@@ -54,6 +55,9 @@ void choochar(void) {
 }
 /* Determine whether pointer value is encoded text. */
 int point(char *s) {
-    return ((long)s >= 128 || (long)s < 0);
+    // Check if a pointer value falls outside a small integer range
+    // This was often used to distinguish tagged pointers or small integer values
+    // stored in pointer-typed variables from actual memory addresses.
+    return (reinterpret_cast<uintptr_t>(s) >= 128 || reinterpret_cast<intptr_t>(s) < 0);
 }
 } // namespace tbl

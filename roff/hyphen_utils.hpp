@@ -9,7 +9,7 @@
 namespace roff::util {
 
 // Predefined table of vowel characters for quick lookup.
-inline constinit const std::array<char, 6> vowel_table{
+inline constexpr const std::array<char, 6> vowel_table{ // Changed constinit to constexpr
     'a', 'e', 'i', 'o', 'u', 'y'};
 
 // Determine whether ``c`` is punctuation.

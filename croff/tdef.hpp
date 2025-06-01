@@ -8,14 +8,14 @@
  */
 
 #pragma once
-#include "cxx23_scaffold.hpp" // utilities
+#include "../cxx17_scaffold.hpp" // utilities
 
 /* Standard C library includes */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h> // POSIX header, leave as is
+#include <csignal>
 
 /*
  * Conditional compilation for NROFF (line printer output)

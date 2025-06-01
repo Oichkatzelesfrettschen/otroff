@@ -1,8 +1,8 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* t4.c: read table specification */
 #include "tbl.hpp"
-#include <stdio.h> /* fprintf */
-#include <stdlib.h>
+#include <cstdio> /* fprintf */
+#include <cstdlib>
 
 namespace tbl {
 int oncol;
