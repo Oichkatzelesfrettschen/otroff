@@ -617,7 +617,7 @@ void case_tr(void) {
 
         /* Set up translation */
         if (from_char >= 0 && from_char < 128) {
-            trtab[from_char] = (unsigned char)to_char;
+            trtab[from_char] = static_cast<unsigned char>(to_char);
         }
     }
 }

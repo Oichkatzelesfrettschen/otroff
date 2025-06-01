@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp"
 /*
  * tabvt100.cpp - VT100 terminal driver tables (C++23)
  *

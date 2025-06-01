@@ -14,7 +14,7 @@
  *          - Type-safe string literal management
  */
 
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp"
 
 namespace roff::terminal::dasi300s {
 

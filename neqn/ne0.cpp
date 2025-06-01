@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne0.c
  * @brief Core initialization and utility module for the neqn preprocessor
@@ -40,15 +40,15 @@
 /* ================================================================
  * SYSTEM INCLUDES - C90 Standard Library Headers
  * ================================================================ */
-#include <stdio.h> /* Standard I/O operations */
-#include <stdlib.h> /* Memory allocation, program control */
-#include <string.h> /* String manipulation functions */
-#include <ctype.h> /* Character classification */
-#include <errno.h> /* Error number definitions */
-#include <limits.h> /* Implementation-defined limits */
-#include <assert.h> /* Assertion macros for debugging */
-#include <signal.h> /* Signal handling */
-#include <locale.h> /* Locale support */
+#include <cstdio> /* Standard I/O operations */
+#include <cstdlib> /* Memory allocation, program control */
+#include <cstring> /* String manipulation functions */
+#include <cctype> /* Character classification */
+#include <cerrno> /* Error number definitions */
+#include <climits> /* Implementation-defined limits */
+#include <cassert> /* Assertion macros for debugging */
+#include <csignal> /* Signal handling */
+#include <clocale> /* Locale support */
 
 /* ================================================================
  * PROJECT INCLUDES - Local Header Files
@@ -529,7 +529,7 @@ static int neqn_validate_environment(void) {
     /* Validate memory allocation */
     {
         void *test_ptr = malloc(1024);
-        if (test_ptr == NULL) {
+        if (test_ptr == nullptr) {
             if (neqn_debug_level > 0) {
                 fprintf(stderr, "neqn: Memory allocation test failed\n");
             }
@@ -539,7 +539,7 @@ static int neqn_validate_environment(void) {
     }
 
     /* Check file I/O capabilities */
-    if (stdin == NULL || stdout == NULL || stderr == NULL) {
+    if (stdin == nullptr || stdout == nullptr || stderr == nullptr) {
         if (neqn_debug_level > 0) {
             fprintf(stderr, "neqn: Standard I/O streams not available\n");
         }
@@ -609,7 +609,7 @@ static int neqn_initialize_subsystems(void) {
     }
 
     /* Initialize locale for wide character support */
-    if (setlocale(LC_ALL, "") == NULL) {
+    if (setlocale(LC_ALL, "") == nullptr) {
         return -1;
     }
 
@@ -692,8 +692,8 @@ static void neqn_print_version_info(void) {
 static void neqn_print_build_info(void) {
     fprintf(stderr, "Build: %s\n", NEQN_BUILD_DATE);
     fprintf(stderr, "C90 compliant implementation\n");
-    fprintf(stderr, "Integer size: %lu bytes\n", (unsigned long)sizeof(int));
-    fprintf(stderr, "Pointer size: %lu bytes\n", (unsigned long)sizeof(void *));
+    fprintf(stderr, "Integer size: %lu bytes\n", static_cast<unsigned long>(sizeof(int)));
+    fprintf(stderr, "Pointer size: %lu bytes\n", static_cast<unsigned long>(sizeof(void *)));
 }
 
 /**

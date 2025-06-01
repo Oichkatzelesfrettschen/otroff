@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 /**
  * @file roff4.c
  * @brief ROFF text formatter - Advanced text processing and formatting functions.
@@ -56,11 +56,11 @@
  *       automatic line breaking, justification, and page layout.
  */
 
-#include <stdio.h> /* Standard I/O operations */
-#include <stdlib.h> /* Standard library functions */
-#include <string.h> /* String manipulation functions */
-#include <ctype.h> /* Character classification */
-#include <limits.h> /* System limits */
+#include <cstdio> /* Standard I/O operations */
+#include <cstdlib> /* Standard library functions */
+#include <cstring> /* String manipulation functions */
+#include <cctype> /* Character classification */
+#include <climits> /* System limits */
 
 /* Local headers */
 #include "roff.hpp" /* ROFF system definitions and globals */
@@ -79,64 +79,12 @@
 #define CHAR_MASK 0x7F /**< Character mask (low 7 bits) */
 
 /* External variables from other modules */
-extern int tottext; /* Total text lines processed */
-extern int ulstate; /* Underline state */
-extern int wch; /* Word character count */
-extern int wne; /* Word width in units */
-extern int ce; /* Center line count */
-extern int fi; /* Fill mode flag */
-extern int ch; /* Current character */
-extern int un; /* Temporary indent */
-extern int ul; /* Underline count */
-extern int ne; /* Line width used */
-extern int nel; /* Line width available */
-extern int nwd; /* Number of words on line */
-extern int ad; /* Adjust mode flag */
-extern int fac, fmq; /* Justification factors */
-extern int totout; /* Total output lines */
-extern int nc; /* Character count in line */
-extern char *linep; /* Line buffer pointer */
-extern char *wordp; /* Word buffer pointer */
-extern int wordend; /* End of word buffer */
-extern int nhyph; /* Number of hyphens in word */
-extern int ls; /* Line spacing */
-extern int nl; /* Current line number */
-extern int bl; /* Bottom line of page */
-extern int pl; /* Page length */
-extern int ma1, ma2, ma3, ma4; /* Margins */
-extern int hx; /* Header/footer flag */
-extern int ohc; /* Output hyphenation character */
-extern int numbmod; /* Line numbering mode */
-extern int ni; /* Line number indent */
-extern int po; /* Page offset */
-extern int pn; /* Page number */
-extern int nextb; /* Next buffer position */
-extern int ibf1; /* Include buffer file descriptor */
-extern int nfile; /* Current file descriptor */
-extern int ll; /* Line length */
-extern int llh; /* Line length for headers */
-extern int ro; /* Roman numeral flag */
-extern char *onesp, *fivesp; /* Roman numeral pointers */
-extern char ones[], fives[]; /* Roman numeral arrays */
-extern char word[]; /* Word buffer */
-extern char line[]; /* Line buffer */
+// These are now declared in roff.hpp within the roff namespace
+// and made available via "using namespace roff;"
 
 /* Function prototypes for external functions */
-extern int getchar_roff(void);
-extern int gettchar(void);
-extern void putchar_roff(int c);
-extern int width(int c);
-extern void storeline(int c);
-extern void rbreak(void);
-extern void nline(void);
-extern void getword(void);
-extern void space(int count);
-extern void newline(void);
-extern void skipcont(void);
-extern void wbf(int character, int position);
-extern int rdsufb(int offset, int file_desc);
-extern int alph2(int ch);
-extern void hyphen(void);
+// These are now declared in roff.hpp within the roff namespace
+// and made available via "using namespace roff;"
 
 /* Local function prototypes */
 static void adjust(void);
@@ -156,6 +104,13 @@ void nofill(void);
 static int conv_value;
 static void (*conv_out)(int);
 static int conv_width;
+
+// For Roman numeral conversion by roman() and roman1()
+static char ones[] = "ixcmz";
+static char fives[] = "vldw";
+static char *onesp;
+static char *fivesp;
+
 
 /**
  * @brief Main text processing function with fill/no-fill mode handling.
@@ -195,36 +150,37 @@ static int conv_width;
  * - Update character and word counts
  * - Handle various formatting flags
  */
+namespace roff {
 void text(void) {
     int c;
 
     /* Initialize text processing state */
     /* tottext++; */ /* Increment total text counter if needed */
     ulstate = 0; /* Clear underline state */
-    wch = 0; /* Clear word character count */
-    wne = 0; /* Clear word width */
+    ::roff::wch = 0; /* Clear word character count */
+    ::roff::wne = 0; /* Clear word width */
 
     /* Check for centering or no-fill mode */
-    if (ce > 0 || fi == 0) {
-        nofill();
+    if (::roff::ce > 0 || ::roff::fi == 0) {
+        nofill(); // This is roff::nofill
         return;
     }
 
     /* Fill mode processing */
-    c = getchar_roff();
+    c = ::roff::getchar_roff();
 
     while (1) {
-        ch = c;
+        ::roff::ch = c;
 
         /* Handle spaces - potential line break points */
         if (c == SPACE_CHAR) {
-            rbreak();
+            ::roff::rbreak();
 
             /* Skip multiple spaces and accumulate as indent */
             do {
-                c = getchar_roff();
+                c = ::roff::getchar_roff();
                 if (c == SPACE_CHAR) {
-                    un++;
+                    ::roff::un++;
                 }
             } while (c == SPACE_CHAR);
             continue;
@@ -232,37 +188,37 @@ void text(void) {
 
         /* Handle newlines - forced line breaks */
         if (c == '\n') {
-            rbreak();
-            ch = 0;
-            nline();
+            ::roff::rbreak();
+            ::roff::ch = 0;
+            ::roff::nline();
             break;
         }
 
         /* Handle text characters */
-        if (wch == 0) {
+        if (::roff::wch == 0) {
             /* Start new word */
-            getword();
+            ::roff::getword();
             break;
         } else {
             /* Continue with existing word */
-            if (movword() == 0) {
-                /* Word fits on line */
-                adjust();
-                c = getchar_roff();
+            if (movword() == 0) { // movword is static
+                adjust(); // adjust is static
+                c = ::roff::getchar_roff();
                 continue;
             }
             /* Word doesn't fit - continue processing */
         }
 
-        c = getchar_roff();
+        c = ::roff::getchar_roff();
     }
 
     /* Handle underline countdown */
-    ul--;
-    if (ul < 0) {
-        ul = 0;
+    ::roff::ul--;
+    if (::roff::ul < 0) {
+        ::roff::ul = 0;
     }
 }
+} // namespace roff
 
 /**
  * @brief Process text in no-fill mode with optional centering.
@@ -289,6 +245,7 @@ void text(void) {
  * - Account for line numbering if active
  * - Force simple spacing (nwd = 1000)
  */
+namespace roff {
 void nofill(void) {
     int c;
     int char_width;
@@ -339,6 +296,7 @@ void nofill(void) {
         ul = 0;
     }
 }
+} // namespace roff
 
 /**
  * @brief Calculate and apply line justification.
@@ -416,45 +374,47 @@ static void adjust(void) {
  *
  * @return Next character from line buffer for output
  */
-int fill(void) {
+namespace roff { // This was roff::fill, now making it static to roff4
+static int fill_line_buffer_and_get_char(void) {
     int spaces;
     int next_char;
 
     /* Start with base extra spacing */
-    spaces = fmq;
+    spaces = ::roff::fmq;
 
     /* Apply spacing and advance past current space */
     do {
         spaces++;
-        nc--;
-        linep++;
-    } while (nc > 0 && *(linep - 1) == SPACE_CHAR);
+        ::roff::nc--;
+        ::roff::linep++;
+    } while (::roff::nc > 0 && *(::roff::linep - 1) == SPACE_CHAR);
 
     /* Back up to last non-space character */
-    linep--;
+    ::roff::linep--;
 
     /* Apply even/odd line spacing algorithm */
-    if ((totout & 1) == 0) {
+    if ((::roff::totout & 1) == 0) {
         /* Even line - add extra space early */
-        fac++;
-        if (fac < nwd) {
+        ::roff::fac++;
+        if (::roff::fac < ::roff::nwd) {
             spaces++;
         }
     } else {
         /* Odd line - add extra space later */
-        fac--;
-        if (fac >= 0) {
+        ::roff::fac--;
+        if (::roff::fac >= 0) {
             spaces++;
         }
     }
 
     /* Output the calculated spacing */
-    space(spaces);
+    ::roff::space(spaces); // This is roff::space
 
     /* Get next character for processing */
-    next_char = (unsigned char)*linep;
+    next_char = (unsigned char)*::roff::linep;
     return next_char;
 }
+} // namespace roff // End of static fill_line_buffer_and_get_char
 
 /**
  * @brief Move word from word buffer to line buffer with hyphenation.
@@ -497,63 +457,64 @@ static int movword(void) {
     int char_width;
     int c;
     int fits_on_line;
+    int wordend_local; // Renamed from wordend to be local
 
     /* Initialize word processing */
-    wordend = wch;
-    word_ptr = wordp;
-    wordend += (int)(word_ptr - word); /* Calculate word end */
+    wordend_local = ::roff::wch;
+    word_ptr = ::roff::wordp;
+    wordend_local += static_cast<int>(word_ptr - ::roff::word); /* Calculate word end */
 
     /* Remove leading spaces if first word on line */
-    if (nwd == 0) {
-        while (word_ptr < word + wordend && *word_ptr == SPACE_CHAR) {
+    if (::roff::nwd == 0) {
+        while (word_ptr < ::roff::word + wordend_local && *word_ptr == SPACE_CHAR) {
             word_ptr++;
-            wch--;
-            char_width = width(SPACE_CHAR);
-            wne -= char_width;
+            ::roff::wch--;
+            char_width = ::roff::width(SPACE_CHAR);
+            ::roff::wne -= char_width;
         }
     }
 
     /* Check if word fits on current line */
-    if (wne <= nel) {
+    if (::roff::wne <= ::roff::nel) {
         fits_on_line = 1;
         goto move_word_to_line;
     }
 
     /* Word doesn't fit - check hyphenation conditions */
-    if (nel <= MIN_LINE_SPACE) {
+    if (::roff::nel <= MIN_LINE_SPACE) {
         fits_on_line = 0;
         goto word_overflow;
     }
 
     /* Check if we're near page bottom and should avoid hyphenation */
-    if (nl + ls > bl) {
+    if (::roff::nl + ::roff::ls > ::roff::bl) {
         fits_on_line = 0;
         goto word_overflow;
     }
 
     /* Check if we have room for two more lines */
-    if (nl + (2 * ls) <= bl) {
+    if (::roff::nl + (2 * ::roff::ls) <= ::roff::bl) {
         /* Try hyphenation */
-        hyphen();
+        ::roff::hyphen();
     }
 
 move_word_to_line:
     /* Clear hyphenation count and prepare for character processing */
-    nhyph = 0;
-    original_wch = wch;
+    ::roff::nhyph = 0;
+    original_wch = ::roff::wch;
 
     /* Process each character in the word */
-    while (wch > 0) {
-        c = (unsigned char)*word_ptr++;
+    while (::roff::wch > 0) {
+        c = static_cast<unsigned char>(*word_ptr++);
 
         /* Handle manual hyphenation markers */
         if (c == HYPHEN_CHAR) {
             /* Check if next character is alphabetic */
-            if (word_ptr < word + wordend) {
-                int next_char = (unsigned char)*word_ptr;
-                if (alph2(next_char) == 0) {
+            if (word_ptr < ::roff::word + wordend_local) {
+                int next_char = static_cast<unsigned char>(*word_ptr);
+                if (::roff::alph2(next_char) == 0) { // Call namespaced alph2
                     /* Mark previous character for hyphenation */
-                    if (word_ptr > word + 1) {
+                    if (word_ptr > ::roff::word + 1) {
                         *(word_ptr - 1) |= HIGH_BIT;
                     }
                 }
@@ -566,55 +527,55 @@ move_word_to_line:
             c &= CHAR_MASK;
 
             /* Check hyphenation conditions */
-            if (word_ptr >= word + 4) { /* Minimum prefix length */
+            if (word_ptr >= ::roff::word + 4) { /* Minimum prefix length */
                 char *check_ptr = word_ptr - 4;
-                if (check_ptr >= word) {
-                    int prev_char = (unsigned char)*check_ptr & CHAR_MASK;
-                    if (alph2(prev_char) != 0 || nel >= 2) {
+                if (check_ptr >= ::roff::word) {
+                    int prev_char = static_cast<unsigned char>(*check_ptr) & CHAR_MASK;
+                    if (::roff::alph2(prev_char) != 0 || ::roff::nel >= 2) { // Call namespaced alph2
                         /* Valid hyphenation point */
-                        storeline(0); /* Mark potential break */
-                        nhyph++;
+                        ::roff::storeline(0); /* Mark potential break */
+                        ::roff::nhyph++;
                     }
                 }
             }
         }
 
         /* Calculate character width and store in line */
-        char_width = width(c);
-        wne -= char_width;
-        storeline(c);
-        wch--;
+        char_width = ::roff::width(c);
+        ::roff::wne -= char_width;
+        ::roff::storeline(c);
+        ::roff::wch--;
     }
 
     /* Check if word fit completely */
-    if (nel >= 0) {
-        nwd++; /* Increment word count */
+    if (::roff::nel >= 0) {
+        ::roff::nwd++; /* Increment word count */
         fits_on_line = 1;
         goto cleanup;
     }
 
 word_overflow:
     /* Word doesn't fit - handle backtracking */
-    line_ptr = linep;
+    line_ptr = ::roff::linep;
 
     /* Backtrack through characters until word fits or hyphenation point */
     while (1) {
         /* Check for hyphenation opportunities */
-        if (nhyph > 0) {
-            if (nwd > 0 || (wch == original_wch)) {
+        if (::roff::nhyph > 0) {
+            if (::roff::nwd > 0 || (::roff::wch == original_wch)) {
                 /* Found good hyphenation point */
                 break;
             }
-        } else if (nwd == 0) {
+        } else if (::roff::nwd == 0) {
             /* No words on line yet */
-            if (wch == original_wch) {
+            if (::roff::wch == original_wch) {
                 /* Can't fit any of the word */
                 break;
             }
         }
 
         /* Check space availability */
-        if (nel > 0) {
+        if (::roff::nel > 0) {
             break;
         }
 
@@ -622,48 +583,48 @@ word_overflow:
         line_ptr--;
         if (*line_ptr == 0) {
             /* Found hyphenation marker */
-            nhyph--;
-            if (nhyph == 0 && nwd == 0) {
+            ::roff::nhyph--;
+            if (::roff::nhyph == 0 && ::roff::nwd == 0) {
                 continue; /* Keep looking */
             }
-            if (nel > 0) {
+            if (::roff::nel > 0) {
                 continue; /* Have space now */
             }
 
             /* Insert hyphen if not already present */
-            if (line_ptr > line && *(line_ptr - 1) != HYPHEN_CHAR) {
+            if (line_ptr > ::roff::line && *(line_ptr - 1) != HYPHEN_CHAR) {
                 *line_ptr = HYPHEN_CHAR;
-                nel--;
-                ne++;
+                ::roff::nel--;
+                ::roff::ne++;
             }
             break;
         }
 
         /* Remove character from line */
-        nc--;
+        ::roff::nc--;
         if (*line_ptr != 0) {
-            char_width = width((unsigned char)*line_ptr);
-            ne -= char_width;
-            nel += char_width;
-            wch++;
+            char_width = ::roff::width((unsigned char)*line_ptr);
+            ::roff::ne -= char_width;
+            ::roff::nel += char_width;
+            ::roff::wch++;
             word_ptr--;
-            wne += char_width;
+            ::roff::wne += char_width;
         }
     }
 
     /* Update word count */
-    nwd++;
+    ::roff::nwd++;
 
 cleanup:
     /* Update word pointer and clean up character flags */
-    wordp = word_ptr;
-    if (word_ptr < word + wordend) {
+    ::roff::wordp = word_ptr;
+    if (word_ptr < ::roff::word + wordend_local) {
         *word_ptr &= CHAR_MASK; /* Clear any high bits */
     }
 
     /* Ensure word pointer is within bounds */
-    if (wordp < word) {
-        wordp = word;
+    if (::roff::wordp < ::roff::word) {
+        ::roff::wordp = ::roff::word;
     }
 
     return fits_on_line ? 0 : 1;
@@ -763,6 +724,7 @@ static void topbot(void) {
  * @param c Character to measure
  * @return Display width of character (-1, 0, or 1)
  */
+namespace roff {
 int width(int c) {
     /* Check for hyphenation character */
     if (c == ohc) {
@@ -792,6 +754,7 @@ int width(int c) {
     /* Regular printable characters */
     return 0; /* Device-dependent width */
 }
+} // namespace roff
 
 /**
  * @brief Wrapper for width function to match void return type.
@@ -1087,9 +1050,11 @@ static void headseg(void (*output_func)(int)) {
  *
  * @param count Number of spaces to output
  */
+namespace roff {
 void space(int count) {
     nlines(count, putchar_roff);
 }
+} // namespace roff
 
 /**
  * @brief Output multiple instances using specified function.
@@ -1124,12 +1089,14 @@ static void nlines(int count, void (*func)(int)) {
  * @param num Number to convert and output
  * @param output_func Function to output each digit
  */
+namespace roff {
 void decimal(int num, void (*output_func)(int)) {
     conv_value = num;
     conv_out = output_func;
     conv_width = 0;
     decml();
 }
+} // namespace roff
 
 /**
  * @brief Core decimal conversion implementation.

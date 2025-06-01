@@ -14,9 +14,9 @@
  */
 
 #pragma once
-#include "cxx23_scaffold.hpp" // common utilities
+#include "../cxx17_scaffold.hpp" // common utilities
 
-#include <stddef.h> /* For size_t type */
+#include <cstddef> /* For size_t type */
 
 /*
  * Public constants for suffix table operations

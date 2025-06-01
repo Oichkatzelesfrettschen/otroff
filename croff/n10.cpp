@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * n10.c - Device interface for nroff/troff terminal output
  *
@@ -79,7 +79,7 @@
 #include "env.hpp" /* Environment structure definition */
 /* #include "t.hpp" -- Likely included by tdef.hpp */
 #include "tw.hpp" /* Terminal/writer specific definitions */
-#include <stdlib.h> /* For exit(), NULL */
+#include <cstdlib> /* For exit(), NULL */
 #include <unistd.h> /* For read(), close(), open(), lseek(), sbrk() if setbrk is a wrapper */
 #include <fcntl.h> /* For open() flags */
 #include <sys/wait.h> /* For wait() */
@@ -175,7 +175,7 @@ void ptinit(void) {
      * However, if &t.zzz and &t.bset are char** and point to the start/end
      * of an array of char* members, this calculates the byte size of that array.
      */
-    qsize = (char *)&t.zzz - (char *)&t.bset; /* Size of the pointer region in t */
+    qsize = reinterpret_cast<char *>(&t.zzz) - reinterpret_cast<char *>(&t.bset); /* Size of the pointer region in t */
 
     /* The original code had `qsize = 2 * (&t.zzz - &t.bset);`.
      * If t.zzz and t.bset are of type `char **`, then `&t.zzz - &t.bset` would
@@ -200,7 +200,7 @@ void ptinit(void) {
                                      */
 
     /* Allocate memory for terminal control strings. setbrk is likely sbrk or similar. */
-    if ((q = setbrk(qsize)) == (char *)-1) { /* Check for allocation failure */
+    if ((q = setbrk(qsize)) == reinterpret_cast<char *>(-1L)) { /* Check for allocation failure */
         prstr("Cannot allocate memory for termtab strings\n");
         close(i);
         exit(-1);
@@ -227,17 +227,17 @@ void ptinit(void) {
      * relative to the start of the string area in the file.
      * They are adjusted to be absolute pointers into the buffer 'q'.
      */
-    offset = q - (char *)t.twinit; /* Calculate base offset for relocation */
+    offset = q - t.twinit; /* Calculate base offset for relocation, assuming t.twinit is char* */
     for (p = (char **)&t.twinit; p < (char **)&t.zzz; p++) {
         if (*p) { /* If the member (offset) is non-zero */
-            *p = (char *)((long)*p + offset); /* Adjust to be an absolute pointer */
+            *p = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(*p) + offset); /* Adjust to be an absolute pointer */
         } else {
             /* If original offset was 0, point it to a safe default (e.g., end of t strings or an empty string)
              * Original code pointed to &t.zzz, which is unusual. A pointer to an empty string "" might be safer.
              * For now, preserving original logic: make it point to the address of t.zzz itself.
              * This is likely meant to be a sentinel or an effectively null string pointer.
              */
-            *p = (char *)&t.zzz;
+            *p = reinterpret_cast<char *>(&t.zzz);
         }
     }
 
@@ -330,7 +330,7 @@ void ptout(int i) {
  * Assumes oput(char) is available and handles actual output.
  */
 static void oputs(const char *s) {
-    if (s == NULL) { /* Defensive check for null pointer */
+    if (s == nullptr) { /* Defensive check for null pointer */
         return;
     }
     while (*s) {
@@ -646,5 +646,5 @@ void dostop(void) {
      * This is unusual; typically, one would read from stdin (fd 0) or the controlling terminal.
      * Reading from stderr might be intentional if stdin/stdout are redirected.
      */
-    read(2, (char *)&junk, 1); /* Read 1 byte into junk's memory location */
+    read(2, reinterpret_cast<char *>(&junk), 1); /* Read 1 byte into junk's memory location */
 }

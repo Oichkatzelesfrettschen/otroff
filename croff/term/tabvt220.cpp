@@ -16,7 +16,7 @@
  *          - Compile-time validation and optimization
  */
 
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp"
 #include <array>
 #include <cstddef>
 #include <cstdint>

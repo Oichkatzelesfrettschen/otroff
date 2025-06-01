@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * suftab.c - Suffix table data for hyphenation support
  *
@@ -26,8 +26,8 @@
  * Memory Usage: Static data only, no dynamic allocation.
  */
 
-#include <stddef.h> /* For size_t type definition */
-#include <stdio.h> /* For printf function */
+#include <cstddef> /* For size_t type definition */
+#include <cstdio> /* For printf function */
 #include "suftab.hpp" /* Module interface */
 
 /*
@@ -144,7 +144,7 @@ static const unsigned char *suftab_get_entry(int letter, int index) {
 
     offset = suftab_get_offset(letter);
     if (offset == 0) {
-        return NULL;
+        return nullptr;
     }
 
     ptr = &suftab_bytes[offset];
@@ -164,7 +164,7 @@ static const unsigned char *suftab_get_entry(int letter, int index) {
         return ptr;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -174,7 +174,7 @@ static const unsigned char *suftab_get_entry(int letter, int index) {
  * Returns: Length of suffix pattern (0-63)
  */
 static int suftab_get_entry_length(const unsigned char *entry) {
-    if (entry == NULL) {
+    if (entry == nullptr) {
         return 0;
     }
     return (int)(*entry & SUFTAB_LENGTH_MASK);
@@ -187,7 +187,7 @@ static int suftab_get_entry_length(const unsigned char *entry) {
  * Returns: 1 if break allowed, 0 otherwise
  */
 static int suftab_has_break_flag(const unsigned char *entry) {
-    if (entry == NULL) {
+    if (entry == nullptr) {
         return 0;
     }
     return (*entry & SUFTAB_BREAK_FLAG) ? 1 : 0;
@@ -200,7 +200,7 @@ static int suftab_has_break_flag(const unsigned char *entry) {
  * Returns: 1 if priority set, 0 otherwise
  */
 static int suftab_has_priority_flag(const unsigned char *entry) {
-    if (entry == NULL) {
+    if (entry == nullptr) {
         return 0;
     }
     return (*entry & SUFTAB_PRIORITY_FLAG) ? 1 : 0;
@@ -262,7 +262,7 @@ int suftab_lookup(int letter, suftab_callback_t callback, void *user_data) {
         }
 
         /* Call callback with pattern data */
-        if (callback != NULL) {
+        if (callback != nullptr) {
             callback(ptr + 1, entry_length, flags, user_data);
         }
 

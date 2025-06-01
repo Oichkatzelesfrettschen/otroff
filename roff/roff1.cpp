@@ -33,6 +33,7 @@
  #include <charconv>
  #include <regex>
  #include <numeric>
+ #include <string_view> // Added for ""sv literal
  
  /**
   * @brief Exception type for ROFF processor errors.
@@ -166,7 +167,7 @@
              }
              else
              {
-                 std::ifstream file(arg);
+                 std::ifstream file{arg}; // Corrected: use arg directly
                  if (!file.is_open())
                  {
                      throw RoffException(RoffException::ErrorCode::FileNotFound,
@@ -346,7 +347,7 @@
  
          if (config_.page_length > 0 && current_line_in_page_ >= config_.page_length)
          {
-             command_break_page(""sv);
+             command_break_page(std::string_view{""}); // Replaced ""sv
          }
  
          if (ch == '\n')
@@ -849,7 +850,7 @@
              throw RoffException(RoffException::ErrorCode::InvalidArgument,
                                   "No file specified for .so command");
  
-         std::ifstream file(std::string(args));
+         std::ifstream file{std::string(args)};
          if (!file.is_open())
              throw RoffException(RoffException::ErrorCode::FileNotFound,
                                   "Cannot open file: " + std::string(args));
@@ -888,7 +889,7 @@
          input_files_.clear();
          current_file_index_ = 0;
  
-         std::ifstream file(std::string(args));
+         std::ifstream file{std::string(args)};
          if (!file.is_open())
              throw RoffException(RoffException::ErrorCode::FileNotFound,
                                   "Cannot open file: " + std::string(args));

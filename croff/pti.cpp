@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * pti.c - Portable Typesetter Interpreter
  *
@@ -18,9 +18,9 @@
  * Entry point corresponds to the 'start' label in the original assembly.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 /*
  * Global state variables (originally in .bss section)
@@ -194,7 +194,7 @@ static void numb(long n, int base);
  * Args: c - control byte to print
  */
 static void prn(int c) {
-    printf("%o ", (unsigned char)c);
+    printf("%o ", static_cast<unsigned char>(c));
 }
 
 /*
@@ -204,7 +204,7 @@ static void prn(int c) {
  * Args: s - null-terminated string to output
  */
 static void str(const char *s) {
-    if (s != NULL) {
+    if (s != nullptr) {
         fputs(s, stdout);
     }
 }
@@ -238,8 +238,8 @@ static void numb(long n, int base) {
 
     /* Convert digits (at least one digit for zero) */
     do {
-        int digit = (int)(n % base);
-        *--p = (char)((digit < 10) ? ('0' + digit) : ('A' + digit - 10));
+        int digit = static_cast<int>(n % base);
+        *--p = static_cast<char>((digit < 10) ? ('0' + digit) : ('A' + digit - 10));
         n /= base;
     } while (n > 0);
 
@@ -266,30 +266,30 @@ static void numb(long n, int base) {
  */
 int main(int argc, char **argv) {
     long offset = 0; /* Optional seek offset */
-    const char *name = NULL; /* Input filename */
-    FILE *fp = NULL; /* Input file pointer */
+    const char *name = nullptr; /* Input filename */
+    FILE *fp = nullptr; /* Input file pointer */
     int ch; /* Current input character */
 
     /*
      * Argument parsing (corresponds to start of original pti.s)
      * Handle optional octal offset parameter
      */
-    if (argc > 1 && argv[1] != NULL && argv[1][0] == '-') {
+    if (argc > 1 && argv[1] != nullptr && argv[1][0] == '-') {
         /* Parse octal offset from command line */
-        offset = strtol(argv[1] + 1, NULL, 8);
+        offset = strtol(argv[1] + 1, nullptr, 8);
         --argc;
         ++argv;
     }
 
     /* Get input filename if provided */
-    if (argc > 1 && argv[1] != NULL) {
+    if (argc > 1 && argv[1] != nullptr) {
         name = argv[1];
     }
 
     /* Open input file or use stdin */
     fp = name ? fopen(name, "rb") : stdin;
-    if (fp == NULL) {
-        if (name != NULL) {
+    if (fp == nullptr) {
+        if (name != nullptr) {
             perror(name);
         } else {
             perror("stdin");
@@ -476,8 +476,8 @@ int main(int argc, char **argv) {
          * These are actual characters to be typeset
          */
         if ((ch & 0300) == 0) {
-            unsigned char c = (unsigned char)(ch + caseflag);
-            const struct wentry *w = NULL;
+            unsigned char c = static_cast<unsigned char>(ch + caseflag);
+            const struct wentry *w = nullptr;
             size_t i;
             int width = 0;
 
@@ -485,14 +485,14 @@ int main(int argc, char **argv) {
             for (i = 0; i < sizeof(wtab) / sizeof(wtab[0]); ++i) {
                 if (wtab[i].c == c) {
                     w = &wtab[i];
-                    c = (unsigned char)(040 + i); /* Map back to ASCII */
+                    c = static_cast<unsigned char>(040 + i); /* Map back to ASCII */
                     break;
                 }
             }
 
             /* Calculate character width in current point size */
-            if (w != NULL) {
-                width = ((int)w->w * pts) / 6;
+            if (w != nullptr) {
+                width = (static_cast<int>(w->w) * pts) / 6;
             }
 
             /* Output the character */

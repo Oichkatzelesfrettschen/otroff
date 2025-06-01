@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * t.c - Portable time manipulation functions
  *
@@ -12,7 +12,7 @@
  * historic PDP-11 memory layout for compatibility.
  */
 
-#include <stdint.h>
+#include <cstdint>
 
 /* Define NDI if not already defined */
 #ifndef NDI
@@ -57,10 +57,10 @@ void sub1(int tt[2], int delta) {
     /* Combine the two 16-bit words into a single 32-bit value
      * Cast to uint16_t first to ensure only lower 16 bits are used,
      * preventing sign extension issues on negative values */
-    time_value = ((uint32_t)(uint16_t)tt[0] << 16) | (uint16_t)tt[1];
+    time_value = (static_cast<uint32_t>(static_cast<uint16_t>(tt[0])) << 16) | static_cast<uint16_t>(tt[1]);
 
     /* Convert delta to unsigned for well-defined underflow behavior */
-    delta_u = (uint32_t)delta;
+    delta_u = static_cast<uint32_t>(delta);
 
     /* Perform subtraction using unsigned arithmetic
      * This ensures proper wrap-around behavior on underflow */
@@ -68,6 +68,6 @@ void sub1(int tt[2], int delta) {
 
     /* Split the result back into high and low 16-bit words
      * Cast back to int to match the array element type */
-    tt[0] = (int)(time_value >> 16); /* High 16 bits */
-    tt[1] = (int)(time_value & 0xFFFFu); /* Low 16 bits */
+    tt[0] = static_cast<int>(time_value >> 16); /* High 16 bits */
+    tt[1] = static_cast<int>(time_value & 0xFFFFu); /* Low 16 bits */
 }

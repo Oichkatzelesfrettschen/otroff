@@ -1,9 +1,9 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* t1.c: main control and input switching */
 #include "tbl.hpp"
-#include <stdio.h> /* fopen, fprintf */
-#include <stdlib.h> /* exit */
-#include <signal.h> /* signal */
+#include <cstdio> /* fopen, fprintf */
+#include <cstdlib> /* exit */
+#include <csignal> /* signal */
 #define BROKPIPE 13
 
 #if unix
@@ -73,7 +73,7 @@ int swapin(void) {
     tabin = fopen(ifile = *sargv, "r");
     iline = 1;
     fprintf(tabout, ".ds f. %s\n", ifile);
-    if (tabin == NULL)
+    if (tabin == nullptr)
         error("Can't open file");
     sargc--;
     sargv++;
@@ -81,8 +81,8 @@ int swapin(void) {
 }
 #if unix
 /* Clean exit on broken pipe. */
-int badsig(int signo) {
-    signal(BROKPIPE, 1);
+extern "C" int badsig(int signo) {
+    signal(BROKPIPE, SIG_DFL); // Corrected: should be SIG_DFL or a handler, not 1
     exit(0);
 }
 #endif

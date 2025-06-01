@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * n4.c - Number registers, conversion, and arithmetic for troff (C90)
  *
@@ -53,9 +53,9 @@
 #include "env.hpp"  // environment structure
 #include "t.hpp"    // troff header
 
-#include <stdio.h> /* C90: standard I/O functions */
-#include <stdlib.h> /* C90: exit, abs, etc. */
-#include <string.h> /* C90: string functions */
+#include <cstdio> /* C90: standard I/O functions */
+#include <cstdlib> /* C90: exit, abs, etc. */
+#include <cstring> /* C90: string functions */
 
 /* Version identification */
 static char Sccsid[] = "@(#)n4.c  1.4 of 4/26/77";

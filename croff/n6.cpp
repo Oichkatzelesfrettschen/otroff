@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * n6.c - Width functions, sizes and fonts for troff/nroff
  * 

@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * tacct.c - Paper usage accounting utility for troff
  * 
@@ -7,10 +7,10 @@
  * data files to calculate paper consumption in feet.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <unistd.h> // POSIX header
+#include <cstring>
 
 /* Maximum number of users supported */
 #define MAX_USERS 256
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 
     /* Open passwd file */
     passwd_fp = fopen("/etc/passwd", "r");
-    if (passwd_fp == NULL) {
+    if (passwd_fp == nullptr) {
         printf("Cannot open /etc/passwd\n");
         cleanup_and_exit(1);
     }
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 
     /* Open accounting data file */
     acct_fp = fopen(acctname, "r");
-    if (acct_fp == NULL) {
+    if (acct_fp == nullptr) {
         printf("Cannot open: %s\n", acctname);
         cleanup_and_exit(1);
     }
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
             printf("Error reading date from accounting file\n");
             cleanup_and_exit(1);
         }
-        date[i] = (char)c;
+        date[i] = static_cast<char>(c);
         if (date[i] == '\n') {
             break;
         }
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
         }
 
         /* Convert paper usage from square inches to feet */
-        usage = (float)acct_record[0] / INCHES_TO_FEET;
+        usage = static_cast<float>(acct_record[0]) / INCHES_TO_FEET;
         paper[uid] += usage;
         total += usage;
         last_uid = uid;
@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
             reset_passwd_file();
 
             /* Find username for this UID */
-            while ((p = getpwent()) != NULL) {
+            while ((p = getpwent()) != nullptr) {
                 if (p->pw_uid == i) {
                     /* Mark last user with underscore */
                     if (last_uid == p->pw_uid) {
@@ -173,18 +173,18 @@ static struct passwd *getpwent(void) {
     static struct passwd passwd_entry;
     static char line[MAX_LINE];
 
-    if (passwd_fp == NULL) {
-        return NULL;
+    if (passwd_fp == nullptr) {
+        return nullptr;
     }
 
     /* Read one line from passwd file */
     p = line;
     while ((c = getc(passwd_fp)) != '\n') {
         if (c == EOF) {
-            return NULL;
+            return nullptr;
         }
         if (p < line + MAX_LINE - 1) {
-            *p++ = (char)c;
+            *p++ = static_cast<char>(c);
         }
     }
     *p = '\0';
@@ -242,9 +242,9 @@ static char *pwskip(char *ap) {
  */
 static int getn(void *p, int n) {
     register int i;
-    register char *cp = (char *)p;
+    register char *cp = static_cast<char *>(p);
 
-    if (acct_fp == NULL) {
+    if (acct_fp == nullptr) {
         return 0;
     }
 
@@ -253,7 +253,7 @@ static int getn(void *p, int n) {
         if (c == EOF) {
             break;
         }
-        cp[i] = (char)c;
+        cp[i] = static_cast<char>(c);
     }
 
     return i;
@@ -263,7 +263,7 @@ static int getn(void *p, int n) {
  * Reset passwd file pointer to beginning
  */
 static void reset_passwd_file(void) {
-    if (passwd_fp != NULL) {
+    if (passwd_fp != nullptr) {
         rewind(passwd_fp);
     }
 }
@@ -275,10 +275,10 @@ static void reset_passwd_file(void) {
  *   status - exit status code
  */
 static void cleanup_and_exit(int status) {
-    if (passwd_fp != NULL) {
+    if (passwd_fp != nullptr) {
         fclose(passwd_fp);
     }
-    if (acct_fp != NULL) {
+    if (acct_fp != nullptr) {
         fclose(acct_fp);
     }
     exit(status);

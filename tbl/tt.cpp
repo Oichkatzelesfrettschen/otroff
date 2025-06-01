@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* tt.c: subroutines for drawing horizontal lines */
 #include "tbl.hpp" /* table internals */
 
@@ -79,7 +79,7 @@ int thish(int i, int c) {
     if (t == 0)
         return (1);
     s = table[i][c].col;
-    if (s == 0 || (point(s) && *s == 0))
+    if (s == nullptr || (point(s) && *s == 0))
         return (1);
     if (vspen(s))
         return (1);

@@ -10,7 +10,7 @@
  */
 
 #pragma once
-#include "cxx23_scaffold.hpp" // common utilities
+#include "../cxx17_scaffold.hpp" // common utilities
 
 /* Memory management */
 /*

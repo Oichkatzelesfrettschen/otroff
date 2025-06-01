@@ -1,6 +1,6 @@
 /* Header guard to prevent multiple inclusions. */
 #pragma once
-#include "cxx23_scaffold.hpp" // utilities
+#include "cxx17_scaffold.hpp" // utilities
 
 #include <cstddef>
 

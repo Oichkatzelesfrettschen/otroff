@@ -2,7 +2,7 @@
  * hytab.cpp - Hyphenation Tables Implementation
  */
 
-#include "cxx23_scaffold.hpp" // Modern C++23 enforcement
+#include "../cxx17_scaffold.hpp" // Modern C++23 enforcement
 #include "hytab.hpp"
 #include <algorithm>
 #include <numeric>
@@ -193,18 +193,20 @@ HyphenWeight HyphenationEngine::calculate_position_weight(
 }
 
 // Legacy C interface implementation using plain C++ functions
+extern "C" {
 int hytab_get_weight(char first, char second) {
     const auto weight = default_tables.digram_weight(first, second);
     return weight ? static_cast<int>(*weight) : 0;
 }
 
 int hytab_should_hyphenate(const char *word, int position) {
-    if (!word || position < 0) {
+    if (word == nullptr || position < 0) {
         return 0;
     }
 
     HyphenationEngine engine{default_tables};
     return engine.should_hyphenate_at(word, static_cast<std::size_t>(position)) ? 1 : 0;
 }
+} // extern "C"
 
 } // namespace croff::hyphenation

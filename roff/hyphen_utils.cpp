@@ -23,7 +23,7 @@ namespace roff::util {
         return false; // Zero terminator is not a vowel
     const char lower =
         static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-    return std::ranges::contains(vowel_table, lower);
+    return std::find(vowel_table.begin(), vowel_table.end(), lower) != vowel_table.end();
 }
 
 } // namespace roff::util

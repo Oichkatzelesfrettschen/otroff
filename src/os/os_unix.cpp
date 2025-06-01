@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../../cxx17_scaffold.hpp" // ensure C++17 features
 #include "os_abstraction.hpp" // updated header extension
 
 /*
@@ -41,4 +41,44 @@
 
 [[nodiscard]] int os_fclose(FILE *file) {
     return fclose(file);
+}
+
+// Ported functions from os_unix.c
+#include <unistd.h> // For fork, execv, etc.
+// <sys/types.h> is already included via os_abstraction.hpp (transitively or directly)
+// <sys/stat.h> is already included via os_abstraction.hpp (transitively or directly)
+#include <cstdlib>  // For getenv, setenv
+#include <cstring>  // For strerror
+#include <cerrno>   // For errno
+
+[[nodiscard]] int os_fork() {
+    return fork();
+}
+
+[[nodiscard]] int os_exec(const char* path, char* const argv[]) {
+    if (!path || !argv) return -1; // Basic validation
+    return execv(path, argv);
+}
+
+[[nodiscard]] int os_mkdir(const char* path, mode_t mode) {
+    if (!path) return -1; // Basic validation
+    return mkdir(path, mode);
+}
+
+[[nodiscard]] const char* os_get_error() {
+    return strerror(errno);
+}
+
+[[nodiscard]] int os_get_errno() {
+    return errno;
+}
+
+[[nodiscard]] char* os_getenv(const char* name) {
+    if (!name) return nullptr; // Use nullptr
+    return getenv(name);
+}
+
+[[nodiscard]] int os_setenv(const char* name, const char* value, int overwrite) {
+    if (!name || !value) return -1; // Basic validation
+    return setenv(name, value, overwrite);
 }

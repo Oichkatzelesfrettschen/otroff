@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file neqn.c
  * @brief Main entry point for the neqn mathematical equation preprocessor
@@ -28,12 +28,12 @@
 /* ================================================================
  * SYSTEM INCLUDES - C90 Standard Library Headers
  * ================================================================ */
-#include <stdio.h> /* Standard I/O operations */
-#include <stdlib.h> /* Memory allocation, program control */
-#include <string.h> /* String manipulation functions */
-#include <ctype.h> /* Character classification */
-#include <errno.h> /* Error number definitions */
-#include <signal.h> /* Signal handling */
+#include <cstdio> /* Standard I/O operations */
+#include <cstdlib> /* Memory allocation, program control */
+#include <cstring> /* String manipulation functions */
+#include <cctype> /* Character classification */
+#include <cerrno> /* Error number definitions */
+#include <csignal> /* Signal handling */
 
 /* ================================================================
  * PROJECT INCLUDES - Local Header Files
@@ -81,7 +81,7 @@
 /**
  * @brief Current processing context (defined in ne.h as extern)
  */
-neqn_context_t *neqn_current_context = NULL;
+neqn_context_t *neqn_current_context = nullptr;
 
 /**
  * @brief Program exit status (defined in ne.h as extern)
@@ -138,13 +138,13 @@ static int setup_signal_handlers(void);
  */
 int main(int argc, char *argv[]) {
     int result = NEQN_EXIT_SUCCESS;
-    char **input_files = NULL;
+    char **input_files = nullptr;
     int file_count = 0;
 
     /* Set up program name for error messages */
-    if (argc > 0 && argv[0] != NULL) {
+    if (argc > 0 && argv[0] != nullptr) {
         const char *basename = strrchr(argv[0], '/');
-        program_name = (basename != NULL) ? basename + 1 : argv[0];
+        program_name = (basename != nullptr) ? basename + 1 : argv[0];
     }
 
     /* Parse command-line arguments */
@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
 
     /* Create processing context */
     neqn_current_context = neqn_context_create();
-    if (neqn_current_context == NULL) {
+    if (neqn_current_context == nullptr) {
         fprintf(stderr, "%s: Failed to create processing context\n", program_name);
         cleanup_and_exit(NEQN_EXIT_FAILURE);
     }
@@ -198,8 +198,8 @@ int main(int argc, char *argv[]) {
     /* Extract input files from command line arguments */
     if (file_count > 0) {
         int i;
-        input_files = malloc(file_count * sizeof(char *));
-        if (input_files == NULL) {
+        input_files = static_cast<char **>(malloc(file_count * sizeof(char *)));
+        if (input_files == nullptr) {
             fprintf(stderr, "%s: Memory allocation failed\n", program_name);
             cleanup_and_exit(NEQN_EXIT_FAILURE);
         }
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
     result = process_input_files(input_files, file_count);
 
     /* Clean up and exit */
-    if (input_files != NULL) {
+    if (input_files != nullptr) {
         free(input_files);
     }
 
@@ -349,12 +349,12 @@ static int process_input_files(char **input_files, int file_count) {
             fprintf(stderr, "%s: Processing standard input\n", program_name);
         }
 
-        if (neqn_context_set_input(neqn_current_context, NULL) != NEQN_SUCCESS) {
+        if (neqn_context_set_input(neqn_current_context, nullptr) != NEQN_SUCCESS) {
             fprintf(stderr, "%s: Failed to set up standard input\n", program_name);
             return NEQN_EXIT_FAILURE;
         }
 
-        result = process_single_file(NULL);
+        result = process_single_file(nullptr);
     } else {
         /* Process each input file */
         for (i = 0; i < file_count; i++) {
@@ -383,7 +383,7 @@ static int process_input_files(char **input_files, int file_count) {
  * @return NEQN_EXIT_SUCCESS on success, error code on failure
  */
 static int process_single_file(const char *filename) {
-    char *line_buffer = NULL;
+    char *line_buffer = nullptr;
     size_t line_capacity = 0;
     int line_length;
     int line_number = 0;
@@ -422,14 +422,14 @@ static int process_single_file(const char *filename) {
     }
 
     /* Clean up */
-    if (line_buffer != NULL) {
+    if (line_buffer != nullptr) {
         free(line_buffer);
     }
 
     /* Report statistics if in verbose mode */
     if (verbose_mode) {
         fprintf(stderr, "%s: Processed %d lines", program_name, line_number);
-        if (filename != NULL) {
+        if (filename != nullptr) {
             fprintf(stderr, " from %s", filename);
         }
         fprintf(stderr, "\n");
@@ -467,9 +467,9 @@ static int process_single_file(const char *filename) {
  */
 static void cleanup_and_exit(int exit_code) {
     /* Clean up processing context */
-    if (neqn_current_context != NULL) {
+    if (neqn_current_context != nullptr) {
         neqn_context_destroy(neqn_current_context);
-        neqn_current_context = NULL;
+        neqn_current_context = nullptr;
     }
 
     /* Report final statistics if in verbose mode */

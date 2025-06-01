@@ -1,9 +1,9 @@
 #pragma once
 
 #include "roff.hpp"           // roff interface
-#include "os_abstraction.hpp" // platform abstraction layer
+#include "../src/os/os_abstraction.hpp" // platform abstraction layer
 #include <cstddef>
-#include "cxx23_scaffold.hpp" // Modern C++23 enforcement
+#include "cxx17_scaffold.hpp" // Modern C++17 enforcement
 
 // Global variables defined in roff8.c
 extern int ad; // Adjust mode flag

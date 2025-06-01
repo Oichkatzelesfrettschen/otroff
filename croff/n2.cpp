@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * n2.c - Character output processing and program termination for troff (C90)
  *
@@ -43,11 +43,11 @@
 #include "t.hpp" // troff common header
 #include "troff_processor.hpp" // processor state
 
-#include <stdlib.h> /* C90: exit, malloc, free */
+#include <cstdlib> /* C90: exit, malloc, free */
 #include <unistd.h> /* POSIX: write, close, open, sleep */
-#include <signal.h> /* C90: signal, SIG_DFL, SIGINT, SIGTERM */
+#include <csignal> /* C90: signal, SIG_DFL, SIGINT, SIGTERM */
 #include <fcntl.h> /* POSIX: open flags O_WRONLY, etc. */
-#include <stdio.h> /* C90: standard I/O functions */
+#include <cstdio> /* C90: standard I/O functions */
 #include <sys/types.h> /* POSIX: pid_t, uid_t */
 #include <sys/wait.h> /* POSIX: wait functions */
 
@@ -412,7 +412,7 @@ int done(int x) {
     /* Reset state variables safely */
     mflg = 0;
     if (dip)
-        dip = (struct env *)&d[0];
+        dip = reinterpret_cast<struct env *>(&d[0]);
 
     /* Handle word breaks and pending operations */
     if (woff)
@@ -586,7 +586,7 @@ report(void) {
     if ((ptid != 1) && paper) {
         seek(acctf, 0, 2); /* Seek to end of accounting file */
         a.use = paper;
-        a.uid = (char)getuid();
+        a.uid = static_cast<char>(getuid());
         write(acctf, &a, sizeof(a));
         close(acctf);
     }
@@ -640,7 +640,7 @@ casepi(void) {
     close(id[0]); /* Close original read end */
 
     /* Execute the specified program */
-    execl(nextf[0], nextf[0], (char *)0);
+    execl(nextf[0], nextf[0], nullptr);
 
     /* Error handling if exec fails */
     prstr("Cannot exec: ");

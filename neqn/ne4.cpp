@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne4.c
  * @brief NEQN equation typesetting - Part 4: Main driver and I/O management.
@@ -35,12 +35,12 @@
  */
 
 #include "ne.hpp" /* NEQN type definitions and global declarations */
-#include <stdio.h> /* Standard I/O operations */
-#include <stdlib.h> /* Standard library functions */
-#include <signal.h> /* Signal handling for broken pipes */
+#include <cstdio> /* Standard I/O operations */
+#include <cstdlib> /* Standard library functions */
+#include <csignal> /* Signal handling for broken pipes */
 #include <unistd.h> /* UNIX standard functions */
 #include <fcntl.h> /* File control operations */
-#include <string.h> /* String manipulation functions */
+#include <cstring> /* String manipulation functions */
 
 /* SCCS version identifier */
 static const char sccs_id[] = "@(#)ne4.c 1.3 25/05/29";
@@ -149,14 +149,14 @@ static int validate_arguments(int argc, char *argv[]) {
         return -1;
     }
 
-    if (!argv) {
+    if (argv == nullptr) {
         error(FATAL, "null argument vector", "");
         return -1;
     }
 
     /* Validate each argument string */
     for (i = 0; i < argc; i++) {
-        if (!argv[i]) {
+        if (argv[i] == nullptr) {
             error(FATAL, "null argument at position %d", "");
             return -1;
         }

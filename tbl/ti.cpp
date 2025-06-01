@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* ti.c: classify line intersections */
 #include "tbl.hpp"
 

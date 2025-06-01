@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /*
  * n1.c - Main module for troff/nroff text formatter (C90)
  *
@@ -65,11 +65,11 @@
 #include "tw.hpp" // typewriter table
 #include "troff_processor.hpp" // processor state
 
-#include <stdio.h> /* C90: standard I/O functions */
-#include <stdlib.h> /* C90: exit, malloc, etc. */
-#include <string.h> /* C90: string manipulation functions */
-#include <time.h> /* C90: time and date functions */
-#include <signal.h> /* C90: signal handling */
+#include <cstdio> /* C90: standard I/O functions */
+#include <cstdlib> /* C90: exit, malloc, etc. */
+#include <cstring> /* C90: string manipulation functions */
+#include <ctime> /* C90: time and date functions */
+#include <csignal> /* C90: signal handling */
 #include <unistd.h> /* POSIX: read, write, open, close */
 #include <fcntl.h> /* POSIX: open flags */
 #include <sys/types.h> /* POSIX: system types */
@@ -660,7 +660,7 @@ int isLeapYear(int year) {
  *   - Modifies ms[1] for February days (28 or 29)
  */
 void cvtime(void) {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     struct tm *tm = localtime(&now);
 
     /* Set the date/time values in troff registers */

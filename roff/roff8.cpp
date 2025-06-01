@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "cxx17_scaffold.hpp"
 /**
  * @file roff8.c
  * @brief ROFF global variables and data segment - System state and configuration
@@ -33,8 +33,8 @@
  *       maintaining exact compatibility with the original system.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 /* Include ROFF system headers */
 #include "roff.hpp" // roff definitions
@@ -843,5 +843,5 @@ void init_globals(void) {
  * @return Total size in bytes of the data segment
  */
 size_t get_data_segment_size(void) {
-    return (char *)&end_marker - (char *)&stbuf_marker;
+    return static_cast<char *>(&end_marker) - static_cast<char *>(&stbuf_marker);
 }

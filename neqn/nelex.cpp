@@ -1,10 +1,11 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 #include "ne.hpp"
-#include "y.tab.c"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include "y.tab.c" // This is unusual, including a .c file.
+#include <cstdio>
+#include <cstdlib>
+#include <unistd.h> // POSIX header
+#include <fcntl.h>  // POSIX header
+#include <cstdint>  // For uintptr_t
 
 void error(int level, const char *fmt, ...);
 
@@ -124,7 +125,7 @@ beg:
                 error(FATAL, "quoted string %.20s... too long", token);
         }
         token[sp] = '\0';
-        yylval = (int)(uintptr_t)&token[0];
+        yylval = static_cast<int>(reinterpret_cast<uintptr_t>(&token[0]));
         return QTEXT;
     }
     if (c == righteq)
@@ -176,7 +177,7 @@ void getstr(char *s, int c) {
         c == righteq)
         peek = c;
     s[sp] = '\0';
-    yylval = (int)(uintptr_t)s;
+    yylval = static_cast<int>(reinterpret_cast<uintptr_t>(s));
 }
 
 /*
@@ -184,7 +185,7 @@ void getstr(char *s, int c) {
  */
 int lookup(char *str, lookup_tab tbl[]) {
     int i;
-    for (i = 0; tbl[i].name != NULL; i++) {
+    for (i = 0; tbl[i].name != nullptr; i++) {
         if (strcmp(str, tbl[i].name) == 0)
             return i;
     }

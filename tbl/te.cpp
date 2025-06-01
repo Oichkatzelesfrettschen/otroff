@@ -1,8 +1,8 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /* te.c: error message control, input line count */
 #include "tbl.hpp"
-#include <stdlib.h> /* exit */
-#include <stdio.h> /* fprintf */
+#include <cstdlib> /* exit */
+#include <cstdio> /* fprintf */
 
 namespace tbl {
 /* Report an error and exit. */
@@ -22,9 +22,9 @@ char *gets1(char *s) {
     char *p;
     iline++;
     p = fgets(s, 512, tabin);
-    if (p == 0) {
-        if (swapin() == 0 || (p = fgets(s, 512, tabin)) == 0)
-            return (0);
+    if (p == nullptr) {
+        if (swapin() == 0 || (p = fgets(s, 512, tabin)) == nullptr)
+            return (nullptr); // Return nullptr for char*
     }
     while (*s)
         s++;
@@ -37,7 +37,7 @@ char *gets1(char *s) {
 }
 #define BACKMAX 500
 char backup[BACKMAX];
-char *backp backup;
+char *backp = backup; // Corrected syntax
 /* Push a character back to the input stream. */
 void un1getc(int c) {
     if (c == '\n')

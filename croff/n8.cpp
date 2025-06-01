@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file n8.c
  * @brief Hyphenation algorithms and word processing for troff
@@ -19,10 +19,10 @@
  */
 
 #include "tdef.hpp" // updated header extension
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <cctype>
 
 /* ================================================================
  * FORWARD DECLARATIONS - C90 FUNCTION PROTOTYPES
@@ -166,7 +166,7 @@ void hyphenateWord(int *wp) {
     int *i, j;
 
     /* Validate input parameter */
-    if (wp == NULL) {
+    if (wp == nullptr) {
         return;
     }
 
@@ -554,7 +554,7 @@ again:
 int chkvow(int *w) {
     while (--w >= wdstart) {
         if (vowel(*w & CMASK)) {
-            return (int)(w - wdstart);
+            return static_cast<int>(w - wdstart);
         }
     }
     return 0;
@@ -594,7 +594,7 @@ char *getsuf(char *x) {
  * the compressed suffix data.
  */
 unsigned char rdsufb(char *i) {
-    return suftab_get_byte((size_t)i);
+    return suftab_get_byte(reinterpret_cast<size_t>(i));
 }
 
 /**
@@ -646,15 +646,18 @@ int calculate_digram_value(int *w, char bxh[26][13], char bxxh[26][13],
     int val = 1;
 
     if (w == wdstart) {
-        val = dilook('a', *w, bxh);
+        val = dilook('a', *w, bxh); // Assuming bxh, etc. are correctly typed for dilook
     } else if (w == wdstart + 1) {
-        val = dilook(*(w - 1), *w, bxxh);
+        val = dilook(*(w - 1), *w, bxxh); // Assuming bxxh, etc. are correctly typed for dilook
     } else {
-        val = dilook(*(w - 1), *w, xxh);
+        val = dilook(*(w - 1), *w, xxh); // Assuming xxh, etc. are correctly typed for dilook
     }
 
-    val = dilook(*w, *(w + 1), xhx);
-    val = dilook(*(w + 1), *(w + 2), hxx);
+    // These lines look like they are overwriting `val` not accumulating.
+    // This might be a bug in the original logic or my understanding of dilook.
+    // For refactoring casts, I'll keep the logic as is.
+    val = dilook(*w, *(w + 1), xhx); // Assuming xhx, etc. are correctly typed for dilook
+    val = dilook(*(w + 1), *(w + 2), hxx); // Assuming hxx, etc. are correctly typed for dilook
 
     return val;
 }
@@ -729,11 +732,11 @@ int *find_max_digram(int *start, int *end, int *maxval) {
     int val;
 
     /* Initialize with invalid values */
-    maxpos = NULL;
+    maxpos = nullptr;
     *maxval = 0;
 
-    if (start == NULL || end == NULL || start >= end) {
-        return NULL;
+    if (start == nullptr || end == nullptr || start >= end) {
+        return nullptr;
     }
 
     /* Scan range for maximum digram value */
@@ -744,8 +747,8 @@ int *find_max_digram(int *start, int *end, int *maxval) {
         /* Add context-based adjustments */
         if (pos > wdstart && pos < wdend) {
             /* Use simplified digram calculation */
-            val += dilook(*(pos - 1), *pos, (char (*)[13])NULL);
-            val += dilook(*pos, *(pos + 1), (char (*)[13])NULL);
+            val += dilook(*(pos - 1), *pos, nullptr);
+            val += dilook(*pos, *(pos + 1), nullptr);
         }
 
         /* Update maximum if this value is higher */

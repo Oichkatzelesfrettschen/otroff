@@ -1,4 +1,4 @@
-#include "cxx23_scaffold.hpp"
+#include "../cxx17_scaffold.hpp"
 /**
  * @file ne3.c
  * @brief NEQN equation typesetting - Part 3: Text processing and symbol translation.
@@ -25,9 +25,9 @@
  */
 
 #include "ne.hpp" /* NEQN type definitions and global declarations */
-#include <stdio.h> /* Standard I/O for printf (troff command generation) */
-#include <stdlib.h> /* Standard library functions */
-#include <string.h> /* String manipulation functions */
+#include <cstdio> /* Standard I/O for printf (troff command generation) */
+#include <cstdlib> /* Standard library functions */
+#include <cstring> /* String manipulation functions */
 
 /* SCCS version identifier */
 static const char sccs_id[] = "@(#)ne3.c 1.3 25/05/29";
@@ -161,7 +161,7 @@ static struct symbol_entry restab[] = {
     {"det", "\\fRdet\\fP"}, /* Determinant function */
 
     /* Sentinel entry to mark end of table */
-    {NULL, NULL}};
+    {nullptr, nullptr}};
 
 /* External variables - these should be defined in ne.h or other modules */
 extern int yyval; /* Result of parsing rule, often an object handle */
@@ -226,7 +226,7 @@ static void validate_buffer_space(int needed) {
  */
 static void safe_append_char(int c) {
     validate_buffer_space(1);
-    cs[csp++] = (char)c;
+    cs[csp++] = static_cast<char>(c);
 }
 
 /**
@@ -241,7 +241,7 @@ static void safe_append_string(const char *str) {
     int len;
     int i;
 
-    if (!str)
+    if (str == nullptr)
         return; /* Handle null pointer gracefully */
 
     len = strlen(str);
@@ -329,7 +329,7 @@ void text(int t, char *p1) {
 
     default:
         /* Regular text - attempt symbol lookup first */
-        i = lookup(p1, (void *)restab);
+        i = lookup(p1, static_cast<void *>(restab));
         if (i >= 0) {
             /* Found in symbol table - use predefined translation */
             j = restab[i].resval;
