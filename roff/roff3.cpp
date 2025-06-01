@@ -69,7 +69,15 @@
 #include <sys/types.h> /* System data types */
 
 /* Local headers */
-#include "roff.hpp" /* ROFF system definitions and globals */
+#include "roff.hpp" /* ROFF system definitions and globals (now with new namespace) */
+
+namespace otroff {
+namespace roff_legacy {
+
+// Using directive for convenience within this file
+// This means functions within this file can call each other and access globals
+// from otroff::roff_legacy without explicit qualification.
+using namespace otroff::roff_legacy;
 
 /* SCCS version identifier */
 [[maybe_unused]] static constexpr std::string_view sccs_id =
@@ -155,7 +163,10 @@ static void popi(void);                       // Local static, OK
  * 3. Skip any spaces following the alphabetic sequence
  * 4. Save first non-space character in global 'ch' for later use
  */
-namespace roff {
+// All function definitions below were previously in 'namespace roff' or global.
+// They are now part of 'namespace otroff::roff_legacy' due to the wrappers at top/bottom
+// and the 'using namespace otroff::roff_legacy;' directive above.
+
 void skipcont(void) {
     int current_char;
 
@@ -173,7 +184,6 @@ void skipcont(void) {
     /* Save the first non-space character for later processing */
     ch = current_char;
 }
-} // namespace roff
 
 // Functions defined in this file are now part of the roff namespace
 // due to "using namespace roff;" in roff.hpp, and roff.hpp provides
@@ -249,7 +259,6 @@ void skipcont(void) {
  * - Resets temporary indent (un) to permanent indent (in)
  * - Calls setnel() to prepare for next line
  */
-namespace roff {
 void rbreak(void) {
     int spacing_count;
     char *line_ptr;
@@ -362,7 +371,6 @@ reset_line_state:
     /* Initialize line buffer for next line */
     setnel();
 }
-} // namespace roff
 
 /**
  * @brief Apply justification spacing to current line.
@@ -390,7 +398,6 @@ reset_line_state:
  * @note This implements the sophisticated spacing algorithms that
  *       make ROFF's justification superior to simple word processors.
  */
-namespace roff {
 void jfo(void) {
     int extra_space;
     int space_count;
@@ -425,7 +432,6 @@ void jfo(void) {
         space(space_count);
     }
 }
-} // namespace roff
 
 /**
  * @brief Output line number if line numbering is enabled.
@@ -456,7 +462,6 @@ void jfo(void) {
  * - Additional spacing (ni) provides user-controlled indent
  * - Two spaces are always added after the number
  */
-namespace roff {
 void donum(void) {
     int space_before;
     int number_width;
@@ -502,7 +507,6 @@ void donum(void) {
     /* Increment line number for next numbered line */
     lnumber++;
 }
-} // namespace roff
 
 /**
  * @brief Output a newline character and increment line counter.
@@ -527,12 +531,10 @@ void donum(void) {
  * The line counter (nl) is critical for pagination logic and
  * determines when page breaks should occur.
  */
-namespace roff {
 void newline(void) {
     putchar_roff('\n');
     nl++;
 }
-} // namespace roff
 
 /**
  * @brief Conditional newline output for spacing calculations.
@@ -554,14 +556,12 @@ void newline(void) {
  * to add vertical space but want to avoid creating unwanted
  * blank lines at page boundaries or line starts.
  */
-namespace roff {
 void nline(void) {
     /* Only output newline if not at beginning of line or page bottom */
     if (nl > 0 && nl != bl) {
         newline();
     }
 }
-} // namespace roff
 
 /**
  * @brief Parse numeric parameter from input with relative value support.
@@ -578,12 +578,10 @@ void nline(void) {
  * @param default_val Default value to use if no number found or for relative ops
  * @return Parsed numeric value with any relative adjustments applied
  */
-namespace roff {
 int number(int default_val) {
     skipcont();
     return number1(default_val);
 }
-} // namespace roff
 
 /**
  * @brief Core numeric parsing without continuation skipping.
@@ -611,7 +609,6 @@ int number(int default_val) {
  * @param default_val Default value to use as base for relative operations
  * @return Parsed numeric value according to ROFF parameter rules
  */
-namespace roff {
 int number1(int default_val) {
     int result = 0;
     int current_char;
@@ -657,7 +654,6 @@ int number1(int default_val) {
         return result; /* Absolute value */
     }
 }
-} // namespace roff
 
 /**
  * @brief Eject current page and start new page with full pagination.
@@ -693,7 +689,6 @@ int number1(int default_val) {
  * - Exits cleanly if page number exceeds pto (page to limit)
  * - Calls flush() and place for clean termination
  */
-namespace roff {
 void eject(void) {
     int remaining_lines;
 
@@ -744,7 +739,6 @@ void eject(void) {
     /* Handle interactive stop processing */
     istop();
 }
-} // namespace roff
 
 /**
  * @brief Handle interactive stop processing for user control.
@@ -771,7 +765,6 @@ void eject(void) {
  * - Waits for single character input from user
  * - Continues processing after user input
  */
-namespace roff {
 void istop(void) {
     char input_char;
 
@@ -791,7 +784,6 @@ void istop(void) {
     /* Note: Original assembly included signal handling which is omitted 
      * in this portable C version for simplicity and compatibility */
 }
-} // namespace roff
 
 /**
  * @brief Store character in current line buffer with bounds checking.
@@ -821,7 +813,6 @@ void istop(void) {
  *
  * @param c Character to store in line buffer (0-255 range)
  */
-namespace roff {
 void storeline(int c) {
     int char_width;
 
@@ -840,7 +831,6 @@ void storeline(int c) {
     nel -= char_width; /* Subtract from remaining space */
     nc++; /* Increment character count */
 }
-} // namespace roff
 
 /**
  * @brief Read and process complete word from input with hyphenation.
@@ -884,7 +874,6 @@ void storeline(int c) {
  * - Calculates word width (wne) and character count (wch)
  * - Initializes line buffer (setnel) if needed
  */
-namespace roff {
 void getword(void) {
     char *word_ptr;
     int current_char;
@@ -984,7 +973,6 @@ void getword(void) {
         setnel();
     }
 }
-} // namespace roff
 
 /**
  * @brief Initialize line buffer for new line accumulation.
@@ -1015,7 +1003,6 @@ void getword(void) {
  * The available space calculation (nel) is critical for determining
  * when line breaks should occur during text accumulation.
  */
-namespace roff {
 void setnel(void) {
     linep = line; /* Reset line pointer to buffer start */
     nel = ll - un; /* Calculate available space */
@@ -1023,7 +1010,6 @@ void setnel(void) {
     fac = 0; /* Reset justification factors */
     fmq = 0;
 }
-} // namespace roff
 
 /**
  * @brief Store character in word buffer with width calculation.
@@ -1052,7 +1038,6 @@ void setnel(void) {
  *
  * @param c Character to store in word buffer
  */
-namespace roff {
 void storeword(int c) {
     int char_width;
 
@@ -1066,7 +1051,6 @@ void storeword(int c) {
         *wordp++ = static_cast<char>(c);
     }
 }
-} // namespace roff
 
 /**
  * @brief Ensure adequate space on current page with line spacing.
@@ -1088,7 +1072,6 @@ void storeword(int c) {
  *
  * @param lines Number of logical lines needed
  */
-namespace roff {
 void need(int lines) {
     int total_lines;
 
@@ -1096,7 +1079,6 @@ void need(int lines) {
     total_lines = lines * ls;
     need2(total_lines);
 }
-} // namespace roff
 
 /**
  * @brief Ensure adequate space without line spacing multiplier.
@@ -1118,7 +1100,6 @@ void need(int lines) {
  *
  * @param lines Exact number of physical lines needed
  */
-namespace roff {
 void need2(int lines) {
     int projected_position;
 
@@ -1130,7 +1111,6 @@ void need2(int lines) {
         eject(); /* Force page break to ensure space */
     }
 }
-} // namespace roff
 
 /**
  * @brief Ensure value is non-negative (minimum zero).
@@ -1152,14 +1132,12 @@ void need2(int lines) {
  * @param value Value to check and clamp
  * @return Value if positive or zero, 0 if negative
  */
-namespace roff {
 int min(int value) {
     if (value < 0) {
         return 0;
     }
     return value;
 }
-} // namespace roff
 
 /**
  * @brief Read filename from input with character validation.
@@ -1183,7 +1161,6 @@ int min(int value) {
  *
  * @param name_buffer Buffer to store the filename (must be at least 19 bytes)
  */
-namespace roff {
 void getname(char *name_buffer) {
     int current_char;
     int char_count = 0;
@@ -1206,7 +1183,6 @@ void getname(char *name_buffer) {
     /* Null-terminate filename */
     name_buffer[char_count] = '\0';
 }
-} // namespace roff
 
 /**
  * @brief Copy block of text for macro processing with nesting support.
@@ -1244,7 +1220,6 @@ void getname(char *name_buffer) {
  * - Manages file positions and buffer pointers
  * - Handles file descriptor coordination
  */
-namespace roff {
 void copyb(void) {
     int nesting_level = 1;
     int current_char;
@@ -1296,7 +1271,73 @@ void copyb(void) {
         nextb = position;
     }
 }
-} // namespace roff
+
+// Definitions for functions that were static in C, but are now part of the API
+// as declared in roff.hpp. They are already part of the otroff::roff_legacy namespace.
+// The 'static' keyword is removed if they are API functions.
+// If they were truly static helpers not in roff.hpp, they'd remain static here.
+
+// Example: alph2 was made non-static and put in namespace roff in a previous step.
+// It's now part of otroff::roff_legacy.
+int alph2(int ch) { // This is the definition for otroff::roff_legacy::alph2
+    /* Check uppercase range */
+    if (ch >= 'A' && ch <= 'Z') {
+        return 1;
+    }
+    /* Check lowercase range */
+    if (ch >= 'a' && ch <= 'z') {
+        return 1;
+    }
+    /* Not alphabetic */
+    return 0;
+}
+
+// Example: wbf
+void wbf(int character, int position) { // This is the definition for otroff::roff_legacy::wbf
+    /* Store parameters in static variables for file operations */
+    char_buf = static_cast<char>(character); // char_buf is file-static within this cpp
+    offb = position; // offb is file-static within this cpp
+
+    /* Seek to position and write character */
+    if (ibf >= 0) { // ibf is a global from otroff::roff_legacy
+        lseek(ibf, offb, SEEK_SET); // lseek is standard library
+        write(ibf, &char_buf, 1); // write is standard library
+    }
+
+    /* Update global position counter */
+    nextb = position + 1; // nextb is a global from otroff::roff_legacy
+
+    /* Handle file descriptor coordination */
+    if (ibf1 == ofile) { // ibf1 and ofile are globals from otroff::roff_legacy
+        ofile = -1;
+    }
+}
+
+// Example: rdsufb
+int rdsufb(int offset, int file_desc) { // This is the definition for otroff::roff_legacy::rdsufb
+    int block_offset;
+    int char_offset;
+
+    /* Calculate block-aligned offset */
+    block_offset = offset & ~BLOCK_MASK; /* Clear low bits for block alignment */
+
+    /* Check if we need to read a new block */
+    if (block_offset != sufoff || file_desc != ofile) { // sufoff, ofile are globals
+        /* Cache miss - read new block */
+        sufoff = block_offset;
+        ofile = file_desc;
+
+        /* Read block from file */
+        if (file_desc >= 0) {
+            lseek(file_desc, sufoff, SEEK_SET); // lseek is standard library
+            read(file_desc, sufbuf, SUFFIX_BUF_SIZE); // read is standard library, sufbuf global
+        }
+    }
+
+    /* Extract character from cached block */
+    char_offset = offset & BLOCK_MASK; /* Character offset within block */
+    return static_cast<unsigned char>(sufbuf[char_offset]); // sufbuf is global
+}
 
 /**
  * @brief Pop from include processing stack.

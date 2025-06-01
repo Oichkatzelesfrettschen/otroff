@@ -13,7 +13,10 @@
  * provided as normal functions so the rest of the codebase
  * does not rely on assembly sources.
  */
-namespace roff::util {
+namespace otroff::roff_legacy::util { // Changed namespace
+
+// Using the outer namespace for consistency, though not strictly needed here
+using namespace otroff::roff_legacy;
 
 void *fast_memcpy(void *dst, const void *src, std::size_t n) {
     std::span<std::byte> d{static_cast<std::byte *>(dst), n};
@@ -31,4 +34,4 @@ int fast_memcmp(const void *s1, const void *s2, std::size_t n) {
     return static_cast<int>(*mismatch.in1) - static_cast<int>(*mismatch.in2);
 }
 
-} // namespace roff::util
+} // namespace otroff::roff_legacy::util
