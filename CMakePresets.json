@@ -1,0 +1,90 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 16,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "dev-debug",
+      "displayName": "Development Debug (ASan, Coverage, Ccache)",
+      "description": "Debug build with AddressSanitizer, coverage, ccache, and Ninja.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/dev-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache", // Assumes ccache is found by CMake
+        "ENABLE_ASAN": "ON", // Custom variable to enable ASan in CodeQuality.cmake
+        "ENABLE_COVERAGE": "ON" // Custom variable to enable coverage in CodeQuality.cmake
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release Optimized",
+      "description": "Optimized release build with ccache and Ninja.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo", // Good balance of optimization and debug info
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
+        "ENABLE_ASAN": "OFF",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    },
+    {
+      "name": "ci-default",
+      "displayName": "CI Default (Release, No Ccache)",
+      "description": "Default CI build: Release, Ninja, no ccache, no special tools.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ci-default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "ENABLE_ASAN": "OFF",
+        "ENABLE_COVERAGE": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "dev-debug",
+      "configurePreset": "dev-debug",
+      "displayName": "Build Debug (ASan, Coverage, Ccache)"
+      // "jobs" and "targets" can be added here or in user presets
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "displayName": "Build Release Optimized"
+    },
+    {
+        "name": "ci-default",
+        "configurePreset": "ci-default",
+        "displayName": "Build CI Default"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "dev-debug",
+      "configurePreset": "dev-debug",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "parallel": 1} // Default to 1 job for tests initially
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "parallel": 1}
+    },
+    {
+        "name": "ci-default",
+        "configurePreset": "ci-default",
+        "output": {"outputOnFailure": true},
+        "execution": {"noTestsAction": "error", "parallel": 1}
+    }
+  ]
+}
