@@ -3,9 +3,10 @@
 
 #include <cctype>
 #include <ranges>
+#include <algorithm> // Required for std::find
 
 // Simple helpers used by the old hyphenation code.
-namespace roff::util {
+namespace otroff::roff_legacy::util { // Changed namespace
 
 /*
  * Determine if character ``c`` is punctuation.
@@ -26,4 +27,4 @@ namespace roff::util {
     return std::find(vowel_table.begin(), vowel_table.end(), lower) != vowel_table.end();
 }
 
-} // namespace roff::util
+} // namespace otroff::roff_legacy::util

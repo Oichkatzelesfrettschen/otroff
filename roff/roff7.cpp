@@ -45,7 +45,13 @@
  */
 
 #include "cxx17_scaffold.hpp" // Changed from cxx23_scaffold.hpp
-#include "roff.hpp" // use C++ header
+#include "roff.hpp" // use C++ header (now with new namespace)
+
+namespace otroff {
+namespace roff_legacy {
+
+// Using directive for convenience within this file
+using namespace otroff::roff_legacy;
 
 /* Copyright notice from original Bell Labs code */
 static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
@@ -377,3 +383,6 @@ int get_xhx_weight(int ch1, int ch2) {
 int get_xxh_weight(int ch1, int ch2) {
     return get_digram_weight(ch1, ch2, xxh);
 }
+
+} // namespace roff_legacy
+} // namespace otroff

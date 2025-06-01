@@ -1,17 +1,22 @@
-# Build the roff formatter
-file(GLOB ROFF_SOURCES_ALL *.c *.cpp)
-list(REMOVE_ITEM ROFF_SOURCES_ALL "${CMAKE_CURRENT_SOURCE_DIR}/roff1_cxx23.cpp")
-add_executable(roff ${ROFF_SOURCES_ALL})
-set_source_files_properties(${ROFF_SOURCES_ALL} PROPERTIES LANGUAGE CXX)
+project(roff_project) # Sub-project
 
-# Explicitly set C++ standard for this target
-set_target_properties(roff PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
+add_library(roff_core_obj OBJECT
+    # roff2.cpp          # Temporarily excluded due to C++23 experimental code compilation errors
+    roff3.cpp
+    roff4.cpp
+    roff5.cpp          # Hyphenation engine
+    roff7.cpp          # Digram tables
+    roff8.cpp          # Global definitions
+    hyphen_utils.cpp
+    runtime.cpp
+    sse_memops.cpp
+    time_utils.cpp
+)
+# Object libraries typically use PRIVATE for linking build-time dependencies
+target_link_libraries(roff_core_obj PRIVATE
+    otroff_common
+    os_abstraction
 )
 
-# Include headers from the roff directory
-target_include_directories(roff PRIVATE ${CMAKE_SOURCE_DIR}/roff)
-# Link against the OS abstraction layer
-target_link_libraries(roff PRIVATE os_abstraction)
+add_executable(troff_exe main.cpp) # Uses the new roff/main.cpp
+target_link_libraries(troff_exe PRIVATE $<TARGET_OBJECTS:roff_core_obj>)

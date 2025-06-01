@@ -1,36 +1,43 @@
-# Build the neqn preprocessor
-find_package(BISON)
-if(NOT BISON_FOUND)
-    message(FATAL_ERROR "Bison not found, cannot process ne.g for neqn target.")
-endif()
+project(neqn_project)
 
-set(NEQN_YACC_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/ne.g)
-set(NEQN_YACC_OUTPUT_C ${CMAKE_CURRENT_BINARY_DIR}/y.tab.c)
-set(NEQN_YACC_OUTPUT_H ${CMAKE_CURRENT_BINARY_DIR}/y.tab.h)
+# Gather all .cpp files, then exclude main and test files
+file(GLOB NEQN_ALL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cpp")
 
-add_custom_command(
-    OUTPUT ${NEQN_YACC_OUTPUT_C} ${NEQN_YACC_OUTPUT_H}
-    COMMAND ${BISON_EXECUTABLE} -d -o ${NEQN_YACC_OUTPUT_C} ${NEQN_YACC_INPUT}
-    DEPENDS ${NEQN_YACC_INPUT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Running Bison on ne.g to generate y.tab.c and y.tab.h"
+set(NEQN_MAIN_SOURCE "neqn.cpp")
+set(NEQN_TEST_SOURCES
+    "test_neqn.cpp"
+    "test_ne2.cpp"
+    # Add any other neqn test files here if they exist and match the glob
 )
 
-file(GLOB NEQN_SOURCES_USER *.c *.cpp) # User-provided sources
-add_executable(neqn ${NEQN_SOURCES_USER} ${NEQN_YACC_OUTPUT_C})
-set_source_files_properties(${NEQN_SOURCES_USER} ${NEQN_YACC_OUTPUT_C} PROPERTIES LANGUAGE CXX)
+list(REMOVE_ITEM NEQN_ALL_SOURCES ${NEQN_MAIN_SOURCE})
+foreach(test_file ${NEQN_TEST_SOURCES})
+    list(REMOVE_ITEM NEQN_ALL_SOURCES ${test_file})
+endforeach()
 
-# Explicitly set C++ standard for this target
-set_target_properties(neqn PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
+set(NEQN_CORE_SOURCES ${NEQN_ALL_SOURCES})
+
+add_library(neqn_core_obj OBJECT ${NEQN_CORE_SOURCES})
+# Object libraries typically use PRIVATE for linking build-time dependencies
+target_link_libraries(neqn_core_obj PRIVATE
+    otroff_common
+    # os_abstraction is not directly linked here, assuming neqn core doesn't need it.
+    # It can be added if specific files in neqn_core_obj require direct os_abstraction functions.
 )
 
-# Include headers from the neqn directory AND the binary directory for generated headers
-target_include_directories(neqn PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
+add_executable(neqn_exe ${NEQN_MAIN_SOURCE})
+target_link_libraries(neqn_exe PRIVATE $<TARGET_OBJECTS:neqn_core_obj>)
+
+# Basic regression test for neqn
+# Create a dummy input file for neqn
+set(NEQN_BASIC_TEST_INPUT_CONTENT "x sup 2")
+set(NEQN_BASIC_TEST_INPUT_FILE "\${CMAKE_CURRENT_BINARY_DIR}/neqn_basic_input.txt")
+file(WRITE \${NEQN_BASIC_TEST_INPUT_FILE} \${NEQN_BASIC_TEST_INPUT_CONTENT})
+
+add_test(
+    NAME NeqnRunsTest
+    COMMAND $<TARGET_FILE:neqn_exe> < \${NEQN_BASIC_TEST_INPUT_FILE}
+    WORKING_DIRECTORY \${CMAKE_CURRENT_BINARY_DIR}
 )
-# Link against the OS abstraction layer
-target_link_libraries(neqn PRIVATE os_abstraction)
+# This test primarily checks if neqn_exe runs and exits with 0 when processing basic input.
+# More complex output checking (e.g., diffing output against a golden file) can be added later.

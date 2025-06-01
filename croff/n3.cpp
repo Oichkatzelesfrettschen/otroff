@@ -700,7 +700,7 @@ void collect(void) {
                 edone(004);
             }
 
-            if ((enda - 4) <= strp) // strp is char*
+            if ((enda - 4) <= reinterpret_cast<char*>(strp)) // Cast strp to char* for comparison
                 setbrk(DELTA);
         }
 
@@ -853,6 +853,12 @@ void casetl(void) {
 
 void casepc(void) {
     pagech = chget(IMP);
+}
+
+// Wrapper for pchar to match hseg's expected function signature
+static int pchar_wrapper_for_hseg(int c) {
+    pchar(c); // Call the void pchar
+    return 0; // Return a dummy int
 }
 
 int hseg(int (*f)(int), int *p) {

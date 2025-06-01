@@ -5,7 +5,14 @@
 #include <sys/types.h> /* defines mode_t */
 #include <sys/stat.h>
 #include <cstring>
-#include "runtime.hpp"
+#include "runtime.hpp" // This might need namespacing if it declares things used here without qualification
+#include "roff.hpp"    // For access to other roff_legacy items if needed, and for consistency
+
+namespace otroff {
+namespace roff_legacy {
+
+// Using directive for convenience within this file
+using namespace otroff::roff_legacy;
 
 /*
  * Replacement implementations for small helper routines found in the
@@ -62,3 +69,6 @@ void flush_output(char *buf, size_t *p) noexcept {
         *p = 0;
     }
 }
+
+} // namespace roff_legacy
+} // namespace otroff
