@@ -51,12 +51,13 @@ option(ENABLE_TSAN "Enable ThreadSanitizer (Debug builds only)" OFF)
 option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer (Debug builds only)" OFF)
 option(ENABLE_COVERAGE "Enable Code Coverage (Debug builds, GCC/Clang only)" OFF)
 
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs) # For CMAKE_INSTALL_INCLUDEDIR etc.
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "Build type not specified, defaulting to 'Debug'.")
-  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose build type: Debug Release RelWithDebInfo MinSizeRel" FORCE)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose build type: Debug Release RelWithDebInfo MinSizeRel" FORCE)
 endif()
 
 # Require modern C++ for everything built
@@ -173,6 +174,29 @@ if(ALL_CXX_SOURCES)
 else()
     add_custom_target(format COMMENT "No C/C++ source files found to format.")
 endif()
+
+# OS Abstraction Library
+add_library(os_abstraction) # Could be STATIC or SHARED if it grows, defaults to STATIC if sources are added.
+                            # For now, it will be an INTERFACE library if it's header-only,
+                            # or a regular library if it has .cpp files.
+
+
+# Common settings library
+add_library(otroff_common INTERFACE)
+target_compile_features(otroff_common INTERFACE cxx_std_17)
+# Add common warning flags.
+target_compile_options(otroff_common INTERFACE
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra -Wpedantic>
+    # Add MSVC specific flags if needed, e.g. $<$<CXX_COMPILER_ID:MSVC>:/W4>
+)
+target_include_directories(otroff_common INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # Convention for project's public headers
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>        # For installed public headers
+)
+target_compile_definitions(otroff_common INTERFACE
+    $<$<CONFIG:DEBUG>:OTROFF_DEBUG>
+    # Add other general preprocessor definitions if needed
+)
 
 # OS Abstraction Library
 add_library(os_abstraction) # Could be STATIC or SHARED if it grows, defaults to STATIC if sources are added.

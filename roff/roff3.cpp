@@ -1275,6 +1275,14 @@ void copyb(void) {
 // Definitions for functions that are part of the API (declared in roff.hpp)
 // Ensure these are not static.
 
+// Definitions for functions that were static in C, but are now part of the API
+// as declared in roff.hpp. They are already part of the otroff::roff_legacy namespace.
+// The 'static' keyword is removed if they are API functions.
+// If they were truly static helpers not in roff.hpp, they'd remain static here.
+
+// Example: alph2 was made non-static and put in namespace roff in a previous step.
+// It's now part of otroff::roff_legacy.
+
 int alph2(int ch) { // This is the definition for otroff::roff_legacy::alph2
     /* Check uppercase range */
     if (ch >= 'A' && ch <= 'Z') {
@@ -1339,6 +1347,7 @@ int rdsufb(int offset, int file_desc) { // This is the definition for otroff::ro
 // The API versions are now the sole definitions for alph2, wbf, rdsufb.
 // popi, and the ROFF_UNUSED alph and rbf remain static as they are local helpers.
 // nlines definition will be restored.
+
 
 /**
  * @brief Pop from include processing stack.
