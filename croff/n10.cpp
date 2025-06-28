@@ -79,6 +79,7 @@
 #include "env.hpp" /* Environment structure definition */
 /* #include "t.hpp" -- Likely included by tdef.hpp */
 #include "tw.hpp" /* Terminal/writer specific definitions */
+#include <cstdint> // For uintptr_t
 #include <cstdlib> /* For exit(), NULL */
 #include <unistd.h> /* For read(), close(), open(), lseek(), sbrk() if setbrk is a wrapper */
 #include <fcntl.h> /* For open() flags */

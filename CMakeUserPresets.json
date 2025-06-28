@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 16,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "user-clang",
+      "displayName": "User Clang Build (Debug)",
+      "inherits": "debug",
+      "description": "Debug build using Clang++.",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    }
+  ],
+  "buildPresets": [
+     {
+         "name": "user-clang",
+         "configurePreset": "user-clang",
+         "displayName": "Build with User Clang (Debug)"
+     }
+  ],
+  "testPresets": []
+}
