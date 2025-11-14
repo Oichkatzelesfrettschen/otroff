@@ -1,6 +1,6 @@
 #include <iostream> // For basic output/errors
 #include "roff_context.hpp"       // For the new RoffContext
-#include "../otroff/roff_legacy/roff.hpp" // For legacy functions and init_globals
+#include "roff.hpp" // For legacy functions and init_globals
 
 // Forward declare a conceptual main roff processing loop if its actual name isn't known
 // or if it's not yet refactored to take RoffContext.
@@ -38,8 +38,9 @@ int main(int argc, char *argv[]) {
     // If legacy argc/argv globals are still used by init_globals or other parts:
     // Note: These are still global in otroff::roff_legacy for now.
     // This will be resolved when argc/argv are moved to RoffContext.
-    otroff::roff_legacy::argc = argc; // Example of direct global access (still legacy)
-    otroff::roff_legacy::argp = argv; // Example of direct global access (still legacy)
+    // Note: argc/argp not defined in roff_legacy namespace
+    // otroff::roff_legacy::argc = argc; // Example of direct global access (still legacy)
+    // otroff::roff_legacy::argp = argv; // Example of direct global access (still legacy)
 
 
     // 3. Conceptual call to a top-level processing function.

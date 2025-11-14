@@ -1,4 +1,4 @@
-#include "cxx17_scaffold.hpp"
+
 /**
  * @file roff3.c
  * @brief ROFF text formatter - Core text processing and formatting functions.
@@ -60,28 +60,25 @@
  *       compatibility with the original Bell Labs implementation.
  */
 
-#include <cstdio> /* Standard I/O operations */
-#include <cstdlib> /* Standard library functions */
-#include <cstring> /* String manipulation functions */
-#include <cctype> /* Character classification */
-#include <climits> /* System limits */
+#include <stdio.h> /* Standard I/O operations */
+#include <stdlib.h> /* Standard library functions */
+#include <string.h> /* String manipulation functions */
+#include <ctype.h> /* Character classification */
+#include <limits.h> /* System limits */
 #include <unistd.h> /* UNIX standard functions */
 #include <sys/types.h> /* System data types */
 
 /* Local headers */
-#include "roff.hpp" /* ROFF system definitions and globals (now with new namespace) */
+#include "roff_c.h" /* ROFF system definitions and globals (now with new namespace) */
 
-namespace otroff {
-namespace roff_legacy {
 
 // Using directive for convenience within this file
 // This means functions within this file can call each other and access globals
 // from otroff::roff_legacy without explicit qualification.
-using namespace otroff::roff_legacy;
 
 /* SCCS version identifier */
-[[maybe_unused]] static constexpr std::string_view sccs_id =
-    "@(#)roff3.c 1.3 25/05/29 (converted from PDP-11 assembly)"; // ID string
+ static const char* sccs_id ROFF_UNUSED =
+    "@(#)roff3.c 1.3 25/05/29 (converted from PDP-11 assembly)"; /* ID string */
 
 /* Constants for buffer sizes and limits */
 // These are now defined in roff.hpp within the namespace
@@ -115,14 +112,10 @@ static int offb; /* Offset buffer for file positioning */
 // void eject(void); // This is a definition in this file, not extern
 
 /* Local function prototypes for C90 compliance */
-static int alph(const char *str) ROFF_UNUSED; // Local static, OK
-// static int alph2(int ch);                  // Ensure this line is commented or removed
-static void nlines(int count, void (*line_func)(void)); // Local static, OK - Will ensure its definition is present
-// static int rdsufb(int offset, int file_desc); // Ensure this line is commented or removed
-// static void wbf(int character, int position); // Ensure this line is commented or removed
-static void rbf(void) ROFF_UNUSED;            // Local static, OK
-static void popi(void);                       // Local static, OK
-// Non-static prototypes below are removed as they are declared in roff.hpp
+/* alph and rbf removed - never defined (dead code) */
+static void nlines(int count, void (*line_func)(void)); /* Local static */
+static void popi(void);                       /* Local static */
+/* Non-static prototypes below are removed as they are declared in roff_c.h */
 // and made available via "using namespace roff;"
 // void setnel(void);
 // void nline(void);
@@ -270,7 +263,7 @@ void rbreak(void) {
     }
 
     /* Terminate the current line with null byte */
-    if (linep != nullptr) {
+    if (linep != NULL) {
         *linep = '\0';
     }
 
@@ -300,12 +293,12 @@ void rbreak(void) {
             /* Output appropriate header based on page number parity */
             if ((pn & 1) == 0) {
                 /* Even page number */
-                if (ehead != nullptr) {
+                if (ehead != NULL) {
                     headout(&ehead);
                 }
             } else {
                 /* Odd page number */
-                if (ohead != nullptr) {
+                if (ohead != NULL) {
                     headout(&ohead);
                 }
             }
@@ -343,7 +336,7 @@ void rbreak(void) {
     /* Output the line character by character with special space handling */
     line_ptr = line;
     while (nc > 0) {
-        line_char = static_cast<unsigned char>(*line_ptr++);
+        line_char = ((unsigned char)*line_ptr++);
 
         if (line_char == ' ') {
             /* Handle space with fill processing for justification */
@@ -706,12 +699,12 @@ void eject(void) {
     /* Output appropriate footer based on page number parity */
     if ((pn & 1) == 0) {
         /* Even page number */
-        if (efoot != nullptr) {
+        if (efoot != NULL) {
             headout(&efoot);
         }
     } else {
         /* Odd page number */
-        if (ofoot != nullptr) {
+        if (ofoot != NULL) {
             headout(&ofoot);
         }
     }
@@ -822,7 +815,7 @@ void storeline(int c) {
     }
 
     /* Store character in buffer and advance pointer */
-    *linep = static_cast<char>(c);
+    *linep = (char)(c);
     linep++;
 
     /* Calculate character display width and update all counters */
@@ -1048,7 +1041,7 @@ void storeword(int c) {
 
     /* Store character in word buffer with bounds checking */
     if (wordp < word + WORD_SIZE) {
-        *wordp++ = static_cast<char>(c);
+        *wordp++ = (char)(c);
     }
 }
 
@@ -1177,7 +1170,7 @@ void getname(char *name_buffer) {
         }
 
         /* Store valid character */
-        name_buffer[char_count++] = static_cast<char>(current_char);
+        name_buffer[char_count++] = (char)(current_char);
     }
 
     /* Null-terminate filename */
@@ -1299,7 +1292,7 @@ int alph2(int ch) { // This is the definition for otroff::roff_legacy::alph2
 // Example: wbf
 void wbf(int character, int position) { // This is the definition for otroff::roff_legacy::wbf
     /* Store parameters in static variables for file operations */
-    char_buf = static_cast<char>(character); // char_buf is file-static within this cpp
+    char_buf = (char)(character); // char_buf is file-static within this cpp
     offb = position; // offb is file-static within this cpp
 
     /* Seek to position and write character */
@@ -1340,12 +1333,12 @@ int rdsufb(int offset, int file_desc) { // This is the definition for otroff::ro
 
     /* Extract character from cached block */
     char_offset = offset & BLOCK_MASK; /* Character offset within block */
-    return static_cast<unsigned char>(sufbuf[char_offset]); // sufbuf is global
+    return ((unsigned char)sufbuf[char_offset]); // sufbuf is global
 }
 
 // Original static definitions of wbf, rbf, alph, alph2, rdsufb are removed below.
 // The API versions are now the sole definitions for alph2, wbf, rdsufb.
-// popi, and the ROFF_UNUSED alph and rbf remain static as they are local helpers.
+// popi, and the alph and rbf remain static as they are local helpers.
 // nlines definition will be restored.
 
 
@@ -1386,7 +1379,7 @@ static void popi(void) {
 // Ensuring original static void wbf is removed or fully commented.
 /*
 static void wbf(int character, int position) {
-    char_buf = static_cast<char>(character);
+    char_buf = (char)(character);
     offb = position;
     if (ibf >= 0) {
         lseek(ibf, offb, SEEK_SET);
@@ -1433,7 +1426,7 @@ static void wbf(int character, int position) {
 /*
 static void wbf(int character, int position) {
     // Store parameters in static variables for file operations
-    char_buf = static_cast<char>(character);
+    char_buf = (char)(character);
     offb = position;
 
     // Seek to position and write character
@@ -1505,12 +1498,12 @@ static void rbf(void) {
     // Note: In assembly, character would be in r0 for caller
 }
 */
-// The entire static rbf function above is now commented out (it was ROFF_UNUSED anyway).
+// The entire static rbf function above is now commented out (it was anyway).
 
-// Ensuring original static int alph is removed or fully commented (it was ROFF_UNUSED).
+// Ensuring original static int alph is removed or fully commented (it was).
 /*
 static int alph(const char *str) {
-    return alph2(static_cast<unsigned char>(*str));
+    return alph2(((unsigned char)*str));
 }
 */
 // The entire static alph function above is now commented out.
@@ -1532,7 +1525,7 @@ static int alph(const char *str) {
  */
 /*
 static int alph(const char *str) {
-    return alph2(static_cast<unsigned char>(*str));
+    return alph2(((unsigned char)*str));
 }
 */
 // This static alph is already commented out above. Double check if it appears twice.
@@ -1634,7 +1627,7 @@ static int rdsufb(int offset, int file_desc) {
         }
     }
     char_offset_local = offset & BLOCK_MASK;
-    return static_cast<unsigned char>(sufbuf[char_offset_local]);
+    return ((unsigned char)sufbuf[char_offset_local]);
 }
 */
 // The entire static rdsufb function above is now commented out.
@@ -1670,5 +1663,3 @@ static void nlines(int count, void (*line_func)(void)) { // Definition for the s
     }
 }
 
-} // namespace roff_legacy
-} // namespace otroff
