@@ -1276,18 +1276,6 @@ void copyb(void) {
 // Example: alph2 was made non-static and put in namespace roff in a previous step.
 // It's now part of otroff::roff_legacy.
 
-int alph2(int ch) { // This is the definition for otroff::roff_legacy::alph2
-    /* Check uppercase range */
-    if (ch >= 'A' && ch <= 'Z') {
-        return 1;
-    }
-    /* Check lowercase range */
-    if (ch >= 'a' && ch <= 'z') {
-        return 1;
-    }
-    /* Not alphabetic */
-    return 0;
-}
 
 // Example: wbf
 void wbf(int character, int position) { // This is the definition for otroff::roff_legacy::wbf

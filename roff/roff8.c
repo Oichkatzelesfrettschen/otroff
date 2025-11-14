@@ -851,3 +851,8 @@ size_t get_data_segment_size(void) {
 
 
 
+
+
+/* Additional variables needed by stubs.c and other modules */
+int sufoff = 0;       /* Suffix buffer offset */
+char **argp = NULL;   /* Argument pointer */
