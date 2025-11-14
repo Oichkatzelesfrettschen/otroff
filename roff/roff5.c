@@ -1,4 +1,3 @@
-#include "cxx17_scaffold.hpp"
 /**
  * @file roff5.c
  * @brief ROFF hyphenation engine - Statistical digram-based word breaking
@@ -6,7 +5,7 @@
  * This module implements a sophisticated hyphenation algorithm that combines
  * statistical analysis of character digrams with morphological suffix patterns
  * to determine optimal word break points. Originally written in PDP-11 assembly,
- * this has been converted to portable C90 while preserving the mathematical
+ * this has been converted to portable C17 while preserving the mathematical
  * precision and linguistic accuracy of the original algorithm.
  *
  * Mathematical Foundations:
@@ -44,28 +43,24 @@
  * @note This implementation preserves the exact hyphenation behavior
  *       of the original UNIX ROFF system, ensuring compatibility
  *       with existing documents and formatting expectations.
+ *
+ * @copyright Copyright 1972 Bell Telephone Laboratories Inc.
  */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cctype>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 /* Include ROFF system headers */
-#include "roff.hpp" // roff definitions (now with new namespace and alph(int) declaration)
+#include "roff.hpp" /* roff definitions and function declarations */
 
-namespace otroff {
-namespace roff_legacy {
-
-// Using directive for convenience within this file
-using namespace otroff::roff_legacy;
-
-/* Copyright notice from original */
-static const char copyright[] ROFF_UNUSED = "Copyright 1972 Bell Telephone Laboratories Inc.";
+/* Copyright notice */
+static const char copyright[] = "Copyright 1972 Bell Telephone Laboratories Inc.";
 
 /* SCCS version identifier */
-[[maybe_unused]] static constexpr std::string_view sccs_id =
-    "@(#)roff5.c 1.3 25/05/29 (hyphenation engine - converted from PDP-11 assembly)"; // ID string
+static const char sccs_id[] =
+    "@(#)roff5.c 1.4 2025/01/14 (hyphenation engine - C17 version)";
 
 /* Constants for hyphenation algorithm */
 #define MAX_WORD_LENGTH 64 /**< Maximum word length for hyphenation */
@@ -181,14 +176,14 @@ void hyphen(void) {
     }
 
     /* Verify we have alphabetic content */
-    if (alph(static_cast<unsigned char>(*current_pos)) != 0) {
+    if (alph(((unsigned char)*current_pos)) != 0) {
         return; /* No alphabetic content found */
     }
 
     /* Find start of hyphenatable region */
     while (1) {
         current_pos++;
-        if (alph(static_cast<unsigned char>(*current_pos)) == 0) {
+        if (alph(((unsigned char)*current_pos)) == 0) {
             break; /* Found end of alphabetic sequence */
         }
     }
@@ -242,7 +237,7 @@ static int punct(char *pos) {
     int ch;
     char *punct_ptr;
 
-    ch = static_cast<unsigned char>(*pos);
+    ch = ((unsigned char)*pos);
 
     if (old == 0) {
         /* Modern punctuation detection */
@@ -261,7 +256,7 @@ static int punct(char *pos) {
         punct_ptr = punctuation_chars;
 
         while (*punct_ptr != '\0') {
-            if (ch == static_cast<unsigned char>(*punct_ptr)) {
+            if (ch == ((unsigned char)*punct_ptr)) {
                 return 0; /* Found in punctuation set */
             }
             punct_ptr++;
@@ -371,7 +366,7 @@ static int checkvow(char *pos) {
 
     while (1) {
         search_pos--;
-        ch = static_cast<unsigned char>(*search_pos);
+        ch = ((unsigned char)*search_pos);
 
         /* Check if character is vowel */
         if (vowel(ch) == 0) {
@@ -432,11 +427,11 @@ static void digram(void) {
 
     /* Find first vowel from start position */
     while (1) {
-        if (alph(static_cast<unsigned char>(*current_pos)) != 0) {
+        if (alph(((unsigned char)*current_pos)) != 0) {
             return; /* End of alphabetic content */
         }
 
-        if (vowel(static_cast<unsigned char>(*current_pos)) == 0) {
+        if (vowel(((unsigned char)*current_pos)) == 0) {
             break; /* Found vowel */
         }
 
@@ -449,7 +444,7 @@ static void digram(void) {
     /* Find first consonant after vowel cluster */
     while (1) {
         current_pos--;
-        ch1 = static_cast<unsigned char>(*current_pos);
+        ch1 = ((unsigned char)*current_pos);
 
         if (alph2(ch1) != 0) {
             return; /* End of word */
@@ -473,25 +468,25 @@ static void digram(void) {
         /* Analyze patterns at current position */
 
         /* Pattern 1: Check if previous character exists and is alphabetic */
-        ch1 = static_cast<unsigned char>(*(current_pos - 1));
+        ch1 = ((unsigned char)*(current_pos - 1));
         if (alph2(ch1) == 0) {
             /* Single character pattern - bxh table */
-            ch2 = static_cast<unsigned char>(*current_pos);
+            ch2 = ((unsigned char)*current_pos);
             score = dilook('a', ch2, bxh, multiplier);
         } else {
             /* Two character patterns */
-            ch1 = static_cast<unsigned char>(*(current_pos - 2));
+            ch1 = ((unsigned char)*(current_pos - 2));
 
             /* Determine which pattern table to use */
             if (alph2(ch1) == 0) {
                 /* xxh pattern */
-                ch1 = static_cast<unsigned char>(*(current_pos - 1));
-                ch2 = static_cast<unsigned char>(*current_pos);
+                ch1 = ((unsigned char)*(current_pos - 1));
+                ch2 = ((unsigned char)*current_pos);
                 score = dilook(ch1, ch2, xxh, multiplier);
             } else {
                 /* bxxh pattern */
-                ch1 = static_cast<unsigned char>(*(current_pos - 1));
-                ch2 = static_cast<unsigned char>(*current_pos);
+                ch1 = ((unsigned char)*(current_pos - 1));
+                ch2 = ((unsigned char)*current_pos);
                 score = dilook(ch1, ch2, bxxh, multiplier);
             }
         }
@@ -502,16 +497,16 @@ static void digram(void) {
         }
 
         /* Pattern 2: xhx pattern (consonant-vowel-consonant) */
-        ch1 = static_cast<unsigned char>(*current_pos);
-        ch2 = static_cast<unsigned char>(*(current_pos + 1));
+        ch1 = ((unsigned char)*current_pos);
+        ch2 = ((unsigned char)*(current_pos + 1));
         score = dilook(ch1, ch2, xhx, multiplier);
         if (score > max_score) {
             max_score = score;
         }
 
         /* Pattern 3: hxx pattern (vowel-consonant-consonant) */
-        ch1 = static_cast<unsigned char>(*current_pos);
-        ch2 = static_cast<unsigned char>(*(current_pos + 1));
+        ch1 = ((unsigned char)*current_pos);
+        ch2 = ((unsigned char)*(current_pos + 1));
         score = dilook(ch1, ch2, hxx, multiplier);
         if (score > max_score) {
             max_score = score;
@@ -670,12 +665,12 @@ static void suffix(void) {
     word_pos = hstart;
 
     /* Check if we have alphabetic content */
-    if (alph(static_cast<unsigned char>(*word_pos)) != 0) {
+    if (alph(((unsigned char)*word_pos)) != 0) {
         return; /* No alphabetic content */
     }
 
     /* Get last character and normalize to lowercase */
-    last_char = static_cast<unsigned char>(*word_pos);
+    last_char = ((unsigned char)*word_pos);
     maplow(&last_char);
     last_char -= 'a';
 
@@ -694,7 +689,7 @@ static void suffix(void) {
         /* Read suffix pattern from file */
         rdsuf(current_offset, &suffix_pattern);
 
-        pattern_length = static_cast<unsigned char>(*suffix_pattern);
+        pattern_length = ((unsigned char)*suffix_pattern);
         if (pattern_length == 0) {
             break; /* End of suffix patterns */
         }
@@ -708,10 +703,10 @@ static void suffix(void) {
         match_found = 1;
 
         while (pattern_pos > suffix_pattern + 1) {
-            pattern_char = static_cast<unsigned char>(*--pattern_pos);
+            pattern_char = ((unsigned char)*--pattern_pos);
             pattern_char &= ALPHA_MASK;
 
-            word_char = static_cast<unsigned char>(*word_check--);
+            word_char = ((unsigned char)*word_check--);
             maplow(&word_char);
 
             if (word_char != pattern_char) {
@@ -727,15 +722,15 @@ static void suffix(void) {
         /* Pattern matched - check hyphenation rules */
         word_pos = hstart;
         pattern_pos = suffix_pattern + 1;
-        pattern_length = static_cast<unsigned char>(*suffix_pattern) & 0x0F;
+        pattern_length = ((unsigned char)*suffix_pattern) & 0x0F;
         pattern_pos += pattern_length;
 
         /* Check for hyphenation permission bit */
-        if ((static_cast<unsigned char>(*suffix_pattern) & SUFFIX_HYPHEN) == 0) {
+        if ((((unsigned char)*suffix_pattern) & SUFFIX_HYPHEN) == 0) {
             /* No hyphenation allowed - scan for other patterns */
             while (pattern_pos > suffix_pattern + 1) {
                 pattern_pos--;
-                if ((static_cast<unsigned char>(*pattern_pos) & HYPHEN_MARK) != 0) {
+                if ((((unsigned char)*pattern_pos) & HYPHEN_MARK) != 0) {
                     break;
                 }
             }
@@ -745,7 +740,7 @@ static void suffix(void) {
             hstart--;
 
             /* Check vowel requirement */
-            if ((static_cast<unsigned char>(*suffix_pattern) & SUFFIX_VOWEL_CHECK) == 0) {
+            if ((((unsigned char)*suffix_pattern) & SUFFIX_VOWEL_CHECK) == 0) {
                 if (checkvow(word_pos) != 0) {
                     continue; /* No vowel found - invalid hyphenation */
                 }
@@ -757,7 +752,7 @@ static void suffix(void) {
 
         /* Check for continuation bit */
         pattern_pos--;
-        if ((static_cast<unsigned char>(*pattern_pos) & SUFFIX_CONTINUE) == 0) {
+        if ((((unsigned char)*pattern_pos) & SUFFIX_CONTINUE) == 0) {
             return; /* No more processing */
         }
 
@@ -829,5 +824,3 @@ static void rdsuf(int offset, char **result) {
     *result = pattern_buffer;
 }
 
-} // namespace roff_legacy
-} // namespace otroff
