@@ -53,7 +53,7 @@
 #include <ctype.h>
 
 /* Include ROFF system headers */
-#include "roff.hpp" /* roff definitions and function declarations */
+#include "roff_c.h" /* roff definitions and function declarations */
 
 /* Copyright notice */
 static const char copyright[] = "Copyright 1972 Bell Telephone Laboratories Inc.";
@@ -417,10 +417,10 @@ static int checkvow(char *pos) {
  */
 static void digram(void) {
     char *current_pos;
-    char *analysis_start ROFF_UNUSED;
+    char *analysis_start;
     int ch1, ch2;
     int score, max_score;
-    char *max_position ROFF_UNUSED;
+    char *max_position;
     int multiplier;
 
     current_pos = hstart;
