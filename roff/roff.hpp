@@ -83,7 +83,9 @@ extern char* ofoot;     ///< Odd page footer string
 extern char line[];     ///< Main line accumulation buffer
 extern char word[];     ///< Word accumulation buffer
 extern char sufbuf[];   ///< Suffix buffer for file caching
-extern char garb[];     ///< Garbage buffer for input operations
+
+// Garbage collection flag
+extern int garb;        ///< Garbage collection flag for cleanup operations
 
 // Include processing
 extern int* ilistp;     ///< Include list stack pointer
@@ -97,6 +99,14 @@ extern int nlflg;       ///< Newline flag for input processing
 extern int ulstate;     ///< Underline state
 extern int ce;          ///< Center line count
 extern int fi;          ///< Fill mode flag
+
+// Hyphenation engine variables (roff5.cpp)
+extern int thresh;      ///< Hyphenation threshold score
+extern int maxdig;      ///< Maximum digram score found
+extern int suff;        ///< Suffix file descriptor
+extern char* hstart;    ///< Hyphenation analysis start pointer
+extern char* nhstart;   ///< Next hyphenation start pointer
+extern char* maxloc;    ///< Location of maximum scoring position
 extern int ul;          ///< Underline count
 extern int ad;          ///< Adjust mode flag
 extern int ro;          ///< Roman numeral flag for page numbers

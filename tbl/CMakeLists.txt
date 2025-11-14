@@ -26,9 +26,3 @@ target_link_libraries(tbl_core_obj PRIVATE
 
 add_executable(tbl_exe ${TBL_MAIN_SOURCE}) # Ensure this uses t1.cpp
 target_link_libraries(tbl_exe PRIVATE $<TARGET_OBJECTS:tbl_core_obj>)
-
-add_library(tbl_lib STATIC "")
-target_link_libraries(tbl_lib INTERFACE otroff_common) # Assuming no direct os_abstraction needed
-
-add_executable(tbl_exe main.cpp)
-target_link_libraries(tbl_exe PRIVATE tbl_lib)

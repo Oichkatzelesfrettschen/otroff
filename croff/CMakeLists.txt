@@ -29,10 +29,3 @@ target_link_libraries(croff_core_obj PRIVATE
 
 add_executable(croff_exe ${CROFF_MAIN_SOURCE})
 target_link_libraries(croff_exe PRIVATE $<TARGET_OBJECTS:croff_core_obj>)
-
-add_library(croff_lib STATIC "") # Sources for croff_lib will be added later
-# For now, ensure it links to common settings and os_abstraction if needed
-target_link_libraries(croff_lib INTERFACE otroff_common os_abstraction)
-
-add_executable(croff_exe n1.cpp) # Changed from main.cpp to n1.cpp
-target_link_libraries(croff_exe PRIVATE croff_lib)

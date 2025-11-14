@@ -180,29 +180,6 @@ add_library(os_abstraction) # Could be STATIC or SHARED if it grows, defaults to
                             # For now, it will be an INTERFACE library if it's header-only,
                             # or a regular library if it has .cpp files.
 
-
-# Common settings library
-add_library(otroff_common INTERFACE)
-target_compile_features(otroff_common INTERFACE cxx_std_17)
-# Add common warning flags.
-target_compile_options(otroff_common INTERFACE
-    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra -Wpedantic>
-    # Add MSVC specific flags if needed, e.g. $<$<CXX_COMPILER_ID:MSVC>:/W4>
-)
-target_include_directories(otroff_common INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # Convention for project's public headers
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>        # For installed public headers
-)
-target_compile_definitions(otroff_common INTERFACE
-    $<$<CONFIG:DEBUG>:OTROFF_DEBUG>
-    # Add other general preprocessor definitions if needed
-)
-
-# OS Abstraction Library
-add_library(os_abstraction) # Could be STATIC or SHARED if it grows, defaults to STATIC if sources are added.
-                            # For now, it will be an INTERFACE library if it's header-only,
-                            # or a regular library if it has .cpp files.
-
 # Correctly set sources based on OS
 if(WIN32)
     target_sources(os_abstraction PRIVATE src/os/os_windows.cpp)

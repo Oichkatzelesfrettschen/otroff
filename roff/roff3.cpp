@@ -1669,3 +1669,6 @@ static void nlines(int count, void (*line_func)(void)) { // Definition for the s
         count--;
     }
 }
+
+} // namespace roff_legacy
+} // namespace otroff
