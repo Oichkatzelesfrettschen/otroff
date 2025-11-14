@@ -22,9 +22,9 @@ extern "C" {
     #define ROFF_UNUSED
 #endif
 
-/* Constants - from roff.hpp */
-#define WORD_SIZE 64            /* Maximum word length */
-#define LINE_SIZE 256           /* Maximum line length */
+/* Constants - from roff.hpp and roff8.c */
+#define WORD_SIZE 200           /* Maximum word buffer size */
+#define LINE_SIZE 500           /* Maximum line buffer size */
 #define SUFFIX_BUF_SIZE 512     /* Suffix buffer size */
 #define MAX_NAME_LEN 18         /* Maximum filename length */
 #define BLOCK_MASK 077          /* Block alignment mask (octal 77) */

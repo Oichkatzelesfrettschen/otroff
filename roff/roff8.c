@@ -49,9 +49,7 @@ static const char copyright[] ROFF_UNUSED  = "Copyright 1972 Bell Telephone Labo
  static const char* sccs_id ROFF_UNUSED =
     "@(#)roff8.c 1.3 25/05/29 (global data - converted from PDP-11 assembly)"; /* ID string */
 
-/* Buffer size constants */
-#define LINE_SIZE 500 /**< Maximum line buffer size */
-#define WORD_SIZE 200 /**< Maximum word buffer size */
+/* Buffer size constants (LINE_SIZE and WORD_SIZE defined in roff_c.h) */
 #define SUFFIX_BUFFER_SIZE 20 /**< Suffix processing buffer size */
 #define SUFFIX_FILE_SIZE 512 /**< Suffix file buffer size */
 #define SUFFIX_TABLE_SIZE 52 /**< Suffix lookup table size (26*2) */

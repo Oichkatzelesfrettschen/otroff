@@ -1,4 +1,3 @@
-#include "cxx23_scaffold.hpp"
 /**
  * @file roff7.c
  * @brief ROFF hyphenation digram tables - Statistical pattern data for word breaking
