@@ -1,14 +1,13 @@
 /* C17 - no scaffold needed */
 /*
  * n6.c - Width functions, sizes and fonts for troff/nroff
- * 
+ *
  * This module handles character width calculations, font management,
  * point size changes, and motion commands in the troff/nroff system.
  */
 
 #include "tdef.h" // troff definitions
 #include "t.h"    // troff header
-#define NROFF 1
 #include "tw.h"   // terminal writer definitions
 
 /* External variables - character and formatting state */

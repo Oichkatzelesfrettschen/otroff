@@ -25,8 +25,10 @@
  */
 #ifdef NROFF
 
-/* Terminal table structure definition */
-struct nroff_terminal_table {
+/* Include typewriter table definition */
+/* Note: tw.h defines struct typewriter_table and extern t */
+/* We only need the struct definition here for the macros below */
+struct typewriter_table {
     int bset;
     int breset;
     int Hor;
@@ -55,7 +57,7 @@ struct nroff_terminal_table {
 };
 
 /* External declaration of terminal table instance (defined in nii.c) */
-extern struct nroff_terminal_table t;
+extern struct typewriter_table t;
 
 extern int pipeflg;
 

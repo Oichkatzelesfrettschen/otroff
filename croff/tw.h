@@ -19,45 +19,9 @@
 
 #ifdef NROFF
 
-/*
- * Typewriter device table structure
- * Contains device-specific parameters and control sequences
- */
-extern struct typewriter_table {
-    /* Basic device parameters */
-    int bset; /* Basic character set flag */
-    int breset; /* Basic reset flag */
-    int Hor; /* Horizontal resolution */
-    int Vert; /* Vertical resolution */
-    int Newline; /* Newline handling parameter */
-    int Char; /* Character width parameter */
-    int Em; /* Em width in device units */
-    int Halfline; /* Half-line spacing in device units */
-    int Adj; /* Adjustment parameter */
-
-    /* Device control strings */
-    char *twinit; /* Typewriter initialization string */
-    char *twrest; /* Typewriter reset string */
-    char *twnl; /* Typewriter newline string */
-    char *hlr; /* Half-line reverse string */
-    char *hlf; /* Half-line forward string */
-    char *flr; /* Full-line reverse string */
-    char *bdon; /* Bold on string */
-    char *bdoff; /* Bold off string */
-    char *ploton; /* Plot mode on string */
-    char *plotoff; /* Plot mode off string */
-    char *up; /* Cursor up string */
-    char *down; /* Cursor down string */
-    char *right; /* Cursor right string */
-    char *left; /* Cursor left string */
-
-    /* Character code translation table */
-    /* Maps ASCII codes 32-255 to device-specific sequences */
-    char *codetab[256 - 32];
-
-    /* Termination marker */
-    int zzz; /* End-of-table marker */
-} t;
+/* The struct typewriter_table is defined in tdef.h */
+/* Just declare extern t here */
+extern struct typewriter_table t;
 
 #endif /* NROFF */
 

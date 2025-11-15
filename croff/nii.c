@@ -3,9 +3,9 @@
 #include "env.h"
 #include <stddef.h>
 
-/* typewriter driving table instance (structure defined in tdef.h) */
+/* typewriter driving table instance (structure defined in tw.h) */
 #ifdef NROFF
-struct nroff_terminal_table t;
+struct typewriter_table t;
 int pipeflg;
 #endif
 static char Sccsid[] = "@(#)nii.c	1.4 of 4/26/77";
