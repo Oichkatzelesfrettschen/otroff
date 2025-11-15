@@ -1,25 +1,46 @@
+/*
+ * troff_processor.h - Troff Processor Global Buffers (Pure C17)
+ *
+ * Global buffers and pointers used by troff processing
+ * Converted from C++ class to pure C globals
+ */
 
-/* array not needed in C */
+#ifndef TROFF_PROCESSOR_H
+#define TROFF_PROCESSOR_H
+
 #include <string.h>
 #include "tdef.h"
 
-// RAII class encapsulating global buffers and pointers used by troff.
-class TroffProcessor {
-  public:
-    // Input buffer and associated pointers
-    std::array<char, IBUFSZ> inputBuffer{}; // Primary input buffer
-    std::array<char, IBUFSZ> extraBuffer{}; // Secondary input buffer
-    char *inputPtr{inputBuffer.data()}; // Pointer into inputBuffer
-    char *extraPtr{extraBuffer.data()}; // Pointer into extraBuffer
-    char *endInput{inputBuffer.data()}; // End pointer for inputBuffer
-    char *endExtra{extraBuffer.data()}; // End pointer for extraBuffer
+/* Buffer sizes */
+#ifndef IBUFSZ
+#define IBUFSZ 1024
+#endif
 
-    // Output buffer and pointer
-    std::array<char, OBUFSZ> outputBuffer{}; // Device output buffer
-    char *outputPtr{outputBuffer.data()}; // Pointer into outputBuffer
+#ifndef OBUFSZ
+#define OBUFSZ 1024
+#endif
 
-    TroffProcessor() = default; // Constructor initializes pointers
-    ~TroffProcessor() = default; // Destructor performs no cleanup
-};
+/*
+ * Troff processor global buffers
+ */
+typedef struct {
+    /* Input buffers and pointers */
+    char inputBuffer[IBUFSZ];   /* Primary input buffer */
+    char extraBuffer[IBUFSZ];   /* Secondary input buffer */
+    char *inputPtr;             /* Pointer into inputBuffer */
+    char *extraPtr;             /* Pointer into extraBuffer */
+    char *endInput;             /* End pointer for inputBuffer */
+    char *endExtra;             /* End pointer for extraBuffer */
 
-extern TroffProcessor g_processor; // Global processor instance
+    /* Output buffer and pointer */
+    char outputBuffer[OBUFSZ];  /* Device output buffer */
+    char *outputPtr;            /* Pointer into outputBuffer */
+} TroffProcessor;
+
+/* Global processor instance */
+extern TroffProcessor g_processor;
+
+/* Initialize processor buffers */
+void troff_processor_init(TroffProcessor *proc);
+
+#endif /* TROFF_PROCESSOR_H */

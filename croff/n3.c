@@ -64,6 +64,7 @@ static void init_hash_table(void);
 static void caseig(void);
 static void casern(void);
 static void caserm(void);
+static int pchar_wrapper_for_hseg(int c);
 
 void caseas(void);
 void caseds(void);
@@ -143,7 +144,7 @@ static void init_hash_table(void) {
     for (j = 0; j < NM; j++) {
         key = contab[j].rq & ~MMASK;
         hash_index = hash_function(key);
-        entry = static_cast<struct hash_entry *>(malloc(sizeof(struct hash_entry)));
+        entry = (struct hash_entry *)(malloc(sizeof(struct hash_entry)));
         if (entry != NULL) {
             entry->key = key;
             entry->value = j;
@@ -495,8 +496,8 @@ void wbfl(void) {
     if (woff == 0)
         return;
 
-    seek(ibf, woff << 1, 0); // Assuming woff is a byte offset or seek handles it
-    write(ibf, reinterpret_cast<char *>(wbuf), wbfi << 1); // wbuf is int[], treat as char* for write
+    seek(ibf, woff << 1, 0); /* Assuming woff is a byte offset or seek handles it */
+    write(ibf, (char *)(wbuf), wbfi << 1); /* wbuf is int[], treat as char* for write */
 
     if ((woff & (~(BLK - 1))) == (roff & (~(BLK - 1))))
         roff = -1;
@@ -522,8 +523,8 @@ int rbf0(int p) {
 
     if ((i = (p & (~(BLK - 1)))) != roff) {
         roff = i;
-        seek(ibf, roff << 1, 0); // Assuming roff is a byte offset or seek handles it
-        if (read(ibf, reinterpret_cast<char *>(rbuf), BLK << 1) == 0) // rbuf is int[], treat as char* for read
+        seek(ibf, roff << 1, 0); /* Assuming roff is a byte offset or seek handles it */
+        if (read(ibf, (char *)(rbuf), BLK << 1) == 0) /* rbuf is int[], treat as char* for read */
             return (0);
     }
 
@@ -556,13 +557,13 @@ int popi(void) {
 
     p = nxf = frame;
     *p++ = 0;
-    frame = reinterpret_cast<int *>(static_cast<intptr_t>(*p++));
+    frame = (int *)((intptr_t)(*p++));
     ip = *p++;
     nchar = *p++;
     rchar = *p++;
     pendt = *p++;
-    ap = reinterpret_cast<int *>(static_cast<intptr_t>(*p++));
-    cp = reinterpret_cast<int *>(static_cast<intptr_t>(*p++));
+    ap = (int *)((intptr_t)(*p++));
+    cp = (int *)((intptr_t)(*p++));
     ch0 = *p++;
 
     return (*p);
@@ -571,19 +572,19 @@ int popi(void) {
 int pushi(int newip) {
     register int *p;
 
-    if ((enda - (STKSIZE << 1)) < reinterpret_cast<char *>(nxf))
+    if ((enda - (STKSIZE << 1)) < (char *)(nxf))
         setbrk(DELTA);
 
     p = nxf;
     p++;
-    // Assuming these stored integers are meant to be pointer addresses or derived from them
-    *p++ = ((int)reinterpret_cast<intptr_t>(frame));
+    /* Assuming these stored integers are meant to be pointer addresses or derived from them */
+    *p++ = ((int)((intptr_t)(frame)));
     *p++ = ip;
     *p++ = nchar;
     *p++ = rchar;
     *p++ = pendt;
-    *p++ = ((int)reinterpret_cast<intptr_t>(ap));
-    *p++ = ((int)reinterpret_cast<intptr_t>(cp));
+    *p++ = ((int)((intptr_t)(ap)));
+    *p++ = ((int)((intptr_t)(cp)));
     *p++ = ch0;
     *p++ = ch;
 
@@ -595,9 +596,9 @@ int pushi(int newip) {
     frame = nxf;
 
     if (*nxf == 0)
-        nxf = reinterpret_cast<int *>(reinterpret_cast<char *>(nxf) + STKSIZE);
+        nxf = (int *)((char *)(nxf) + STKSIZE);
     else
-        nxf = argtop; // Assuming argtop is int*
+        nxf = argtop; /* Assuming argtop is int* */
 
     return (ip = newip);
 }
@@ -662,17 +663,17 @@ void collect(void) {
         goto rtn;
 
     savnxf = nxf;
-    lim = nxf = reinterpret_cast<int *>(reinterpret_cast<char *>(nxf) + 20 * STKSIZE);
+    lim = nxf = (int *)((char *)(nxf) + 20 * STKSIZE);
     strflg = 0;
 
-    if ((argppend = strp = (argpp = savnxf + STKSIZE) + 9) > reinterpret_cast<int *>(enda))
+    if ((argppend = strp = (argpp = savnxf + STKSIZE) + 9) > (int *)(enda))
         setbrk(DELTA);
 
     for (i = 8; i >= 0; i--)
         argpp[i] = 0;
 
     while ((argpp != argppend) && (!skip())) {
-        *argpp++ = ((int)reinterpret_cast<intptr_t>(strp));
+        *argpp++ = ((int)((intptr_t)(strp)));
         quote = 0;
 
         if (((i = getch()) & CMASK) == '"')
@@ -700,7 +701,7 @@ void collect(void) {
                 edone(004);
             }
 
-            if ((enda - 4) <= reinterpret_cast<char*>(strp)) // Cast strp to char* for comparison
+            if ((enda - 4) <= (char*)(strp)) /* Cast strp to char* for comparison */
                 setbrk(DELTA);
         }
 
@@ -708,7 +709,7 @@ void collect(void) {
     }
 
     nxf = savnxf;
-    *nxf = ((int)argpp - nxf - STKSIZE); // Pointer difference is ptrdiff_t
+    *nxf = (argpp - nxf - STKSIZE); /* Pointer difference is already in int elements */
     argtop = strp;
 
 rtn:
@@ -720,7 +721,7 @@ void seta(void) {
 
     if (((i = (getch() & CMASK) - '0') > 0) &&
         (i <= 9) && (i <= *frame))
-        ap = reinterpret_cast<int *>(static_cast<intptr_t>(*(i + frame + STKSIZE - 1)));
+        ap = (int *)((intptr_t)(*(i + frame + STKSIZE - 1)));
 }
 
 /* Diversion functions */
@@ -741,7 +742,7 @@ void casedi(void) {
         if (dilev > 0) {
             v.dn = dip->dnl;
             v.dl = dip->maxl;
-            dip = reinterpret_cast<struct env *>(&d[--dilev]);
+            dip = (struct env *)(&d[--dilev]);
             offset = dip->op;
         }
         goto rtn;
@@ -757,7 +758,7 @@ void casedi(void) {
         wbt(0);
 
     diflg++;
-    dip = reinterpret_cast<struct env *>(&d[dilev]);
+    dip = (struct env *)(&d[dilev]);
     dip->op = finds(i);
     dip->curd = i;
     clrmn(oldmn);
@@ -816,7 +817,7 @@ void casetl(void) {
     wbf(IMP);
     wbt(0);
 
-    w1 = hseg(width, reinterpret_cast<int *>(static_cast<intptr_t>(begin)));
+    w1 = hseg(width, (int *)((intptr_t)(begin)));
     w2 = hseg(width, NULL);
     w3 = hseg(width, NULL);
 
@@ -827,15 +828,15 @@ void casetl(void) {
         horiz(po);
 #endif
 
-    hseg(pchar, reinterpret_cast<int *>(static_cast<intptr_t>(begin))); // Cast on pchar removed, assuming compatible
+    hseg(pchar_wrapper_for_hseg, (int *)((intptr_t)(begin))); /* Use wrapper for pchar */
 
     if (w2 || w3)
         horiz(j = quant((lt - w2) / 2 - w1, HOR));
-    hseg(pchar, NULL); // Cast on pchar removed
+    hseg(pchar_wrapper_for_hseg, NULL); /* Use wrapper for pchar */
 
     if (w3) {
         horiz(lt - w1 - w2 - w3 - j);
-        hseg(pchar, NULL); // Cast on pchar removed
+        hseg(pchar_wrapper_for_hseg, NULL); /* Use wrapper for pchar */
     }
 
     newline(0);
@@ -863,7 +864,7 @@ static int pchar_wrapper_for_hseg(int c) {
 
 int hseg(int (*f)(int), int *p) {
     register int acc, i;
-    static int *q_static; // Renamed to avoid conflict if q is a local elsewhere
+    static int *q_static; /* Renamed to avoid conflict if q is a local elsewhere */
 
     acc = 0;
 
@@ -871,9 +872,9 @@ int hseg(int (*f)(int), int *p) {
         q_static = p;
 
     while (1) {
-        i = rbf0(reinterpret_cast<intptr_t>(q_static));
-        // Assuming incoff returns a value that can be meaningfully cast to int* (e.g. an intptr_t)
-        q_static = reinterpret_cast<int *>(static_cast<intptr_t>(incoff(reinterpret_cast<intptr_t>(q_static))));
+        i = rbf0((intptr_t)(q_static));
+        /* Assuming incoff returns a value that can be meaningfully cast to int* (e.g. an intptr_t) */
+        q_static = (int *)((intptr_t)(incoff((intptr_t)(q_static))));
 
         if (!i || (i == IMP))
             return (acc);

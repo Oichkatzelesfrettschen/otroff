@@ -3,35 +3,9 @@
 #include "env.h"
 #include <stddef.h>
 
-/* typewriter driving table structure*/
+/* typewriter driving table instance (structure defined in tdef.h) */
 #ifdef NROFF
-struct {
-    int bset;
-    int breset;
-    int Hor;
-    int Vert;
-    int Newline;
-    int Char;
-    int Em;
-    int Halfline;
-    int Adj;
-    char *twinit;
-    char *twrest;
-    char *twnl;
-    char *hlr;
-    char *hlf;
-    char *flr;
-    char *bdon;
-    char *bdoff;
-    char *ploton;
-    char *plotoff;
-    char *up;
-    char *down;
-    char *right;
-    char *left;
-    char *codetab[256 - 32];
-    int zzz;
-} t;
+struct nroff_terminal_table t;
 int pipeflg;
 #endif
 static char Sccsid[] = "@(#)nii.c	1.4 of 4/26/77";
@@ -41,7 +15,7 @@ struct {
     int pn, nl, yr, hp, ct, dn, mo, dy, dw, ln, dl, st, sb, cd;
     int vxx[NN - NNAMES];
 } v;
-int *vlist = &v;
+int *vlist = (int *)&v;
 struct env *dip = &d[0];
 
 int level;

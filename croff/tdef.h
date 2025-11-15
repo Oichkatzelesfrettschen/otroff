@@ -7,6 +7,8 @@
  * for TROFF (high-resolution typesetter) vs NROFF (line printer) modes.
  */
 
+#ifndef TDEF_H
+#define TDEF_H
 
 /* C17 - no scaffold needed */ // utilities
 
@@ -22,6 +24,40 @@
  * NROFF produces output suitable for line printers and terminals
  */
 #ifdef NROFF
+
+/* Terminal table structure definition */
+struct nroff_terminal_table {
+    int bset;
+    int breset;
+    int Hor;
+    int Vert;
+    int Newline;
+    int Char;
+    int Em;
+    int Halfline;
+    int Adj;
+    char *twinit;
+    char *twrest;
+    char *twnl;
+    char *hlr;
+    char *hlf;
+    char *flr;
+    char *bdon;
+    char *bdoff;
+    char *ploton;
+    char *plotoff;
+    char *up;
+    char *down;
+    char *right;
+    char *left;
+    char *codetab[256 - 32];
+    int zzz;
+};
+
+/* External declaration of terminal table instance (defined in nii.c) */
+extern struct nroff_terminal_table t;
+
+extern int pipeflg;
 
 /* Basic measurement units for NROFF */
 #define EM (t.Em) /* Em space (width of 'M' character) */
@@ -211,3 +247,5 @@
 #define RTAB 0100000 /* Right-aligned tab bit */
 #define CTAB 0040000 /* Centered tab bit */
 
+
+#endif /* TDEF_H */

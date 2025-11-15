@@ -27,6 +27,7 @@ CFLAGS = -std=c17 -pedantic -Wall -Wextra
 CFLAGS += -O2 -g
 CFLAGS += -D_POSIX_C_SOURCE=200809L
 CFLAGS += -D_GNU_SOURCE
+CFLAGS += -DNROFF
 
 # CPU optimization (override with CPU=x86-64, haswell, native, etc.)
 CPU ?= native
@@ -60,9 +61,28 @@ TROFF_SRCS = \
 	roff/roff8.c \
 	roff/stubs.c
 
-# Extended ROFF (croff) sources - exclude test files
-# Extended ROFF (croff) sources - stub for now (C++ conversion pending)
-CROFF_SRCS = croff/main_stub.c
+# Extended ROFF (croff) sources - all converted C17 files
+# Note: n1.c contains main(), so pti.c and main_stub.c are excluded
+CROFF_SRCS = \
+	croff/case_stubs.c \
+	croff/hytab.c \
+	croff/hytab_api.c \
+	croff/n1.c \
+	croff/n2.c \
+	croff/n3.c \
+	croff/n4.c \
+	croff/n5.c \
+	croff/n6.c \
+	croff/n7.c \
+	croff/n8.c \
+	croff/n9.c \
+	croff/n10.c \
+	croff/ni.c \
+	croff/nii.c \
+	croff/ntab.c \
+	croff/suftab.c \
+	croff/t.c \
+	croff/troff_processor.c
 
 # Table formatter (tbl) sources
 # Table formatter (tbl) sources - stub for now (C++ conversion pending)

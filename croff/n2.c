@@ -112,11 +112,11 @@ extern int acctf; /* Accounting file descriptor */
 static char Sccsid[] = "@(#)n2.c  1.8 of 5/13/77";
 
 /* Function prototypes for C90 compliance */
-static void oput(int i);
-static void oputs(const char *i);
-static void flusho(void);
+void oput(int i);
+void oputs(const char *i);
+void flusho(void);
 #ifdef NROFF
-static void casepi(void);
+void casepi(void);
 #endif
 
 /* Forward declarations for functions defined in this file */
@@ -313,13 +313,13 @@ void pchar1(int c) {
  * Parameters:
  *   i - Character to output
  */
-static void
+void
 oput(int i) {
     *g_processor.outputPtr++ = ((char)i);
 
     /* Flush buffer when full (accounting for ASCII mode differences) */
     if (g_processor.outputPtr ==
-        (g_processor.outputBuffer.data() + OBUFSZ + ascii - 1))
+        (g_processor.outputBuffer + OBUFSZ + ascii - 1))
         flusho();
 }
 
@@ -331,7 +331,7 @@ oput(int i) {
  * Parameters:
  *   i - Pointer to NUL-terminated string
  */
-static void
+void
 oputs(const char *i) {
     while (*i != '\0')
         oput(*i++);
@@ -344,7 +344,7 @@ oputs(const char *i) {
  * opening the device if necessary. Handles error conditions
  * gracefully and maintains buffer consistency.
  */
-static void
+void
 flusho(void) {
     ssize_t bytes_written;
 
@@ -363,9 +363,9 @@ flusho(void) {
 
     /* Write buffer to device unless output is disabled */
     if (no_out == 0) {
-        bytes_written = write(ptid, g_processor.outputBuffer.data(),
+        bytes_written = write(ptid, g_processor.outputBuffer,
                               (size_t)(g_processor.outputPtr -
-                                       g_processor.outputBuffer.data()));
+                                       g_processor.outputBuffer));
         if (bytes_written < 0) {
             toolate = -1; /* Mark write error */
         } else {
@@ -374,7 +374,7 @@ flusho(void) {
     }
 
     /* Reset buffer pointer */
-    g_processor.outputPtr = g_processor.outputBuffer.data();
+    g_processor.outputPtr = g_processor.outputBuffer;
 }
 
 /*
@@ -412,7 +412,7 @@ int done(int x) {
     /* Reset state variables safely */
     mflg = 0;
     if (dip)
-        dip = reinterpret_cast<struct env *>(&d[0]);
+        dip = (struct env *)(&d[0]);
 
     /* Handle word breaks and pending operations */
     if (woff)
@@ -601,7 +601,7 @@ report(void) {
  * This function forks a child process and sets up pipes for communication.
  * Includes comprehensive error handling and resource cleanup.
  */
-static void
+void
 casepi(void) {
     register int i;
     int id[2]; /* Pipe file descriptors */

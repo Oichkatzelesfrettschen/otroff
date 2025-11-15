@@ -18,11 +18,11 @@
  * @version Enhanced C90 compliant version
  */
 
-#include "tdef.h" // updated header extension
+#include "tdef.h" /* updated header extension */
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <cctype>
+#include <ctype.h>
 
 /* ================================================================
  * FORWARD DECLARATIONS - C90 FUNCTION PROTOTYPES
@@ -554,7 +554,7 @@ again:
 int chkvow(int *w) {
     while (--w >= wdstart) {
         if (vowel(*w & CMASK)) {
-            return ((int)w - wdstart);
+            return (w - wdstart);
         }
     }
     return 0;
@@ -594,7 +594,7 @@ char *getsuf(char *x) {
  * the compressed suffix data.
  */
 unsigned char rdsufb(char *i) {
-    return suftab_get_byte(reinterpret_cast<size_t>(i));
+    return suftab_get_byte((size_t)(i));
 }
 
 /**

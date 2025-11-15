@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
         }
 
         /* Convert paper usage from square inches to feet */
-        usage = static_cast<float>(acct_record[0]) / INCHES_TO_FEET;
+        usage = (float)(acct_record[0]) / INCHES_TO_FEET;
         paper[uid] += usage;
         total += usage;
         last_uid = uid;

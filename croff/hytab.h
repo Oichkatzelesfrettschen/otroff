@@ -1,210 +1,174 @@
 /*
- * hytab.cpp - Hyphenation Tables Implementation
+ * hytab.h - Hyphenation Tables Interface (Pure C17)
+ *
+ * Provides access to hyphenation digram tables for nroff/troff
+ * Converted from C++ to pure C17
  */
 
-/* C17 - no scaffold needed */ // Modern C++23 enforcement
-#include "hytab.h"
-/* algorithm not needed in C */
-#include <numeric>
-#include <ranges>
+#ifndef HYTAB_H
+#define HYTAB_H
 
+#include <stddef.h>
+#include <stdint.h>
 
-HyphenWeight HyphenationTables::evaluate_position(
-    std::string_view word,
-    std::size_t position,
-    bool at_beginning,
-    bool at_ending,
-    bool has_context) const noexcept {
-    if (position == 0 || position >= word.length()) {
-        return static_cast<HyphenWeight>(0);
-    }
+/*
+ * Table size constants
+ */
+#define BXH_SIZE 13        /* Beginning + character table size */
+#define MATRIX_SIZE 676    /* 26x26 character matrix (ALPHABET_SIZE^2) */
+#define ALPHABET_SIZE 26   /* English alphabet size */
 
-    const char left_char = word[position - 1];
-    const char right_char = word[position];
+/*
+ * Hyphenation weight type
+ * Signed 8-bit value representing hyphenation probability
+ * Positive values encourage hyphenation, negative discourage
+ */
+typedef int8_t hyphen_weight_t;
 
-    HyphenWeight total_weight{0};
+/*
+ * Hyphenation table declarations
+ * These are defined in hytab.c
+ */
+extern char bxh[BXH_SIZE];       /* Beginning + character sequences */
+extern char hxx[MATRIX_SIZE];    /* General character pairs */
+extern char bxxh[MATRIX_SIZE];   /* Character + end sequences */
+extern char xhx[MATRIX_SIZE];    /* Mixed sequences with context */
+extern char xxh[MATRIX_SIZE];    /* Fallback character + end */
 
-    // Primary digram weight
-    if (const auto weight = digram_weight(left_char, right_char)) {
-        total_weight = total_weight + *weight;
-    }
+/*
+ * Table access helper macros
+ * Convert character pairs to table indices
+ */
+#define HXX_INDEX(first, second)  ((first) * ALPHABET_SIZE + (second))
+#define BXXH_INDEX(first, second) ((first) * ALPHABET_SIZE + (second))
+#define XHX_INDEX(first, second)  ((first) * ALPHABET_SIZE + (second))
+#define XXH_INDEX(first, second)  ((first) * ALPHABET_SIZE + (second))
 
-    // Beginning context
-    if (at_beginning && position == 1) {
-        if (const auto weight = beginning_weight(right_char)) {
-            total_weight = total_weight + *weight;
-        }
-    }
-
-    // Ending context
-    if (at_ending) {
-        if (const auto weight = ending_weight(left_char, right_char)) {
-            total_weight = total_weight + *weight;
-        }
-    }
-
-    // Mixed context (existing hyphens nearby)
-    if (has_context) {
-        if (const auto weight = context_weight(left_char, right_char)) {
-            total_weight = total_weight + *weight;
-        }
-    }
-
-    // Fallback for uncertain cases
-    if (total_weight == static_cast<HyphenWeight>(0)) {
-        if (const auto weight = fallback_weight(left_char, right_char)) {
-            total_weight = *weight;
-        }
-    }
-
-    return total_weight;
+/*
+ * Character to index conversion (a=0, b=1, ..., z=25)
+ * Returns -1 for non-alphabetic characters
+ */
+static inline int char_to_index(char c) {
+    if (c >= 'a' && c <= 'z') return c - 'a';
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    return -1;
 }
 
-const bool HyphenationTables::validate_tables() const noexcept {
-    // Validate table sizes are correct
-    static_assert(beginning_table_.size() == BXH_SIZE);
-    static_assert(general_table_.size() == MATRIX_SIZE);
-    static_assert(ending_table_.size() == MATRIX_SIZE);
-    static_assert(context_table_.size() == MATRIX_SIZE);
-    static_assert(fallback_table_.size() == MATRIX_SIZE);
+/*
+ * Macro version for compatibility
+ */
+#define CHAR_TO_INDEX(c) char_to_index(c)
 
-    // Additional runtime validation could go here
-    return true;
-}
+/*
+ * Hyphenation API functions
+ */
 
-HyphenationTables::TableStats HyphenationTables::get_statistics() const noexcept {
-    TableStats stats{};
-
-    auto analyze_table = [&stats](const auto &table) {
-        for (const auto weight : table) {
-            const auto value = static_cast<std::int8_t>(weight);
-            if (value != 0) {
-                ++stats.non_zero_entries;
-            }
-            if (value < 0) {
-                ++stats.negative_entries;
-            }
-
-            if (weight > stats.max_weight) {
-                stats.max_weight = weight;
-            }
-            if (weight < stats.min_weight) {
-                stats.min_weight = weight;
-            }
-        }
-    };
-
-    analyze_table(beginning_table_);
-    analyze_table(general_table_);
-    analyze_table(ending_table_);
-    analyze_table(context_table_);
-    analyze_table(fallback_table_);
-
-    return stats;
-}
-
-HyphenationEngine::HyphenationResult
-HyphenationEngine::hyphenate(std::string_view word) const {
-    HyphenationResult result;
-
-    if (word.length() < min_word_length_) {
-        return result;
-    }
-
-    // Don't hyphenate too close to word boundaries
-    const std::size_t start_pos = 2;
-    const std::size_t end_pos = word.length() - 2;
-
-    for (std::size_t pos = start_pos; pos < end_pos; ++pos) {
-        if (!is_valid_hyphen_position(word, pos)) {
-            continue;
-        }
-
-        const auto weight = calculate_position_weight(word, pos);
-
-        if (weight > threshold_) {
-            result.emplace_back(HyphenationPoint{
-                .position = pos,
-                .confidence = weight,
-                .prefix = word.substr(0, pos),
-                .suffix = word.substr(pos)});
-        }
-    }
-
-    // Sort by confidence (highest first)
-    std::ranges::sort(result, [](const auto &a, const auto &b) {
-        return a.confidence > b.confidence;
-    });
-
-    return result;
-}
-
-std::optional<HyphenationEngine::HyphenationPoint>
-HyphenationEngine::best_hyphenation(std::string_view word) const {
-    const auto candidates = hyphenate(word);
-    return candidates.empty() ? std::nullopt : std::optional{candidates.front()};
-}
-
-bool HyphenationEngine::should_hyphenate_at(
-    std::string_view word,
-    std::size_t position,
-    HyphenWeight threshold) const noexcept {
-    if (!is_valid_hyphen_position(word, position)) {
-        return false;
-    }
-
-    const auto weight = calculate_position_weight(word, position);
-    return weight > threshold;
-}
-
-bool HyphenationEngine::is_valid_hyphen_position(
-    std::string_view word,
-    std::size_t position) const noexcept {
-    // Basic validity checks
-    if (position == 0 || position >= word.length()) {
-        return false;
-    }
-
-    // Don't hyphenate too close to boundaries
-    if (position < 2 || position > word.length() - 2) {
-        return false;
-    }
-
-    // Both characters must be alphabetic
-    const auto left_idx = char_to_index(word[position - 1]);
-    const auto right_idx = char_to_index(word[position]);
-
-    return left_idx && right_idx;
-}
-
-HyphenWeight HyphenationEngine::calculate_position_weight(
-    std::string_view word,
-    std::size_t position) const noexcept {
-    const bool at_beginning = (position <= 2);
-    const bool at_ending = (position >= word.length() - 2);
-
-    // Check for existing hyphens nearby (context)
-    const bool has_context = std::ranges::any_of(
-        word | std::views::take(position),
-        [](char c) { return c == '-'; });
-
-    return tables_.evaluate_position(word, position, at_beginning, at_ending, has_context);
-}
-
-// Legacy C interface implementation using plain C++ functions
-extern "C" {
-int hytab_get_weight(char first, char second) {
-    const auto weight = default_tables.digram_weight(first, second);
-    return weight ? ((int)*weight) : 0;
-}
-
-int hytab_should_hyphenate(const char *word, int position) {
-    if (word == NULL || position < 0) {
+/**
+ * Get hyphenation weight for a digram (two-character sequence)
+ * @param first First character index (0-25)
+ * @param second Second character index (0-25)
+ * @return Hyphenation weight, or 0 if indices invalid
+ */
+static inline hyphen_weight_t get_digram_weight(int first, int second) {
+    if (first < 0 || first >= ALPHABET_SIZE ||
+        second < 0 || second >= ALPHABET_SIZE) {
         return 0;
     }
-
-    HyphenationEngine engine{default_tables};
-    return engine.should_hyphenate_at(word, static_cast<std::size_t>(position)) ? 1 : 0;
+    return (hyphen_weight_t)hxx[HXX_INDEX(first, second)];
 }
-} // extern "C"
 
+/**
+ * Get beginning context weight
+ * @param char_idx Character index (0-12, limited to BXH_SIZE)
+ * @return Hyphenation weight for word-beginning context
+ */
+static inline hyphen_weight_t get_beginning_weight(int char_idx) {
+    if (char_idx < 0 || char_idx >= BXH_SIZE) {
+        return 0;
+    }
+    return (hyphen_weight_t)bxh[char_idx];
+}
+
+/**
+ * Get ending context weight
+ * @param first First character index
+ * @param second Second character index
+ * @return Hyphenation weight for word-ending context
+ */
+static inline hyphen_weight_t get_ending_weight(int first, int second) {
+    if (first < 0 || first >= ALPHABET_SIZE ||
+        second < 0 || second >= ALPHABET_SIZE) {
+        return 0;
+    }
+    return (hyphen_weight_t)bxxh[BXXH_INDEX(first, second)];
+}
+
+/**
+ * Get mixed context weight (with existing hyphens nearby)
+ * @param first First character index
+ * @param second Second character index
+ * @return Hyphenation weight with context
+ */
+static inline hyphen_weight_t get_context_weight(int first, int second) {
+    if (first < 0 || first >= ALPHABET_SIZE ||
+        second < 0 || second >= ALPHABET_SIZE) {
+        return 0;
+    }
+    return (hyphen_weight_t)xhx[XHX_INDEX(first, second)];
+}
+
+/**
+ * Get fallback weight
+ * @param first First character index
+ * @param second Second character index
+ * @return Fallback hyphenation weight
+ */
+static inline hyphen_weight_t get_fallback_weight(int first, int second) {
+    if (first < 0 || first >= ALPHABET_SIZE ||
+        second < 0 || second >= ALPHABET_SIZE) {
+        return 0;
+    }
+    return (hyphen_weight_t)xxh[XXH_INDEX(first, second)];
+}
+
+/**
+ * Calculate hyphenation weight for a position in a word
+ * @param word Pointer to word string
+ * @param word_len Length of word
+ * @param position Position to evaluate (0-based)
+ * @param at_beginning True if near word start
+ * @param at_ending True if near word end
+ * @param has_context True if other hyphens exist nearby
+ * @return Total hyphenation weight for this position
+ */
+hyphen_weight_t calculate_hyphen_weight(
+    const char *word,
+    size_t word_len,
+    size_t position,
+    int at_beginning,
+    int at_ending,
+    int has_context
+);
+
+/**
+ * Determine if hyphenation should occur at a position
+ * @param word Pointer to word string
+ * @param word_len Length of word
+ * @param position Position to evaluate
+ * @param threshold Minimum weight required for hyphenation
+ * @return 1 if should hyphenate, 0 otherwise
+ */
+int should_hyphenate_at(
+    const char *word,
+    size_t word_len,
+    size_t position,
+    hyphen_weight_t threshold
+);
+
+/**
+ * Legacy C interface for compatibility
+ * Returns hyphenation weight for a two-character sequence
+ */
+int hytab_get_weight(char first, char second);
+
+#endif /* HYTAB_H */

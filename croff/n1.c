@@ -68,7 +68,7 @@
 #include <stdio.h> /* C90: standard I/O functions */
 #include <stdlib.h> /* C90: exit, malloc, etc. */
 #include <string.h> /* C90: string manipulation functions */
-#include <ctime> /* C90: time and date functions */
+#include <time.h> /* C90: time and date functions */
 #include <signal.h> /* C90: signal handling */
 #include <unistd.h> /* POSIX: read, write, open, close */
 #include <fcntl.h> /* POSIX: open flags */
@@ -616,8 +616,8 @@ void init2(void) {
 
     /* Set up initial buffer pointers */
     olinep = oline;
-    g_processor.inputPtr = g_processor.inputBuffer.data();
-    g_processor.endInput = g_processor.inputBuffer.data();
+    g_processor.inputPtr = g_processor.inputBuffer;
+    g_processor.endInput = g_processor.inputBuffer;
 
     /* Initialize position and state variables */
     v.hp = ioff = init = 0;
@@ -677,7 +677,7 @@ int cnum(char *a) {
     register int i;
 
     g_processor.inputPtr = a;
-    g_processor.endInput = reinterpret_cast<char *>(-1);
+    g_processor.endInput = (char *)(-1);
     i = tatoi();
     ch = 0;
     return (i);
@@ -1063,10 +1063,10 @@ again:
             }
         g1:
             nx = 0;
-            if ((j = read(ifile, g_processor.inputBuffer.data(), IBUFSZ)) <= 0)
+            if ((j = read(ifile, g_processor.inputBuffer, IBUFSZ)) <= 0)
                 goto g0;
-            g_processor.inputPtr = g_processor.inputBuffer.data();
-            g_processor.endInput = g_processor.inputBuffer.data() + j;
+            g_processor.inputPtr = g_processor.inputBuffer;
+            g_processor.endInput = g_processor.inputBuffer + j;
             if (ip)
                 goto again;
         }
@@ -1159,8 +1159,8 @@ int popf(void) {
     ioff = offl[--ifi];
     ip = ipl[ifi];
     if ((ifile = ifl[ifi]) == 0) {
-        p = g_processor.extraBuffer.data();
-        q = g_processor.inputBuffer.data();
+        p = g_processor.extraBuffer;
+        q = g_processor.inputBuffer;
         g_processor.inputPtr = g_processor.extraPtr;
         g_processor.endInput = g_processor.endExtra;
         while (q < g_processor.endInput)
@@ -1168,12 +1168,12 @@ int popf(void) {
         return (0);
     }
     if ((seek(ifile, ioff & ~(IBUFSZ - 1), 0) < 0) ||
-        ((i = read(ifile, g_processor.inputBuffer.data(), IBUFSZ)) < 0))
+        ((i = read(ifile, g_processor.inputBuffer, IBUFSZ)) < 0))
         return (1);
-    g_processor.endInput = g_processor.inputBuffer.data() + i;
-    g_processor.inputPtr = g_processor.inputBuffer.data();
+    g_processor.endInput = g_processor.inputBuffer + i;
+    g_processor.inputPtr = g_processor.inputBuffer;
     if (ttyn(ifile) == 'x')
-        if ((g_processor.inputPtr = g_processor.inputBuffer.data() +
+        if ((g_processor.inputPtr = g_processor.inputBuffer +
                                     (ioff & (IBUFSZ - 1))) >=
             g_processor.endInput)
             return (1);
@@ -1330,8 +1330,8 @@ void caseso(void) {
     nx++;
     nflush++;
     if (!ifl[ifi++]) {
-        p = g_processor.inputBuffer.data();
-        q = g_processor.extraBuffer.data();
+        p = g_processor.inputBuffer;
+        q = g_processor.extraBuffer;
         g_processor.extraPtr = g_processor.inputPtr;
         g_processor.endExtra = g_processor.endInput;
         while (p < g_processor.endInput)
@@ -1362,7 +1362,7 @@ void getpn(char *a) {
         return;
     neg = 0;
     g_processor.inputPtr = a;
-    g_processor.endInput = reinterpret_cast<char *>(-1);
+    g_processor.endInput = (char *)(-1);
     noscale++;
     while ((i = getch() & CMASK) != 0)
         switch (i) {

@@ -176,7 +176,7 @@ void ptinit(void) {
      * However, if &t.zzz and &t.bset are char** and point to the start/end
      * of an array of char* members, this calculates the byte size of that array.
      */
-    qsize = reinterpret_cast<char *>(&t.zzz) - reinterpret_cast<char *>(&t.bset); /* Size of the pointer region in t */
+    qsize = (char *)(&t.zzz) - (char *)(&t.bset); /* Size of the pointer region in t */
 
     /* The original code had `qsize = 2 * (&t.zzz - &t.bset);`.
      * If t.zzz and t.bset are of type `char **`, then `&t.zzz - &t.bset` would
@@ -201,7 +201,7 @@ void ptinit(void) {
                                      */
 
     /* Allocate memory for terminal control strings. setbrk is likely sbrk or similar. */
-    if ((q = setbrk(qsize)) == reinterpret_cast<char *>(-1L)) { /* Check for allocation failure */
+    if ((q = setbrk(qsize)) == (char *)(-1L)) { /* Check for allocation failure */
         prstr("Cannot allocate memory for termtab strings\n");
         close(i);
         exit(-1);
@@ -231,14 +231,14 @@ void ptinit(void) {
     offset = q - t.twinit; /* Calculate base offset for relocation, assuming t.twinit is char* */
     for (p = (char **)&t.twinit; p < (char **)&t.zzz; p++) {
         if (*p) { /* If the member (offset) is non-zero */
-            *p = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(*p) + offset); /* Adjust to be an absolute pointer */
+            *p = (char *)((uintptr_t)(*p) + offset); /* Adjust to be an absolute pointer */
         } else {
             /* If original offset was 0, point it to a safe default (e.g., end of t strings or an empty string)
              * Original code pointed to &t.zzz, which is unusual. A pointer to an empty string "" might be safer.
              * For now, preserving original logic: make it point to the address of t.zzz itself.
              * This is likely meant to be a sentinel or an effectively null string pointer.
              */
-            *p = reinterpret_cast<char *>(&t.zzz);
+            *p = (char *)(&t.zzz);
         }
     }
 
@@ -271,7 +271,7 @@ void ptinit(void) {
  * Restores terminal settings and cleans up before exiting.
  */
 void twdone(void) {
-    g_processor.outputPtr = g_processor.outputBuffer.data(); /* Reset buffer pointer */
+    g_processor.outputPtr = g_processor.outputBuffer; /* Reset buffer pointer */
     oputs(t.twrest); /* Output terminal restoration string */
     flusho(); /* Flush any remaining output */
 
@@ -647,5 +647,5 @@ void dostop(void) {
      * This is unusual; typically, one would read from stdin (fd 0) or the controlling terminal.
      * Reading from stderr might be intentional if stdin/stdout are redirected.
      */
-    read(2, reinterpret_cast<char *>(&junk), 1); /* Read 1 byte into junk's memory location */
+    read(2, (char *)(&junk), 1); /* Read 1 byte into junk's memory location */
 }
